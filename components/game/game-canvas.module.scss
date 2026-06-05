@@ -1,0 +1,10 @@
+@use "@/styles/spacing" as *;
+
+.canvas {
+  width: 100%;
+  max-width: 960px;
+  aspect-ratio: 16 / 9;
+  margin: 0 auto;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+}

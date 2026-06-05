@@ -1,0 +1,35 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/z-index" as *;
+@use "@/styles/media-mixins" as *;
+
+.navbar {
+  position: sticky;
+  top: 0;
+  inset-inline: 0;
+  z-index: $z-index-navbar;
+  background: alpha($color-bg, 72%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid $color-border;
+}
+
+.inner {
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: $spacing-12 $container-padding;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-16;
+
+  @include mobile {
+    padding: $spacing-12 $container-padding-mobile;
+  }
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: $spacing-12;
+}

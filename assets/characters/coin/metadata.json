@@ -1,0 +1,59 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "a4c9a1c2-42b3-41b1-a814-34ce623fd7fe",
+        "name": "Cute cartoon mascot: a shiny",
+        "prompt": "Cute cartoon mascot: a shiny gold Bitcoin coin with the \u20bf symbol on its body, a happy face, little arms and legs, white running sneakers, energetic, kawaii. Flat colors with light shading, bold clean black outline, bright and readable.",
+        "size": {
+          "width": 112,
+          "height": 112
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-06-05T02:25:38.595061+00:00"
+      },
+      "folder": "Cute_cartoon_mascot_a_shiny",
+      "frames": {
+        "rotations": {
+          "south": "Cute_cartoon_mascot_a_shiny/rotations/south.png",
+          "south-east": "Cute_cartoon_mascot_a_shiny/rotations/south-east.png",
+          "east": "Cute_cartoon_mascot_a_shiny/rotations/east.png",
+          "north-east": "Cute_cartoon_mascot_a_shiny/rotations/north-east.png",
+          "north": "Cute_cartoon_mascot_a_shiny/rotations/north.png",
+          "north-west": "Cute_cartoon_mascot_a_shiny/rotations/north-west.png",
+          "west": "Cute_cartoon_mascot_a_shiny/rotations/west.png",
+          "south-west": "Cute_cartoon_mascot_a_shiny/rotations/south-west.png"
+        },
+        "animations": {
+          "Running-4c6147a5": {
+            "south": [
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/south/frame_000.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/south/frame_001.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/south/frame_002.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/south/frame_003.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/south/frame_004.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/south/frame_005.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/south/frame_006.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/south/frame_007.png"
+            ],
+            "north": [
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/north/frame_000.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/north/frame_001.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/north/frame_002.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/north/frame_003.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/north/frame_004.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/north/frame_005.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/north/frame_006.png",
+              "Cute_cartoon_mascot_a_shiny/animations/Running-4c6147a5/north/frame_007.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-06-05T02:41:12.974792"
+}

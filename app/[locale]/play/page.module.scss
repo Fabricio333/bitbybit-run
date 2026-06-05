@@ -1,0 +1,47 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.page {
+  min-height: calc(100vh - 66px);
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-16;
+}
+
+.bar {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: $spacing-16;
+}
+
+.phase {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+// Vertically centers the game (canvas + controls) in the space below the navbar.
+.stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gameWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-12;
+  width: 100%;
+}
+
+.controls {
+  margin: 0;
+  text-align: center;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}

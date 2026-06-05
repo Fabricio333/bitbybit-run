@@ -1,0 +1,48 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+.env.test
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.idea
+.vscode
+
+# Claude Code local settings + worktrees
+/.claude/
+
+# Raw PixelLab exports pasted in the project root. Curated frames live in
+# assets/characters/<id>/ and the assembled sheets in public/sprites/*.png.
+/Cartoon_*/
+/Cute_*/
+

@@ -1,0 +1,135 @@
+{
+  "metadata": {
+    "siteName": "Bit by Bit Run",
+    "siteTitle": "Bit by Bit Run — race, eat, sprint, win sats",
+    "description": "A free, lightweight, web-based multiplayer runner race. Grab the good food to sprint, dodge the junk, and be first to the finish line.",
+    "skipToContent": "Skip to content"
+  },
+  "nav": {
+    "login": "Login",
+    "back": "Back to home",
+    "toEnglish": "Switch to English",
+    "toSpanish": "Switch to Spanish"
+  },
+  "landing": {
+    "title": "Bit by Bit Run",
+    "subtitle": "Race down the track. Grab the good food to sprint, dodge the junk or you'll be sent back to the start. First to the finish wins.",
+    "play": "Play",
+    "howToPlay": "How to play"
+  },
+  "play": {
+    "phase": "Phase 1 · single-player prototype",
+    "choose": "Choose your runner",
+    "start": "Start",
+    "change": "Change runner",
+    "controls": {
+      "changeLane": "change lane",
+      "sprint": "sprint",
+      "brake": "brake",
+      "restart": "restart"
+    }
+  },
+  "theme": {
+    "toLight": "Switch to light mode",
+    "toDark": "Switch to dark mode"
+  },
+  "footer": {
+    "ariaLabel": "Footer links",
+    "howToPlay": "How to play",
+    "cursats": "BitByBit Cursats",
+    "habits": "BitByBit Habits",
+    "arena": "BitByBit Arena",
+    "github": "GitHub",
+    "githubAria": "View the source on GitHub"
+  },
+  "game": {
+    "go": "GO!",
+    "finish": "🏁 FINISH!",
+    "again": "press R to race again",
+    "goodPhrases": [
+      "yum! 😋",
+      "pure energy ⚡",
+      "like Satoshi!",
+      "HODL those legs 💪",
+      "stack snacks ⛏️",
+      "proof of snack",
+      "number go up! 📈",
+      "green fuel 🟢",
+      "tasty & decentralized",
+      "+1 sat of energy",
+      "diamond veins 💎",
+      "Satoshi tier 🚀",
+      "bullish on cardio 🐂",
+      "this is the way"
+    ],
+    "badPhrases": [
+      "ugh, bad idea 🤢",
+      "that's a dump 📉",
+      "you'll regret it",
+      "not the time 🤮",
+      "stomach rug pull 🫠",
+      "fiat for the body 🤡",
+      "ngmi with that 💀",
+      "you bought the top 📉",
+      "paper hands, paper legs",
+      "this ain't alpha 🤢",
+      "belly inflation! 🎈",
+      "fud for your gut",
+      "rekt by a snack 💀",
+      "max pain incoming"
+    ],
+    "bathrooms": [
+      "🚽 Too much beer! Off you go...",
+      "🚽 The junk got you 💩",
+      "🚽 This is a real dump 📉",
+      "🚽 Forced pit stop 😖",
+      "🚽 Come back when the block clears",
+      "🚽 Liquidated by your stomach",
+      "🚽 Intestinal capitulation",
+      "🚽 GG, to the toilet"
+    ],
+    "signs": [
+      "TAXATION IS THEFT,\nCARDIO IS FREEDOM",
+      "1 BTC = 1 BTC",
+      "HODL YOUR LEGS",
+      "RUN!\nDON'T BE A KUKA!",
+      "RUN LIKE THE STATE\nIS CHASING YOU",
+      "LESS STATE,\nMORE STRIDE",
+      "PROOF OF RUN",
+      "NOT A RUG PULL,\nKEEP GOING!",
+      "VITALIK RUNS SLOWER",
+      "ALMOST AT\nTHE HALVING",
+      "SATOSHI\nBELIEVES IN YOU",
+      "FIAT IS FOR\nTHOSE WHO WALK",
+      "DON'T STOP,\nNOT EVEN FOR THE FED",
+      "EVERY STEP IS\nONE MORE SAT",
+      "NUMBER GO UP =\nYOU RUNNING",
+      "STAY HUMBLE,\nSTACK STEPS",
+      "DOLLAR DOWN,\nYOU UP",
+      "WAGMI\nTO THE FINISH",
+      "NGMI IF YOU WALK",
+      "RUN NOW,\nCRY LATER",
+      "DIAMOND LEGS",
+      "YOUR CARDIO,\nYOUR KEYS",
+      "THE STATE WON'T\nCATCH YOU",
+      "HANG ON,\nMOON IS CLOSE",
+      "RUN DECENTRALIZED"
+    ]
+  },
+  "howToPlay": {
+    "title": "How to play",
+    "intro": "Race down the 8-lane athletics track and be the first to cross the finish line.",
+    "goalTitle": "🎯 Goal",
+    "goalText": "Reach the finish line before everyone else. Your spot when the winner finishes sets your place in the ranking.",
+    "controlsTitle": "🎮 Controls",
+    "controlsLanes": "← →  move between lanes",
+    "controlsSprint": "↑  sprint (spends energy)",
+    "controlsBrake": "↓  brake",
+    "controlsRestart": "R  restart",
+    "energyTitle": "⚡ Energy",
+    "energyText": "Grab ⚡ at the hydration stations to fill your energy bar, then spend it to sprint past your rivals. At zero energy you slow down.",
+    "poisonTitle": "🍔 Junk food",
+    "poisonText": "Dodge 🍔! It fills your poison bar — when it's full you have to run to the bathroom 🚽 and start over.",
+    "cta": "Play now ▶"
+  }
+}

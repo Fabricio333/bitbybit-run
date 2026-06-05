@@ -1,0 +1,43 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.hero {
+  min-height: calc(100vh - 66px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-24;
+  text-align: center;
+  padding: $spacing-24;
+}
+
+.heroRunner {
+  margin-bottom: $spacing-24;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-hero;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+  line-height: $line-height-tight;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 540px;
+  font-size: $font-size-subtitle;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-16;
+  justify-content: center;
+}

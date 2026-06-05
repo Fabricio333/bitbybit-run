@@ -1,0 +1,55 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: $spacing-12 $spacing-24;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-8;
+}
+
+.keys {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: $border-radius-xs;
+  border: 1px solid $color-border;
+  border-bottom-width: 2px;
+  background: $color-surface;
+  color: $color-text-primary;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  line-height: 1;
+
+  svg {
+    display: block;
+  }
+}
+
+.or {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+.label {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}

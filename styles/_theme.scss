@@ -1,0 +1,89 @@
+// Theme tokens for Bit by Bit Run.
+//
+// Same pattern as bitbybit-cursats: role tokens are CSS custom properties
+// declared per theme, and `data-theme` (set by next-themes) flips them. The
+// `_colors.scss` partial aliases these vars into SCSS variables.
+//
+// Game-object colors (energy, poison, runner, track) are physical and do NOT
+// flip between themes — they live in `:root` only and are mirrored as hex in
+// `lib/game/config.ts` for the Phaser canvas.
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  // — Brand / roles —
+  --color-primary: #e8920c; // lightning gold
+  --color-primary-hover: #b86f07;
+  --color-secondary: #16a34a; // track green
+  --focus-ring: #334155;
+
+  // — Backgrounds + surface —
+  --color-bg: #f7f7fb;
+  --color-bg-2: #eef0f6;
+  --color-surface: #ffffff;
+
+  // — Text —
+  --color-text-primary: #14213a;
+  --color-text-secondary: #5b6577;
+
+  // — Border + shadow —
+  --color-border: rgba(20 33 58 / 0.1);
+  --card-shadow: rgba(15 23 42 / 0.08);
+
+  // — Semantic feedback —
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-error: #dc2626;
+  --color-nostr: #8b5cf6;
+
+  // — Decorative semantic pair (Button danger / success surfaces) —
+  --color-accent: #ef4444;
+  --color-accent-alt: #22c55e;
+
+  // — Shadows + ceramic tints (Button / ceramic-surface mixin) —
+  --card-shadow-hover: rgba(15 23 42 / 0.14);
+  --ceramic-highlight: rgba(255 255 255 / 0.85);
+  --ceramic-highlight-soft: rgba(255 255 255 / 0.35);
+  --ceramic-inner-shadow: rgba(15 23 42 / 0.16);
+  // Gloss tints are identical across themes (no dark override).
+  --ceramic-gloss-strong: rgba(255 255 255 / 0.22);
+  --ceramic-gloss-soft: rgba(255 255 255 / 0.08);
+  --ceramic-gloss-edge: rgba(255 255 255 / 0.4);
+  --ceramic-shadow-edge: rgba(0 0 0 / 0.18);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-primary: #ffd166; // brighter gold on dark
+  --color-primary-hover: #ffba3a;
+  --color-secondary: #4ade80;
+  --focus-ring: #cbd5e1;
+
+  --color-bg: #0b1020; // matches the game canvas backdrop
+  --color-bg-2: #14213a;
+  --color-surface: #14213a;
+
+  --color-text-primary: #e6e6e6;
+  --color-text-secondary: #9aa5b1;
+
+  --color-border: rgba(255 255 255 / 0.08);
+  --card-shadow: rgba(0 0 0 / 0.3);
+
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-nostr: #a78bfa;
+}
+
+// — Game-object colors (theme-independent; keep in sync with
+//   lib/game/config.ts GAME_COLORS) —
+:root {
+  --game-runner: #ffd166;
+  --game-energy: #4ade80;
+  --game-poison: #c084fc;
+  --game-good-food: #4ade80;
+  --game-junk-food: #c084fc;
+  --game-track: #14213a;
+}

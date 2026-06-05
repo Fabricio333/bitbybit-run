@@ -1,0 +1,61 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "af91907e-2422-4581-8891-b03b46e78c28",
+        "name": "Cartoon female athlete runner, Barbie",
+        "prompt": "Cartoon female athlete runner, Barbie style. Long blonde ponytail, bright pink sports bra, pink running shorts, pink sneakers, fit, energetic, friendly. Flat colors with light shading, bold clean black outline, bright and readable.",
+        "size": {
+          "width": 124,
+          "height": 124
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-06-05T02:02:10.425652+00:00"
+      },
+      "folder": "Cartoon_female_athlete_runner_Barbie",
+      "frames": {
+        "rotations": {
+          "south": "Cartoon_female_athlete_runner_Barbie/rotations/south.png",
+          "south-east": "Cartoon_female_athlete_runner_Barbie/rotations/south-east.png",
+          "east": "Cartoon_female_athlete_runner_Barbie/rotations/east.png",
+          "north-east": "Cartoon_female_athlete_runner_Barbie/rotations/north-east.png",
+          "north": "Cartoon_female_athlete_runner_Barbie/rotations/north.png",
+          "north-west": "Cartoon_female_athlete_runner_Barbie/rotations/north-west.png",
+          "west": "Cartoon_female_athlete_runner_Barbie/rotations/west.png",
+          "south-west": "Cartoon_female_athlete_runner_Barbie/rotations/south-west.png"
+        },
+        "animations": {
+          "Running-1f32701d": {
+            "south": [
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-1f32701d/south/frame_000.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-1f32701d/south/frame_001.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-1f32701d/south/frame_002.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-1f32701d/south/frame_003.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-1f32701d/south/frame_004.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-1f32701d/south/frame_005.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-1f32701d/south/frame_006.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-1f32701d/south/frame_007.png"
+            ]
+          },
+          "Running-781814d1": {
+            "north": [
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-781814d1/north/frame_000.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-781814d1/north/frame_001.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-781814d1/north/frame_002.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-781814d1/north/frame_003.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-781814d1/north/frame_004.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-781814d1/north/frame_005.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-781814d1/north/frame_006.png",
+              "Cartoon_female_athlete_runner_Barbie/animations/Running-781814d1/north/frame_007.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-06-05T02:14:38.311754"
+}

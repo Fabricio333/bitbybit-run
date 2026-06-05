@@ -1,0 +1,59 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "5e546523-84a7-4b76-86ee-162cbd8af545",
+        "name": "Cute cartoon green T-Rex dinosaur",
+        "prompt": "Cute cartoon green T-Rex dinosaur running on two legs, athletic and friendly, big tail, tiny arms, a sporty red headband, energetic. Flat colors with light shading, bold clean black outline, bright and readable.",
+        "size": {
+          "width": 120,
+          "height": 120
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-06-05T02:02:50.558145+00:00"
+      },
+      "folder": "Cute_cartoon_green_T-Rex_dinosaur",
+      "frames": {
+        "rotations": {
+          "south": "Cute_cartoon_green_T-Rex_dinosaur/rotations/south.png",
+          "south-east": "Cute_cartoon_green_T-Rex_dinosaur/rotations/south-east.png",
+          "east": "Cute_cartoon_green_T-Rex_dinosaur/rotations/east.png",
+          "north-east": "Cute_cartoon_green_T-Rex_dinosaur/rotations/north-east.png",
+          "north": "Cute_cartoon_green_T-Rex_dinosaur/rotations/north.png",
+          "north-west": "Cute_cartoon_green_T-Rex_dinosaur/rotations/north-west.png",
+          "west": "Cute_cartoon_green_T-Rex_dinosaur/rotations/west.png",
+          "south-west": "Cute_cartoon_green_T-Rex_dinosaur/rotations/south-west.png"
+        },
+        "animations": {
+          "Running-38564a9e": {
+            "north": [
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/north/frame_000.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/north/frame_001.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/north/frame_002.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/north/frame_003.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/north/frame_004.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/north/frame_005.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/north/frame_006.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/north/frame_007.png"
+            ],
+            "south": [
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/south/frame_000.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/south/frame_001.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/south/frame_002.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/south/frame_003.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/south/frame_004.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/south/frame_005.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/south/frame_006.png",
+              "Cute_cartoon_green_T-Rex_dinosaur/animations/Running-38564a9e/south/frame_007.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-06-05T02:23:02.334585"
+}

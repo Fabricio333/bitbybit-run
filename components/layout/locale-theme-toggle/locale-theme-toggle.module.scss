@@ -1,0 +1,40 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.group {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  background: $color-surface;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: $spacing-8 $spacing-12;
+  background: transparent;
+  border: none;
+  color: $color-text-secondary;
+  cursor: pointer;
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  font-family: $font-body;
+  line-height: 1;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    color: $color-primary;
+    background: alpha($color-primary, 10%);
+  }
+
+  & + & {
+    border-left: 1px solid $color-border;
+  }
+}

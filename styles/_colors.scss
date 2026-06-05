@@ -1,0 +1,57 @@
+// Color aliases — map CSS custom properties (set in _theme.scss) to SCSS vars.
+
+// — Roles —
+$color-primary: var(--color-primary);
+$color-primary-hover: var(--color-primary-hover);
+$color-secondary: var(--color-secondary);
+$focus-ring: var(--focus-ring);
+
+// — Backgrounds + surface —
+$color-bg: var(--color-bg);
+$color-bg-2: var(--color-bg-2);
+$color-surface: var(--color-surface);
+
+// — Text —
+$color-text-primary: var(--color-text-primary);
+$color-text-secondary: var(--color-text-secondary);
+
+// — Border + shadow —
+$color-border: var(--color-border);
+$card-shadow: var(--card-shadow);
+
+// — Semantic feedback —
+$color-success: var(--color-success);
+$color-warning: var(--color-warning);
+$color-error: var(--color-error);
+$color-nostr: var(--color-nostr);
+
+// — Decorative semantic pair (Button danger / success) —
+$color-accent: var(--color-accent);
+$color-accent-alt: var(--color-accent-alt);
+
+// — Shadows + ceramic tints (Button / ceramic-surface mixin) —
+$card-shadow-hover: var(--card-shadow-hover);
+$ceramic-highlight: var(--ceramic-highlight);
+$ceramic-highlight-soft: var(--ceramic-highlight-soft);
+$ceramic-inner-shadow: var(--ceramic-inner-shadow);
+$ceramic-gloss-strong: var(--ceramic-gloss-strong);
+$ceramic-gloss-soft: var(--ceramic-gloss-soft);
+$ceramic-gloss-edge: var(--ceramic-gloss-edge);
+$ceramic-shadow-edge: var(--ceramic-shadow-edge);
+
+// — Game-object colors —
+$game-runner: var(--game-runner);
+$game-energy: var(--game-energy);
+$game-poison: var(--game-poison);
+$game-good-food: var(--game-good-food);
+$game-junk-food: var(--game-junk-food);
+
+// — Static colors (don't change with theme) —
+$static-white: #ffffff;
+$static-black: #000000;
+$static-navy: #0f0f1a;
+
+// Transparency helper — use instead of rgba() with CSS vars.
+@function alpha($color, $amount) {
+  @return color-mix(in srgb, $color $amount, transparent);
+}

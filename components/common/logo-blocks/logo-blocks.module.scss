@@ -1,0 +1,25 @@
+@use "@/styles/colors" as *;
+@use "@/styles/common-mixins" as *;
+
+.stack {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.block {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.block:nth-child(1) {
+  @include ceramic-surface($color-primary);
+}
+.block:nth-child(2) {
+  @include ceramic-surface($color-secondary);
+}
+.block:nth-child(3) {
+  @include ceramic-surface(#ffd166);
+}

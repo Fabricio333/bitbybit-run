@@ -1,0 +1,31 @@
+// South-facing run cycle: an 8-frame horizontal strip, scrolled with steps(8).
+// The sheet, frame size and full width come in via CSS variables set by the
+// <RunnerSprite> component (each character has its own frame size).
+
+.runner {
+  width: var(--rs-frame, 116px);
+  height: var(--rs-frame, 116px);
+  background-image: var(--rs-sheet);
+  background-repeat: no-repeat;
+  background-size: var(--rs-sheet-width, 928px) var(--rs-frame, 116px);
+  image-rendering: pixelated;
+  transform: scale(1.5);
+  transform-origin: center bottom;
+  animation: runner-run 0.62s steps(8) infinite;
+}
+
+@keyframes runner-run {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(-1 * var(--rs-sheet-width, 928px)) 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .runner {
+    animation: none;
+    background-position: 0 0;
+  }
+}

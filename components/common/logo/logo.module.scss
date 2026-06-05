@@ -1,0 +1,13 @@
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-12;
+  text-decoration: none;
+}
+
+.wordmark {
+  font-size: $font-size-lg;
+}

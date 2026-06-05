@@ -1,0 +1,71 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/common-mixins" as *;
+
+.page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: $spacing-48 $container-padding $spacing-64;
+}
+
+.title {
+  margin: 0 0 $spacing-12;
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+.intro {
+  margin: 0 0 $spacing-32;
+  font-size: $font-size-subtitle;
+  color: $color-text-secondary;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: $spacing-20;
+}
+
+.card {
+  @include ceramic-card;
+  padding: $spacing-24;
+}
+
+.cardTitle {
+  margin: 0 0 $spacing-8;
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.cardText {
+  margin: 0;
+  color: $color-text-secondary;
+  font-size: $font-size-body;
+  line-height: $line-height-base;
+}
+
+.controls {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+  color: $color-text-secondary;
+  font-size: $font-size-body;
+
+  li {
+    font-family: $font-family-base;
+  }
+}
+
+.cta {
+  margin-top: $spacing-32;
+  text-align: center;
+}

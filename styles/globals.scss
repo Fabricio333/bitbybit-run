@@ -1,0 +1,76 @@
+@use "theme";
+@use "colors" as *;
+@use "spacing" as *;
+@use "typography" as *;
+
+// Reset
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-body;
+  background-color: $color-bg;
+  color: $color-text-primary;
+  line-height: $line-height-base;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+// Headings
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $font-display;
+  letter-spacing: $letter-spacing-tight;
+  line-height: $line-height-heading;
+}
+
+// Links
+a {
+  color: $color-primary;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $color-primary-hover;
+  }
+}
+
+// Focus
+*:focus-visible {
+  outline: 2px solid $focus-ring;
+  outline-offset: 2px;
+}
+
+// Skip link
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: $spacing-16;
+  padding: $spacing-8 $spacing-16;
+  background: $color-primary;
+  color: $static-white;
+  border-radius: $border-radius-sm;
+  z-index: 10000;
+  font-weight: $font-weight-semibold;
+
+  &:focus {
+    top: $spacing-8;
+  }
+}
