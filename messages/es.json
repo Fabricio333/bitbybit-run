@@ -22,6 +22,8 @@
     "choose": "Elegí tu corredor",
     "start": "Empezar",
     "change": "Cambiar corredor",
+    "soundOn": "Activar sonido",
+    "soundOff": "Silenciar",
     "controls": {
       "changeLane": "cambiar carril",
       "sprint": "acelerar",

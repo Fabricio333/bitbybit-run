@@ -22,6 +22,8 @@
     "choose": "Choose your runner",
     "start": "Start",
     "change": "Change runner",
+    "soundOn": "Turn sound on",
+    "soundOff": "Mute",
     "controls": {
       "changeLane": "change lane",
       "sprint": "sprint",

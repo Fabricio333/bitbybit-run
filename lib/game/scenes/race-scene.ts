@@ -14,6 +14,7 @@ import {
 } from "../config";
 import { TRACK, SIGNS, type FoodItem } from "../track";
 import { FOODS } from "../foods";
+import { Sound } from "../sound";
 
 /**
  * RaceScene — Phase 1, single-player.
@@ -299,7 +300,10 @@ export class RaceScene extends Phaser.Scene {
       // "On your marks" — hold at the start so the start line + lane numbers
       // are visible before the runner takes off.
       this.startHold -= dt;
-      if (this.startHold <= 0) this.showToast(this.strings.go, 0.7);
+      if (this.startHold <= 0) {
+        this.showToast(this.strings.go, 0.7);
+        Sound.go();
+      }
     } else {
       this.handleInput();
       this.updateMovement(dt);
@@ -330,8 +334,14 @@ export class RaceScene extends Phaser.Scene {
       Phaser.Input.Keyboard.JustDown(this.cursors.right) ||
       Phaser.Input.Keyboard.JustDown(this.keys.D);
 
-    if (leftDown) this.targetLane = Math.max(0, this.targetLane - 1);
-    if (rightDown) this.targetLane = Math.min(LANES - 1, this.targetLane + 1);
+    if (leftDown) {
+      this.targetLane = Math.max(0, this.targetLane - 1);
+      Sound.lane();
+    }
+    if (rightDown) {
+      this.targetLane = Math.min(LANES - 1, this.targetLane + 1);
+      Sound.lane();
+    }
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.R)) this.resetRace();
   }
@@ -377,13 +387,19 @@ export class RaceScene extends Phaser.Scene {
           `${def.icon} ${this.pick(this.strings.goodPhrases)}`,
           2.5
         );
+        Sound.eatGood();
       } else {
         this.poison = Math.min(POISON.max, this.poison + def.poison);
         this.showToast(
           `${def.icon} ${this.pick(this.strings.badPhrases)}`,
           2.5
         );
-        if (def.id === "beer") this.drunkTimer = 1.8; // wobble!
+        if (def.id === "beer") {
+          this.drunkTimer = 1.8; // wobble!
+          Sound.drunk();
+        } else {
+          Sound.eatJunk();
+        }
       }
     }
   }
@@ -397,8 +413,9 @@ export class RaceScene extends Phaser.Scene {
       this.playerDistance = 0;
       this.energy = ENERGY.start;
       this.resolved.clear();
-      this.startHold = 1.0;
-      this.showToast(this.pick(this.strings.bathrooms), 1.0);
+      this.startHold = 1.7;
+      this.showToast(this.pick(this.strings.bathrooms), 1.7);
+      Sound.bathroom();
       return;
     }
     this.poison = Math.max(0, this.poison - POISON.decayPerSecond * dt);
@@ -408,6 +425,7 @@ export class RaceScene extends Phaser.Scene {
     if (this.playerDistance >= TRACK.length) {
       this.finished = true;
       this.points += POINTS.finishBonus;
+      Sound.finish();
       this.showToast(
         `${this.strings.finish}\n${this.elapsed.toFixed(1)}s   ${this.points} pts\n${this.strings.again}`,
         9999

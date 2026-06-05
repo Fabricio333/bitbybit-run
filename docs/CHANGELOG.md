@@ -8,6 +8,11 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **Sound effects** — synthesized with the Web Audio API (zero assets, zero
+  bytes): GO, eat good/junk, lane-change tick, a deliberately annoying **bathroom
+  alarm** (dissonant detuned saws + LFO tremolo + noise splat + deflate), a
+  **drunk beer wobble** (vibrato LFO), and a **finish jingle with reverb**
+  (ConvolverNode). `lib/game/sound.ts` + a 🔊 mute toggle (localStorage) on `/play`.
 - **Single-player depth & humor:**
   - The runner is now an **animated character** (swinging legs/arms, bob) instead
     of a circle, with a bathroom shake and a tipsy sway after beer.
