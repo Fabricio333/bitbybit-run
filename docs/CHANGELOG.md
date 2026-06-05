@@ -8,6 +8,12 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **Nostr login (Phase 2)** — ported the full sign-in system from
+  `bitbybit-cursats`: `/sign-in` with all connection methods (NIP-07 extension,
+  NIP-46 bunker/QR for Amber/nsec.app, raw nsec, create-new-identity),
+  `SignerContext`, NIP-98 auth, JWT session (`jose`), and a **Neon + Drizzle**
+  `users` table (trimmed to auth fields). Signer-aware navbar, vitest tests (55),
+  `db:migrate`. Env in `.env.example`; details in [AUTH.md](AUTH.md).
 - **Sound effects** — synthesized with the Web Audio API (zero assets, zero
   bytes): GO, eat good/junk, lane-change tick, a deliberately annoying **bathroom
   alarm** (dissonant detuned saws + LFO tremolo + noise splat + deflate), a

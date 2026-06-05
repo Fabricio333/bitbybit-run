@@ -33,3 +33,22 @@
   align-items: center;
   gap: $spacing-12;
 }
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+}
+
+.accountName {
+  max-width: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: $color-text-primary;
+
+  @include mobile {
+    display: none;
+  }
+}

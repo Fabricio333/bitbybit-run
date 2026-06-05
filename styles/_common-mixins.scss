@@ -1,5 +1,6 @@
 @use "./colors" as *;
 @use "./spacing" as *;
+@use "./typography" as *;
 @use "./media-mixins" as *;
 
 @mixin container {
@@ -50,4 +51,42 @@
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
+}
+
+// Hover lift for ceramic cards (companion to ceramic-card).
+@mixin ceramic-card-hover {
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 8px 24px $card-shadow-hover,
+      inset 0 1px 0 $ceramic-highlight,
+      inset 0 -2px 4px $ceramic-inner-shadow;
+  }
+}
+
+// Shared layout for the signer-method picker buttons (icon + stacked
+// title/subtitle on the left). Ported from bitbybit-cursats.
+@mixin method-button-layout {
+  justify-content: flex-start;
+  text-align: left;
+  gap: $spacing-12;
+  padding: $spacing-12 $spacing-16;
+}
+
+@mixin method-button-stack {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  min-width: 0;
+}
+
+@mixin method-button-title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+@mixin method-button-subtitle {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-normal;
+  opacity: 0.85;
 }

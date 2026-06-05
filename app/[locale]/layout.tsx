@@ -11,8 +11,47 @@ import { routing } from "@/i18n/routing";
 import { ThemeProvider } from "@/lib/contexts/theme-context";
 import { Navbar } from "@/components/layout/navbar/navbar";
 import { SiteFooter } from "@/components/layout/footer/site-footer";
+import { SignerProviderClient } from "@/components/auth/signer-provider-client";
+import { getSession } from "@/lib/auth";
+import { getUserByPubkey } from "@/lib/creator/users";
+import type { SessionUser } from "@/lib/contexts/signer-context";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.scss";
+
+/**
+ * Read the session from the request cookie and resolve the user row so
+ * the navbar renders the correct signed-in/out state on first paint
+ * instead of flashing the anonymous state until the client-side
+ * `/api/auth/session` fetch resolves. Best-effort: a DB hiccup falls
+ * back to a session with no user row rather than failing the layout.
+ */
+async function resolveInitialSession(): Promise<SessionUser | null> {
+  const session = await getSession();
+  if (!session) return null;
+  try {
+    const user = await getUserByPubkey(session.pubkey);
+    return {
+      pubkey: session.pubkey,
+      locale: session.locale,
+      signer_type: session.signer_type,
+      user:
+        user && user.active
+          ? {
+              id: user.id,
+              slug: user.slug,
+              display_name: user.display_name,
+            }
+          : null,
+    };
+  } catch {
+    return {
+      pubkey: session.pubkey,
+      locale: session.locale,
+      signer_type: session.signer_type,
+      user: null,
+    };
+  }
+}
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -61,6 +100,7 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
   const t = await getTranslations({ locale, namespace: "metadata" });
+  const initialSession = await resolveInitialSession();
 
   return (
     <html
@@ -71,12 +111,14 @@ export default async function LocaleLayout({
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <a href="#main" className="skip-link">
-              {t("skipToContent")}
-            </a>
-            <Navbar />
-            <main id="main">{children}</main>
-            <SiteFooter />
+            <SignerProviderClient initialSession={initialSession}>
+              <a href="#main" className="skip-link">
+                {t("skipToContent")}
+              </a>
+              <Navbar />
+              <main id="main">{children}</main>
+              <SiteFooter />
+            </SignerProviderClient>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

@@ -33,7 +33,9 @@ feel-tuning pending.
 
 **Goal:** real matches between real people, identity, and a saved ranking.
 
-- [ ] Nostr login (NIP-07 via `nostr-login`); show name + avatar
+- [x] Nostr login — full sign-in ported from cursats (NIP-07 extension, NIP-46
+      bunker/QR/Amber, nsec, create-identity) + JWT session + Neon `users` table.
+      See [AUTH.md](AUTH.md). (Needs `DATABASE_URL` + `AUTH_SECRET` to run.)
 - [ ] Lobby: publish/discover matches via kind `30078` (`t = bitbybit-run`)
 - [ ] Create match / join match; host start button + auto-start at 8/8
 - [ ] Synced countdown via `startAt` (kind `21001`)
