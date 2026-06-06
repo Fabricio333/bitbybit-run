@@ -1,0 +1,25 @@
+name: Migrate DB
+# Runs database migrations against production after code lands on main.
+on:
+  push:
+    branches: [main]
+# Never run two migrations at once, and don't cancel an in-flight one
+# (a half-applied migration is worse than waiting).
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+jobs:
+  migrate:
+    name: Apply Drizzle migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Run migrations
+        run: npm run db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
