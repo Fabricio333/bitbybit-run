@@ -1,24 +1,31 @@
 @use "@/styles/colors" as *;
 @use "@/styles/spacing" as *;
-@use "@/styles/common-mixins" as *;
 
+// Blocky arcade panel (border + hard offset shadow) to match the buttons.
 .card {
-  @include ceramic-card;
+  background: $color-surface;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-lg;
+  box-shadow: 6px 6px 0 0 $pixel-shadow;
   padding: $spacing-24;
 }
 
 .variant-default {
-  // Base card styling above
+  // Base card styling above.
 }
 
 .variant-hover {
-  @include ceramic-card-hover;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0 0 $pixel-shadow;
+  }
 }
 
 .variant-highlight {
-  border-color: alpha($color-primary, 30%);
-  box-shadow:
-    0 4px 20px alpha($color-primary, 10%),
-    inset 0 1px 0 $ceramic-highlight,
-    inset 0 -2px 4px $ceramic-inner-shadow;
+  border-color: $color-primary;
+  box-shadow: 6px 6px 0 0 $color-primary;
 }

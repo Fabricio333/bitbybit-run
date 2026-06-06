@@ -19,12 +19,12 @@
 .card {
   display: flex;
   flex-direction: column;
-  gap: $spacing-20;
+  gap: $spacing-16;
   width: 100%;
-  padding: $spacing-32;
+  padding: $spacing-24;
 
   @include mobile {
-    padding: $spacing-24 $spacing-20;
+    padding: $spacing-20 $spacing-16;
   }
 }
 
@@ -32,11 +32,12 @@
   margin: 0;
   font-family: $font-family-display;
   font-size: $font-size-xl;
-  font-weight: $font-weight-extrabold;
-  letter-spacing: $letter-spacing-tight;
+  font-weight: $font-weight-bold;
+  letter-spacing: normal;
   color: $color-text-primary;
   line-height: $line-height-tight;
   text-align: center;
+  text-shadow: 2px 2px 0 $pixel-shadow;
 }
 
 .subtitle {
