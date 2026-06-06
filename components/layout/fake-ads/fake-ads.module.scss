@@ -1,0 +1,297 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/z-index" as *;
+
+// Fake-ad margins only appear once the viewport is wide enough that the columns
+// clear the centered 1024px container without overlapping it. Below this they're
+// hidden entirely (tablet/mobile have no usable margins). 1280px leaves ~128px
+// per side; the column width is clamped to whatever the margin can spare.
+$ads-breakpoint: 1280px;
+
+.column {
+  display: none;
+  position: fixed;
+  top: calc(#{$navbar-height} + #{$spacing-24});
+  bottom: $spacing-24;
+  width: clamp(
+    100px,
+    calc((100vw - #{$container-max-width}) / 2 - #{$spacing-24}),
+    190px
+  );
+  z-index: $z-index-navbar - 20; // below the navbar, above page content
+  flex-direction: column;
+  gap: $spacing-16;
+  pointer-events: none; // the column is just a rail; ads opt back in
+
+  @media (min-width: $ads-breakpoint) {
+    display: flex;
+  }
+}
+
+.left {
+  left: $spacing-8;
+}
+
+.right {
+  right: $spacing-8;
+}
+
+// — A single spam banner — intentionally loud: thick block border + hard
+// offset shadow (the project's arcade style, dialed up).
+.ad {
+  position: relative;
+  pointer-events: auto;
+  background-color: $color-surface;
+  border: 3px solid $color-highlight;
+  border-radius: $border-radius-sm;
+  box-shadow: 4px 4px 0 $pixel-shadow;
+  overflow: hidden;
+  transition: transform 0.15s ease;
+}
+
+// Each side keeps a slight, mirrored tilt — and slides in/out from its own
+// edge. The rest tilt is baked into the keyframes so the ad never snaps when
+// an animation ends.
+.left .ad {
+  transform: rotate(-1.5deg);
+  animation: slide-in-left 0.35s ease-out;
+}
+
+.right .ad {
+  transform: rotate(1.5deg);
+  animation: slide-in-right 0.35s ease-out;
+}
+
+.left .ad:hover,
+.right .ad:hover {
+  transform: rotate(0deg) scale(1.03);
+}
+
+// Dismissing an ad: slide it off its own edge, then it's removed from the DOM.
+.left .ad.leaving {
+  pointer-events: none;
+  animation: slide-out-left 0.3s ease-in forwards;
+}
+
+.right .ad.leaving {
+  pointer-events: none;
+  animation: slide-out-right 0.3s ease-in forwards;
+}
+
+// — Variant accents (border + sticker color) —
+.warning {
+  border-color: $color-warning;
+}
+.primary {
+  border-color: $color-primary;
+}
+.secondary {
+  border-color: $color-secondary;
+}
+.nostr {
+  border-color: $color-nostr;
+}
+.error {
+  border-color: $color-error;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 1px $spacing-4;
+  font-family: $font-family-base;
+  font-size: 0.55rem;
+  font-weight: $font-weight-bold;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+  background: $color-bg-2;
+  border-bottom-right-radius: $border-radius-xs;
+}
+
+.sticker {
+  position: absolute;
+  top: $spacing-8;
+  right: -$spacing-4;
+  padding: 1px $spacing-8;
+  font-family: $font-family-display;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  color: $static-white;
+  background: $color-primary;
+  transform: rotate(12deg);
+  border-radius: $border-radius-xs;
+  box-shadow: 2px 2px 0 $pixel-shadow;
+  animation: blink 1.1s steps(1) infinite;
+}
+
+.warning .sticker {
+  background: $color-warning;
+  color: $static-navy;
+}
+.secondary .sticker {
+  background: $color-secondary;
+  color: $static-navy;
+}
+.nostr .sticker {
+  background: $color-nostr;
+}
+.error .sticker {
+  background: $color-error;
+}
+
+.close {
+  position: absolute;
+  top: $spacing-4;
+  right: $spacing-4;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  color: $color-text-secondary;
+  background: $color-bg-2;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-xs;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+
+  &:hover {
+    color: $static-white;
+    background: $color-error;
+  }
+}
+
+.link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-20 $spacing-8 $spacing-12;
+  text-align: center;
+  text-decoration: none;
+  color: $color-text-primary;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+.emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+}
+
+.cta {
+  font-family: $font-family-base;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  color: $color-primary;
+  text-decoration: underline;
+}
+
+// — Reward shown once every ad is dismissed —
+.reward {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-16 $spacing-8;
+  text-align: center;
+  background: $color-surface;
+  border: 2px dashed $color-secondary;
+  border-radius: $border-radius-sm;
+}
+
+.rewardEmoji {
+  font-size: 1.8rem;
+}
+
+.rewardTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.rewardBody {
+  font-family: $font-family-base;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-48px) rotate(-1.5deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(-1.5deg);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(48px) rotate(1.5deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(1.5deg);
+  }
+}
+
+@keyframes slide-out-left {
+  from {
+    opacity: 1;
+    transform: translateX(0) rotate(-1.5deg);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-64px) rotate(-8deg);
+  }
+}
+
+@keyframes slide-out-right {
+  from {
+    opacity: 1;
+    transform: translateX(0) rotate(1.5deg);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(64px) rotate(8deg);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+// Respect users who asked for less motion: kill the loud bits.
+@media (prefers-reduced-motion: reduce) {
+  .left .ad,
+  .right .ad,
+  .left .ad.leaving,
+  .right .ad.leaving {
+    animation: none;
+  }
+  .sticker {
+    animation: none;
+  }
+}
