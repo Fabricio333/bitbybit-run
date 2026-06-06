@@ -11,7 +11,9 @@
     "toEnglish": "Switch to English",
     "toSpanish": "Switch to Spanish",
     "signOut": "Sign out",
-    "account": "Account"
+    "account": "Account",
+    "syncProfile": "Sync profile from Nostr",
+    "syncing": "Syncing…"
   },
   "landing": {
     "title": "Bit by Bit Run",

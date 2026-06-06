@@ -41,6 +41,8 @@ async function resolveInitialSession(): Promise<SessionUser | null> {
               id: user.id,
               slug: user.slug,
               display_name: user.display_name,
+              avatar_url: user.avatar_url,
+              lud16: user.lud16,
             }
           : null,
     };

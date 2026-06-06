@@ -37,6 +37,9 @@ export interface SessionUserSummary {
   id: string;
   slug: string;
   display_name: string;
+  avatar_url: string | null;
+  /** Lightning address for zaps (kind:0 `lud16`), or null. */
+  lud16: string | null;
 }
 
 export interface SessionUser {

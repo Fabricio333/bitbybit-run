@@ -27,6 +27,7 @@ describe("db/schema users", () => {
         "bio",
         "avatar_url",
         "banner_url",
+        "lud16",
         "locale",
         "active",
         "created_at",

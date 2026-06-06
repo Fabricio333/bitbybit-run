@@ -8,6 +8,13 @@
       "when": 1780694263378,
       "tag": "0000_blue_morlun",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780785666623,
+      "tag": "0001_nappy_valeria_richards",
+      "breakpoints": true
     }
   ]
 }

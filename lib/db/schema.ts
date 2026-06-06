@@ -29,6 +29,9 @@ export const users = pgTable(
     // Wide banner image displayed behind the avatar + name + bio.
     // Seeded from kind:0 `banner` at sign-in. Null when unset.
     banner_url: text("banner_url"),
+    // Lightning address (kind:0 `lud16`) used to zap this user's race
+    // winnings. Seeded + re-synced from Nostr; null when unset.
+    lud16: varchar("lud16", { length: 255 }),
     // Default UI language for this user.
     locale: varchar("locale", { length: 2 }).notNull().default("es"),
     active: boolean("active").notNull().default(true),

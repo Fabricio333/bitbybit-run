@@ -131,6 +131,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       avatar_url: profile.picture,
       banner_url: profile.banner,
       bio: profile.about,
+      lud16: profile.lud16,
       locale: signinLocale,
     });
     await refreshUserFromKind0(pubkey, profile);

@@ -42,11 +42,14 @@ $ads-breakpoint: 1280px;
 .ad {
   position: relative;
   pointer-events: auto;
+  // Share the column height equally so the two ads fill it top to bottom.
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   background-color: $color-surface;
   border: 3px solid $color-highlight;
   border-radius: $border-radius-sm;
   box-shadow: 4px 4px 0 $pixel-shadow;
-  overflow: hidden;
   transition: transform 0.15s ease;
 }
 
@@ -108,13 +111,14 @@ $ads-breakpoint: 1280px;
   text-transform: uppercase;
   color: $color-text-secondary;
   background: $color-bg-2;
+  border-top-left-radius: $border-radius-sm;
   border-bottom-right-radius: $border-radius-xs;
 }
 
 .sticker {
   position: absolute;
-  top: $spacing-8;
-  right: -$spacing-4;
+  bottom: $spacing-8;
+  right: $spacing-4;
   padding: 1px $spacing-8;
   font-family: $font-family-display;
   font-size: $font-size-xs;
@@ -168,10 +172,13 @@ $ads-breakpoint: 1280px;
 }
 
 .link {
+  // Fill the (now full-height) ad and center the content vertically.
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-4;
+  justify-content: center;
+  gap: $spacing-8;
   padding: $spacing-20 $spacing-8 $spacing-12;
   text-align: center;
   text-decoration: none;
@@ -188,8 +195,9 @@ $ads-breakpoint: 1280px;
 }
 
 .title {
-  font-family: $font-family-display;
-  font-size: $font-size-xs;
+  // Body font — the pixel display font isn't readable this small.
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
   font-weight: $font-weight-bold;
   line-height: $line-height-tight;
 }
@@ -222,8 +230,9 @@ $ads-breakpoint: 1280px;
 }
 
 .rewardTitle {
-  font-family: $font-family-display;
+  font-family: $font-family-base;
   font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
   color: $color-text-primary;
 }
 

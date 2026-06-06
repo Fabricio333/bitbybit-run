@@ -11,12 +11,14 @@
     "toEnglish": "Cambiar a inglés",
     "toSpanish": "Cambiar a español",
     "signOut": "Cerrar sesión",
-    "account": "Cuenta"
+    "account": "Cuenta",
+    "syncProfile": "Sincronizar perfil de Nostr",
+    "syncing": "Sincronizando…"
   },
   "landing": {
     "title": "Bit by Bit Run",
     "subtitle": "Corré por la pista. Agarrá la comida buena para acelerar, esquivá la chatarra o volvés al principio. El primero en llegar gana.",
-    "tagline": "Corré, comé, ganá 🏃💨\nEl cardio nunca pagó tan bien.",
+    "tagline": "Corré, Comé, Ganá 🏃💨\nEl cardio nunca pagó tan bien.",
     "play": "Jugar",
     "howToPlay": "Cómo jugar"
   },

@@ -6,6 +6,17 @@ Dates use `YYYY-MM-DD`.
 
 ## [Unreleased]
 
+### Added (account)
+
+- **Nostr profile in the navbar**: once signed in, the Login button is replaced
+  by the user's **Nostr avatar** (kind:0 `picture`, with a 🏃 runner fallback)
+  which opens a small menu — display name, **lightning address** (`lud16`, for
+  zaps), **"Sync profile from Nostr"**, and sign out. No full settings page; the
+  sync action re-fetches kind:0 and overwrites name/avatar/lightning so the row
+  tracks Nostr. New `lud16` column on `users` (migration `0001`), persisted on
+  first login and on sync; `avatar_url` + `lud16` now travel in the session
+  (`/api/auth/session`, layout `initialSession`). New `POST /api/auth/sync-profile`.
+
 ### Changed (login + UI polish)
 
 - **Login page**: removed the "Back to home" link; method **descriptions**

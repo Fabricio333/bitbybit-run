@@ -97,6 +97,8 @@ export interface InitialUserProfile {
   avatar_url?: string;
   banner_url?: string;
   bio?: string;
+  /** Lightning address (kind:0 `lud16`) for zapping winnings. */
+  lud16?: string;
   /**
    * Default UI locale to seed on *creation* — the locale the user
    * signed in with the first time. Applied only when the row is
@@ -154,6 +156,7 @@ export async function ensureUserForPubkey(
           avatar_url: initial?.avatar_url ?? null,
           banner_url: initial?.banner_url ?? null,
           bio: initial?.bio ?? null,
+          lud16: initial?.lud16 ?? null,
           // Seed the preferred locale from the sign-in locale; the
           // column default ("es") covers callers that omit it.
           ...(initial?.locale ? { locale: initial.locale } : {}),
@@ -206,8 +209,42 @@ export function kind0RefreshPatch(
   if (isEmpty(existing.bio) && profile.about?.trim()) {
     next.bio = profile.about.trim();
   }
+  if (isEmpty(existing.lud16) && profile.lud16?.trim()) {
+    next.lud16 = profile.lud16.trim();
+  }
 
   return next;
+}
+
+/**
+ * Force-refresh a user row from kind:0 metadata — used by the manual
+ * "sync profile from Nostr" action. Unlike `kind0RefreshPatch`, this
+ * OVERWRITES name/avatar/banner/bio/lud16 with whatever Nostr currently
+ * has (Nostr is the source of truth; there's no in-app profile editor).
+ * `slug` is left untouched so the user's URL stays stable.
+ */
+export async function syncUserFromKind0(
+  pubkey: string,
+  profile: Kind0Profile
+): Promise<User | null> {
+  const existing = await getUserByPubkey(pubkey);
+  if (!existing) return null;
+
+  const kind0Name = profile.display_name?.trim() || profile.name?.trim();
+  const next: Partial<User> = { updated_at: new Date() };
+  if (kind0Name) next.display_name = kind0Name.slice(0, 80);
+  next.avatar_url = profile.picture?.trim() || null;
+  next.banner_url = profile.banner?.trim() || null;
+  next.bio = profile.about?.trim() || null;
+  next.lud16 = profile.lud16?.trim() || null;
+
+  const db = getDb();
+  const [row] = await db
+    .update(users)
+    .set(next)
+    .where(eq(users.id, existing.id))
+    .returning();
+  return row;
 }
 
 /**
