@@ -234,6 +234,8 @@
     "regionLabelRight": "Fake advertising (right)",
     "badgeAd": "Ad",
     "close": "Close ad",
+    "skipIn": "Skip ad in {seconds}s",
+    "skip": "Skip ad",
     "allClosedTitle": "You cleared the spam 🧹",
     "allClosedBody": "Thanks for not buying shitcoins 🫡",
     "gagKicker": "Gotcha!",

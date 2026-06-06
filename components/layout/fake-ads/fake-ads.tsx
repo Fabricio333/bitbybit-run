@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link, usePathname } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
 import { CloseIcon } from "@/components/icons";
 import { FAKE_ADS, type FakeAd } from "@/lib/fake-ads/ads";
 import { cn } from "@/lib/utils";
@@ -14,9 +14,6 @@ const PER_SIDE = 2;
 // slide-in durations in the stylesheet so the timing lines up.
 const OUT_MS = 300;
 const RESPAWN_DELAY = 650;
-
-/** Routes where the margins are taken by full-bleed content (the game). */
-const HIDDEN_ON = ["/play", "/demo"];
 
 type AdState = {
   left: FakeAd[];
@@ -80,7 +77,6 @@ function refill(prev: AdState, closed: Set<string>): AdState {
  */
 export function FakeAds() {
   const t = useTranslations("fakeAds");
-  const pathname = usePathname();
   const [state, setState] = useState<AdState | null>(null);
   const [leaving, setLeaving] = useState<Set<string>>(() => new Set());
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -137,8 +133,8 @@ export function FakeAds() {
     );
   }, []);
 
-  // Nothing until mounted, and never over the full-bleed game stage.
-  if (!state || HIDDEN_ON.includes(pathname)) return null;
+  // Nothing until mounted.
+  if (!state) return null;
 
   const allClosed =
     state.left.length === 0 &&
@@ -197,10 +193,53 @@ export function FakeAds() {
     </aside>
   );
 
+  // On small screens the side rails have no room, so a single ad floats fixed to
+  // the bottom of the viewport instead (the classic mobile-web sticky banner).
+  // It draws from the same pool — CSS keeps it and the columns mutually exclusive.
+  const bannerAd = state.left[0] ?? state.right[0] ?? null;
+
+  const renderBanner = (ad: FakeAd) => (
+    <aside
+      className={cn(
+        styles.banner,
+        styles[ad.variant],
+        leaving.has(ad.id) && styles.leaving
+      )}
+      aria-label={t("regionLabelLeft")}
+    >
+      <span className={styles.badge}>{t("badgeAd")}</span>
+      <span className={styles.sticker} aria-hidden="true">
+        {ad.sticker}
+      </span>
+      <button
+        type="button"
+        className={styles.close}
+        onClick={() => handleClose(ad.id)}
+        aria-label={t("close")}
+      >
+        <CloseIcon size={14} />
+      </button>
+      <Link
+        href={`/gotcha/${ad.id}`}
+        className={styles.bannerLink}
+        aria-label={t(`ads.${ad.id}.title`)}
+      >
+        <span className={styles.emoji} aria-hidden="true">
+          {ad.emoji}
+        </span>
+        <span className={styles.bannerCopy}>
+          <span className={styles.title}>{t(`ads.${ad.id}.title`)}</span>
+          <span className={styles.cta}>{t(`ads.${ad.id}.cta`)}</span>
+        </span>
+      </Link>
+    </aside>
+  );
+
   return (
     <>
       {renderColumn(state.left, "left")}
       {renderColumn(state.right, "right")}
+      {bannerAd && renderBanner(bannerAd)}
     </>
   );
 }

@@ -37,6 +37,89 @@ $ads-breakpoint: 1280px;
   right: $spacing-8;
 }
 
+// — Mobile sticky banner — below the side-rail breakpoint the columns are gone,
+// so a single ad floats pinned to the bottom edge (the classic annoying mobile
+// web banner). Hidden at/above the breakpoint where the columns take over, so
+// the two presentations never appear at once.
+.banner {
+  display: none;
+  position: fixed;
+  left: $spacing-8;
+  right: $spacing-8;
+  bottom: max(#{$spacing-8}, env(safe-area-inset-bottom));
+  z-index: $z-index-overlay - 1; // above page content, below modals/interstitial
+  align-items: center;
+  gap: $spacing-12;
+  padding: $spacing-12 $spacing-16;
+  background-color: $color-surface;
+  border: 3px solid $color-highlight;
+  border-radius: $border-radius-sm;
+  box-shadow: 4px 4px 0 $pixel-shadow;
+  animation: slide-in-up 0.35s ease-out;
+
+  @media (max-width: #{$ads-breakpoint - 1px}) {
+    display: flex;
+  }
+
+  &.leaving {
+    pointer-events: none;
+    animation: slide-out-down 0.3s ease-in forwards;
+  }
+
+  // Variant accents reuse the border/sticker rules below; the badge sits inline
+  // (not pinned) so it doesn't cover the horizontal copy.
+  .badge {
+    position: static;
+    border-radius: $border-radius-xs;
+  }
+
+  // The corner sticker would collide with the close button in a short bar — drop
+  // it on the banner and lean on the badge + loud border instead.
+  .sticker {
+    display: none;
+  }
+
+  .close {
+    position: static;
+    flex-shrink: 0;
+    order: 1; // keep the dismiss control at the trailing edge
+  }
+}
+
+.bannerLink {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: $spacing-12;
+  min-width: 0; // let the copy truncate instead of overflowing the bar
+  text-decoration: none;
+  color: $color-text-primary;
+
+  .emoji {
+    flex-shrink: 0;
+    font-size: 1.8rem;
+  }
+
+  .title,
+  .cta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+.bannerCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+}
+
 // — A single spam banner — intentionally loud: thick block border + hard
 // offset shadow (the project's arcade style, dialed up).
 .ad {
@@ -286,6 +369,28 @@ $ads-breakpoint: 1280px;
   }
 }
 
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(120%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-out-down {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(120%);
+  }
+}
+
 @keyframes blink {
   50% {
     opacity: 0.35;
@@ -297,7 +402,9 @@ $ads-breakpoint: 1280px;
   .left .ad,
   .right .ad,
   .left .ad.leaving,
-  .right .ad.leaving {
+  .right .ad.leaving,
+  .banner,
+  .banner.leaving {
     animation: none;
   }
   .sticker {
