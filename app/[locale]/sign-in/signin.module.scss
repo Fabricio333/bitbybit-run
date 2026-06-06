@@ -4,11 +4,8 @@
 @use "@/styles/common-mixins" as *;
 @use "@/styles/media-mixins" as *;
 
-// Stacks the auth card and the back link in a single column so the
-// link sits *below* the card (the centered Container is a row flex,
-// which would otherwise place the link beside the card). The fixed
-// width also pins the link's left edge to the card's bottom-left
-// corner.
+// Caps the auth card width and centers it (the centered Container is a
+// row flex, so this keeps the card from stretching full-width).
 .column {
   display: flex;
   flex-direction: column;
@@ -52,27 +49,6 @@
   color: $color-error;
   font-size: $font-size-sm;
   text-align: center;
-}
-
-// Sits below the auth card inside `.column`. The inline-flex link
-// lands at the card's bottom-left corner — matches Arena.
-.backLinkWrapper {
-  position: relative;
-  z-index: 1;
-  margin-top: $spacing-16;
-}
-
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-4;
-  color: $color-text-secondary;
-  font-size: $font-size-sm;
-  text-decoration: none;
-
-  &:hover {
-    color: $color-primary;
-  }
 }
 
 // "Have you tried the Nostr WoT Extension?" footnote rendered
@@ -132,6 +108,8 @@
 
 .createDescription {
   @include method-button-subtitle;
+  // Body font — the pixel display font isn't legible at this small size.
+  font-family: $font-body;
 }
 
 // — Create-identity modal contents —

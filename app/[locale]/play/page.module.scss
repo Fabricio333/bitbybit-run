@@ -9,20 +9,6 @@
   padding: $spacing-16;
 }
 
-.bar {
-  width: 100%;
-  max-width: 960px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: $spacing-16;
-}
-
-.phase {
-  color: $color-text-secondary;
-  font-size: $font-size-sm;
-}
-
 // Vertically centers the game (canvas + controls) in the space below the navbar.
 .stage {
   flex: 1;

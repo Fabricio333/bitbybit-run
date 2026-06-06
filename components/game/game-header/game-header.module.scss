@@ -1,27 +1,44 @@
 @use "@/styles/colors" as *;
 @use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
 
-// Arcade keycap — matches the header's back key.
-.toggle {
+.bar {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: $spacing-16;
+}
+
+.phase {
+  font-family: $font-display;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+// Pixel "back key" — arcade keycap that presses down on click.
+.backKey {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
+  color: $color-text-primary;
   background: $color-surface;
   border: 3px solid $arcade-edge;
   border-radius: $border-radius-xs;
   box-shadow: 3px 3px 0 0 $arcade-edge;
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
+  text-decoration: none;
   transition:
     transform 0.1s ease,
-    box-shadow 0.1s ease;
+    box-shadow 0.1s ease,
+    color 0.1s ease;
 
   &:hover {
     transform: translate(-2px, -2px);
     box-shadow: 5px 5px 0 0 $arcade-edge;
+    color: $color-primary;
   }
 
   &:active {
@@ -30,8 +47,13 @@
   }
 }
 
+// Sound toggle (the only button in the bar) pinned to the right.
+.bar > button {
+  margin-left: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .toggle {
+  .backKey {
     transition: none;
 
     &:hover,

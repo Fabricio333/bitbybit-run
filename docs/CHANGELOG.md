@@ -6,6 +6,22 @@ Dates use `YYYY-MM-DD`.
 
 ## [Unreleased]
 
+### Changed (login + UI polish)
+
+- **Login page**: removed the "Back to home" link; method **descriptions**
+  ("Paste your nsec directly", …) now use the body font (the pixel font wasn't
+  legible at that size).
+- **Modal** restyled to the platform arcade look: hard border + hard offset
+  block (theme-aware `--arcade-edge`), small radius, pixel display-font title.
+- **Game header** (play + demo) restyled to arcade: a pixel "back key", phase
+  label, and the sound toggle pinned right (both as arcade keycaps). The demo's
+  back key navigates to **/how-to-play**.
+- **How-to-play**: Energy title uses 🔋, Zap-the-winner uses ⚡, and the score
+  chips render their numbers in the body font (legible).
+- **Buttons** are now uppercase platform-wide. Landing tagline title-cased
+  ("Run, Eat, Win"); landing CTAs reordered to **How to play** (left) · **Play**
+  (right).
+
 ### Added
 
 - **Free demo mode** (`/demo`): single-player race with the Sprinter (no

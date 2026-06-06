@@ -1,9 +1,8 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
 import { getSession } from "@/lib/auth";
-import { BackButton } from "@/components/ui/back-button/back-button";
+import { GameHeader } from "@/components/game/game-header/game-header";
 import { PlayStage } from "@/components/game/play-stage";
-import { SoundToggle } from "@/components/game/sound-toggle";
 import styles from "./page.module.scss";
 
 type Props = {
@@ -25,11 +24,7 @@ export default async function PlayPage({ params }: Props) {
 
   return (
     <div className={styles.page}>
-      <header className={styles.bar}>
-        <BackButton />
-        <span className={styles.phase}>{t("phase")}</span>
-        <SoundToggle />
-      </header>
+      <GameHeader phase={t("phase")} />
       <div className={styles.stage}>
         <PlayStage />
       </div>

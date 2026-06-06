@@ -32,11 +32,11 @@ export default async function HomePage({ params }: Props) {
           <p className={styles.tagline}>{t("tagline")}</p>
 
           <div className={styles.actions}>
-            <Button href="/play" size="lg">
-              {t("play")} ▶
-            </Button>
             <Button href="/how-to-play" variant="outline" size="lg">
               {t("howToPlay")}
+            </Button>
+            <Button href="/play" size="lg">
+              {t("play")} ▶
             </Button>
           </div>
         </div>

@@ -50,7 +50,6 @@
 }
 
 .modal {
-  @include ceramic-card;
   position: relative;
   padding: $spacing-32;
   width: 100%;
@@ -58,17 +57,12 @@
   max-height: 85dvh;
   overflow-y: auto;
   animation: slideIn 0.25s ease;
-  border-radius: $border-radius-xl;
-  // Hairline ring sits on top of the ceramic-card border. In dark
-  // mode the existing inset highlight does the work; in light mode
-  // this is what gives the modal a visible edge against near-white
-  // page backgrounds.
-  border: 1px solid $color-border;
-  box-shadow:
-    0 24px 64px alpha($static-black, 22%),
-    0 6px 18px alpha($static-black, 14%),
-    inset 0 2px 0 $ceramic-highlight,
-    inset 0 -3px 8px $ceramic-inner-shadow;
+  background: $color-surface;
+  // Arcade panel — hard border + hard offset block, matching the buttons and
+  // cards. The edge contrasts the bg in both themes (neon-sticker on dark).
+  border: 3px solid $arcade-edge;
+  border-radius: $border-radius-xs;
+  box-shadow: 6px 6px 0 0 $arcade-edge;
 
   @include mobile {
     max-width: 100%;
@@ -102,6 +96,7 @@
 }
 
 .title {
+  font-family: $font-family-display;
   font-size: $font-size-lg;
   font-weight: $font-weight-bold;
   color: $color-text-primary;

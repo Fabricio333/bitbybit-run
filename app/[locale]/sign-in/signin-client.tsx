@@ -3,18 +3,12 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { Link, useRouter } from "@/i18n/routing";
+import { useRouter } from "@/i18n/routing";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeftIcon,
-  BoltIcon,
-  CheckIcon,
-  CopyIcon,
-  FlagIcon,
-} from "@/components/icons";
+import { BoltIcon, CheckIcon, CopyIcon, FlagIcon } from "@/components/icons";
 import { SignerMethodButtons } from "@/components/auth/signer-method-buttons";
 import { NsecSignerForm } from "@/components/auth/nsec-signer-form";
 import { NostrConnectPanel } from "@/components/auth/nostr-connect-panel";
@@ -286,13 +280,6 @@ export function SignInClient({ locale }: SignInClientProps) {
             </p>
           ) : null}
         </Card>
-
-        <div className={styles.backLinkWrapper}>
-          <Link href="/" className={styles.backLink}>
-            <ArrowLeftIcon size={16} />
-            {t("backToHome")}
-          </Link>
-        </div>
       </div>
 
       {panel === "nsec" ? (
