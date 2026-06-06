@@ -6,6 +6,18 @@ Dates use `YYYY-MM-DD`.
 
 ## [Unreleased]
 
+### Changed (design)
+
+- **Arcade overhaul**: new "Arcade Night" palette (indigo + pink/green/yellow,
+  light variant too), **Pixelify Sans** pixel display font (titles, buttons, and
+  the in-game canvas text), and **blocky arcade buttons/cards** (hard border +
+  offset shadow + press). Logo blocks/wordmark recolored.
+- **Landing** redesigned: shows all 4 characters with names + a humor tagline.
+- **Single-screen** layout (sticky footer): landing, how-to-play, play and the
+  **restyled sign-in** all fit one screen on desktop/tablet (footer included).
+- **Responsive** verified on mobile + tablet (no overflow; cards reflow to 2×2,
+  NIP-46 buttons stack).
+
 ### Added
 
 - **Nostr login (Phase 2)** — ported the full sign-in system from
