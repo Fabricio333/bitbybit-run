@@ -1,0 +1,173 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/z-index" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-index-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-16;
+  padding-top: max($spacing-16, env(safe-area-inset-top));
+  padding-bottom: max($spacing-16, env(safe-area-inset-bottom));
+  background: alpha($static-black, 60%);
+  animation: fade-in 0.15s ease;
+  height: 100vh;
+  height: 100dvh;
+}
+
+// Loud arcade ad card — thick block border + hard offset shadow, matching the
+// margin/banner ads.
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-20;
+  width: 100%;
+  max-width: 360px;
+  padding: $spacing-32 $spacing-24 $spacing-24;
+  background-color: $color-surface;
+  border: 3px solid $color-highlight;
+  border-radius: $border-radius-sm;
+  box-shadow: 6px 6px 0 $pixel-shadow;
+  text-align: center;
+  animation: pop-in 0.25s ease;
+}
+
+// — Variant accents (border) — mirror the margin-ad palette.
+.warning {
+  border-color: $color-warning;
+}
+.primary {
+  border-color: $color-primary;
+}
+.secondary {
+  border-color: $color-secondary;
+}
+.nostr {
+  border-color: $color-nostr;
+}
+.error {
+  border-color: $color-error;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 2px $spacing-8;
+  font-family: $font-family-base;
+  font-size: 0.6rem;
+  font-weight: $font-weight-bold;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+  background: $color-bg-2;
+  border-bottom-right-radius: $border-radius-xs;
+}
+
+// Fake "Skip ad in Ns" pill — looks like a real interstitial control but is
+// inert until the countdown ends.
+.countdown {
+  position: absolute;
+  top: $spacing-8;
+  right: $spacing-8;
+  padding: $spacing-4 $spacing-8;
+  font-family: $font-family-base;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  color: $color-text-secondary;
+  background: $color-bg-2;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-xs;
+  cursor: default;
+  user-select: none;
+}
+
+.skip {
+  position: absolute;
+  top: $spacing-8;
+  right: $spacing-8;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: $color-text-secondary;
+  background: $color-bg-2;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-xs;
+  cursor: pointer;
+  animation: fade-in 0.2s ease;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+
+  &:hover {
+    color: $static-white;
+    background: $color-error;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 2px;
+  }
+}
+
+.creative {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-8;
+  margin-top: $spacing-8;
+  text-decoration: none;
+  color: $color-text-primary;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+.emoji {
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .card,
+  .skip {
+    animation: none;
+  }
+}

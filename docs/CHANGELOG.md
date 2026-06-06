@@ -8,15 +8,32 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **Fake ads on mobile + every route** — the spam ads are no longer desktop-only
+  or hidden over the game. Below the `1280px` side-rail breakpoint a single ad
+  now **floats fixed to the bottom of the screen** (the classic annoying mobile
+  web banner: horizontal layout, "Ad" badge, X to close, slide-up/down
+  animations, `prefers-reduced-motion` aware), drawing from the same pool and
+  dismissal logic as the desktop columns (so they never appear at once). The
+  route exclusion was dropped, so ads also show on `/play` and `/demo` (columns
+  on desktop, banner on mobile). Files: `components/layout/fake-ads/`.
+- **Demo "watch an ad to continue" interstitial** — tapping **"Seguir jugando"**
+  after a demo race now opens a full-screen fake interstitial (random ad, loud
+  arcade card) with a bogus **"Skip ad in 5s"** countdown that gates the close
+  button; only at zero does the ✕ unlock. Dismissing it ends the round and
+  **starts a fresh race** (remounts `GameCanvas` via a bumped `runId` key).
+  Tapping the ad routes to its `/gotcha/<slug>` gag page. New `fakeAds` keys
+  `skipIn` / `skip` (es/en). Files: `components/game/interstitial-ad.tsx`,
+  `components/game/play-stage.tsx`.
+
 - **Free demo mode** (`/demo`): single-player race with the Sprinter (no
   character picker, no login). Crossing the finish line opens a modal inviting
   the player to sign in to compete for zaps (returns to `/play` after login).
   The game now surfaces a finish event to React via an `onFinish` callback
   (`createGameConfig` → registry → `RaceScene.checkFinish`).
-- **Fake margin ads (prototype)** — desktop-only "spam" banners pinned to the
-  empty page margins, rendered once from the shared `[locale]` layout so they
-  appear on every page (hidden below `1280px` and over the full-bleed game
-  stages `/play` and `/demo`). Loud arcade styling (thick block border + hard
+- **Fake margin ads (prototype)** — "spam" banners pinned to the empty desktop
+  page margins, rendered once from the shared `[locale]` layout so they appear on
+  every page (side columns at `1280px`+; see the mobile banner entry above for
+  smaller screens). Loud arcade styling (thick block border + hard
   offset shadow, rotated blinking sticker, "Ad" badge, X to close),
   `prefers-reduced-motion` aware. Closing a banner plays a **slide-out**, then
   after a short beat a fresh ad from the pool **slides in** from the same edge

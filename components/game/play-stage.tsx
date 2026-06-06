@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { GameCanvas } from "./game-canvas";
 import { GameControls } from "./game-controls";
 import { CharacterSelect } from "./character-select";
+import { InterstitialAd } from "./interstitial-ad";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button/button";
 import { getCharacter, type CharacterId } from "@/lib/game/characters";
@@ -23,11 +24,15 @@ export function PlayStage({ demo = false }: { demo?: boolean }) {
   const [selectedId, setSelectedId] = useState<CharacterId>("default");
   const [started, setStarted] = useState(demo);
   const [finish, setFinish] = useState<FinishResult | null>(null);
+  const [showAd, setShowAd] = useState(false);
+  // Bumped to remount GameCanvas (Phaser builds on mount) for a fresh round.
+  const [runId, setRunId] = useState(0);
 
   if (demo) {
     return (
       <div className={styles.wrap}>
         <GameCanvas
+          key={runId}
           character={getCharacter("default")}
           onFinish={setFinish}
         />
@@ -56,13 +61,29 @@ export function PlayStage({ demo = false }: { demo?: boolean }) {
                   type="button"
                   variant="outline"
                   size="lg"
-                  onClick={() => setFinish(null)}
+                  onClick={() => {
+                    // Swap the finish modal for the ad so they don't stack.
+                    setFinish(null);
+                    setShowAd(true);
+                  }}
                 >
                   {tDemo("keepPlaying")}
                 </Button>
               </div>
             </div>
           </Modal>
+        )}
+
+        {showAd && (
+          <InterstitialAd
+            onDone={() => {
+              // Dismissing the ad ends the round: close everything and remount
+              // the canvas so a brand-new race starts from the line.
+              setShowAd(false);
+              setFinish(null);
+              setRunId((n) => n + 1);
+            }}
+          />
         )}
       </div>
     );

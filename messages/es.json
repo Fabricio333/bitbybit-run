@@ -233,6 +233,8 @@
     "regionLabelRight": "Publicidad de mentira (derecha)",
     "badgeAd": "Ad",
     "close": "Cerrar anuncio",
+    "skipIn": "Saltar anuncio en {seconds}s",
+    "skip": "Saltar anuncio",
     "allClosedTitle": "Limpiaste el spam 🧹",
     "allClosedBody": "Gracias por no comprar shitcoins 🫡",
     "gagKicker": "¡Caíste!",
