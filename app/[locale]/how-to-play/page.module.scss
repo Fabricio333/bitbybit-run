@@ -2,43 +2,57 @@
 @use "@/styles/spacing" as *;
 @use "@/styles/typography" as *;
 @use "@/styles/common-mixins" as *;
+@use "@/styles/media-mixins" as *;
 
+// Single-screen (no scroll on desktop/tablet): centered, compact, cards in one row.
 .page {
-  max-width: 920px;
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: $spacing-48 $container-padding $spacing-64;
+  padding: $spacing-24 $container-padding;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: $spacing-20;
+
+  @include mobile {
+    justify-content: flex-start;
+    padding-top: $spacing-32;
+  }
 }
 
 .title {
-  margin: 0 0 $spacing-12;
+  margin: 0;
   font-family: $font-family-display;
   font-size: $font-size-2xl;
-  font-weight: $font-weight-extrabold;
-  letter-spacing: $letter-spacing-tight;
+  font-weight: $font-weight-bold;
   color: $color-text-primary;
+  text-shadow: 3px 3px 0 $pixel-shadow;
 }
 
 .intro {
-  margin: 0 0 $spacing-32;
+  margin: 0;
+  font-family: $font-family-base;
   font-size: $font-size-subtitle;
   color: $color-text-secondary;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: $spacing-20;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-16;
 }
 
 .card {
   @include ceramic-card;
-  padding: $spacing-24;
+  padding: $spacing-16;
 }
 
 .cardTitle {
   margin: 0 0 $spacing-8;
   font-family: $font-family-display;
-  font-size: $font-size-lg;
+  font-size: $font-size-md;
   font-weight: $font-weight-bold;
   color: $color-text-primary;
 }
@@ -56,7 +70,7 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: $spacing-8;
+  gap: $spacing-4;
   color: $color-text-secondary;
   font-size: $font-size-body;
 
@@ -66,6 +80,6 @@
 }
 
 .cta {
-  margin-top: $spacing-32;
+  margin-top: $spacing-4;
   text-align: center;
 }

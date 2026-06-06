@@ -27,9 +27,22 @@ body {
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+
+  // Sticky-footer column so pages fit in one screen (navbar + content + footer
+  // = 100dvh; content fills the middle).
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
 }
 
-// Headings
+#main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+// Headings (pixel display font reads better with normal spacing).
 h1,
 h2,
 h3,
@@ -37,7 +50,7 @@ h4,
 h5,
 h6 {
   font-family: $font-display;
-  letter-spacing: $letter-spacing-tight;
+  letter-spacing: normal;
   line-height: $line-height-heading;
 }
 

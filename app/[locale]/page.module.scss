@@ -1,38 +1,66 @@
 @use "@/styles/colors" as *;
 @use "@/styles/spacing" as *;
 @use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
 
+// Single-screen hero (fills the space between navbar and footer).
 .hero {
-  min-height: calc(100vh - 66px);
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: $spacing-24;
   text-align: center;
-  padding: $spacing-24;
-}
+  padding: $spacing-16 $spacing-24;
+  overflow: hidden;
 
-.heroRunner {
-  margin-bottom: $spacing-24;
+  @include mobile {
+    overflow: visible;
+    gap: $spacing-20;
+    padding: $spacing-32 $spacing-24;
+  }
 }
 
 .title {
   margin: 0;
   font-family: $font-family-display;
-  font-size: $font-size-hero;
-  font-weight: $font-weight-extrabold;
-  letter-spacing: $letter-spacing-tight;
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  font-weight: $font-weight-bold;
   color: $color-text-primary;
-  line-height: $line-height-tight;
+  line-height: 1;
+  text-shadow: 4px 4px 0 $pixel-shadow;
 }
 
-.subtitle {
+.tagline {
   margin: 0;
-  max-width: 540px;
-  font-size: $font-size-subtitle;
+  max-width: 620px;
+  font-family: $font-family-base;
+  font-size: $font-size-lg;
   color: $color-text-secondary;
   line-height: $line-height-base;
+}
+
+.cast {
+  display: flex;
+  gap: $spacing-8;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.char {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $spacing-8;
+  width: 160px;
+}
+
+.charName {
+  font-family: $font-family-display;
+  font-size: $font-size-md;
+  color: $color-text-primary;
 }
 
 .actions {

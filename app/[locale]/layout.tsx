@@ -6,7 +6,7 @@ import {
   getTranslations,
   setRequestLocale,
 } from "next-intl/server";
-import { Nunito, Nunito_Sans } from "next/font/google";
+import { Pixelify_Sans, Nunito_Sans } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { ThemeProvider } from "@/lib/contexts/theme-context";
 import { Navbar } from "@/components/layout/navbar/navbar";
@@ -53,9 +53,9 @@ async function resolveInitialSession(): Promise<SessionUser | null> {
   }
 }
 
-const nunito = Nunito({
+const pixel = Pixelify_Sans({
   subsets: ["latin"],
-  weight: ["700", "800"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-display",
   display: "swap",
 });
@@ -105,7 +105,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={cn(nunito.variable, nunitoSans.variable)}
+      className={cn(pixel.variable, nunitoSans.variable)}
       suppressHydrationWarning
     >
       <body suppressHydrationWarning>

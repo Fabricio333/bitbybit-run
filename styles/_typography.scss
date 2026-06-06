@@ -1,10 +1,6 @@
-// Display font — Nunito (headings, hero, brand)
+// Display font — Pixelify Sans (pixel/retro, for headings, hero, brand)
 $font-family-display:
-  var(--font-display),
-  "Nunito",
-  -apple-system,
-  BlinkMacSystemFont,
-  sans-serif;
+  var(--font-display), "Pixelify Sans", ui-monospace, monospace;
 
 // Body font — Nunito Sans (paragraphs, labels, UI text)
 $font-family-base:

@@ -1,84 +1,98 @@
-// Theme tokens for Bit by Bit Run.
+// Theme tokens for Bit by Bit Run — "Arcade Night" palette.
 //
-// Same pattern as bitbybit-cursats: role tokens are CSS custom properties
-// declared per theme, and `data-theme` (set by next-themes) flips them. The
-// `_colors.scss` partial aliases these vars into SCSS variables.
+// Role tokens are CSS custom properties declared per theme; `data-theme` (set by
+// next-themes) flips them. `_colors.scss` aliases these into SCSS variables.
+// Dark is the primary theme (default); light is a brighter arcade variant.
 //
-// Game-object colors (energy, poison, runner, track) are physical and do NOT
-// flip between themes — they live in `:root` only and are mirrored as hex in
-// `lib/game/config.ts` for the Phaser canvas.
+// Game-object colors (energy, poison, runner) are physical and do NOT flip —
+// they live in `:root` and mirror `lib/game/config.ts` GAME_COLORS.
 
+// — Light ("Arcade Day") —
 :root,
 [data-theme="light"] {
   color-scheme: light;
 
-  // — Brand / roles —
-  --color-primary: #e8920c; // lightning gold
-  --color-primary-hover: #b86f07;
-  --color-secondary: #16a34a; // track green
-  --focus-ring: #334155;
+  --color-primary: #ff4d85; // pink
+  --color-primary-hover: #e63b70;
+  --color-secondary: #16a06b; // green
+  --color-secondary-hover: #0f8a5a;
+  --color-highlight: #f5b500; // yellow accent
+  --focus-ring: #ff4d85;
 
-  // — Backgrounds + surface —
-  --color-bg: #f7f7fb;
-  --color-bg-2: #eef0f6;
+  --color-bg: #f3eefe;
+  --color-bg-2: #e9e2fb;
   --color-surface: #ffffff;
 
-  // — Text —
-  --color-text-primary: #14213a;
-  --color-text-secondary: #5b6577;
+  --color-text-primary: #1a1230;
+  --color-text-secondary: #6b6190;
 
-  // — Border + shadow —
-  --color-border: rgba(20 33 58 / 0.1);
-  --card-shadow: rgba(15 23 42 / 0.08);
+  --color-border: rgba(26 18 48 / 0.14);
+  --card-shadow: rgba(26 18 48 / 0.12);
+  --card-shadow-hover: rgba(26 18 48 / 0.18);
 
-  // — Semantic feedback —
-  --color-success: #16a34a;
-  --color-warning: #f59e0b;
-  --color-error: #dc2626;
-  --color-nostr: #8b5cf6;
+  --color-success: #16a06b;
+  --color-warning: #f5b500;
+  --color-error: #e63b56;
+  --color-nostr: #7c5cff;
 
-  // — Decorative semantic pair (Button danger / success surfaces) —
-  --color-accent: #ef4444;
-  --color-accent-alt: #22c55e;
+  --color-accent: #e63b56;
+  --color-accent-alt: #16a06b;
 
-  // — Shadows + ceramic tints (Button / ceramic-surface mixin) —
-  --card-shadow-hover: rgba(15 23 42 / 0.14);
+  // Hard pixel shadow color (for blocky borders/shadows).
+  --pixel-shadow: #1a1230;
+
+  // Ceramic tints (used by the ported login components).
   --ceramic-highlight: rgba(255 255 255 / 0.85);
   --ceramic-highlight-soft: rgba(255 255 255 / 0.35);
-  --ceramic-inner-shadow: rgba(15 23 42 / 0.16);
-  // Gloss tints are identical across themes (no dark override).
+  --ceramic-inner-shadow: rgba(26 18 48 / 0.16);
   --ceramic-gloss-strong: rgba(255 255 255 / 0.22);
   --ceramic-gloss-soft: rgba(255 255 255 / 0.08);
   --ceramic-gloss-edge: rgba(255 255 255 / 0.4);
   --ceramic-shadow-edge: rgba(0 0 0 / 0.18);
 }
 
+// — Dark ("Arcade Night") — the default —
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --color-primary: #ffd166; // brighter gold on dark
-  --color-primary-hover: #ffba3a;
-  --color-secondary: #4ade80;
-  --focus-ring: #cbd5e1;
+  --color-primary: #ff5d8f; // pink
+  --color-primary-hover: #ff85ab;
+  --color-secondary: #34d399; // green
+  --color-secondary-hover: #5ee0b0;
+  --color-highlight: #ffd23f; // yellow accent
+  --focus-ring: #ffd23f;
 
-  --color-bg: #0b1020; // matches the game canvas backdrop
-  --color-bg-2: #14213a;
-  --color-surface: #14213a;
+  --color-bg: #17132b; // deep indigo
+  --color-bg-2: #221a3d;
+  --color-surface: #221a3d;
 
-  --color-text-primary: #e6e6e6;
-  --color-text-secondary: #9aa5b1;
+  --color-text-primary: #f5f3ff;
+  --color-text-secondary: #b3a9d6;
 
-  --color-border: rgba(255 255 255 / 0.08);
-  --card-shadow: rgba(0 0 0 / 0.3);
+  --color-border: rgba(255 255 255 / 0.12);
+  --card-shadow: rgba(0 0 0 / 0.45);
+  --card-shadow-hover: rgba(0 0 0 / 0.55);
 
-  --color-success: #4ade80;
-  --color-warning: #fbbf24;
-  --color-error: #f87171;
-  --color-nostr: #a78bfa;
+  --color-success: #34d399;
+  --color-warning: #ffd23f;
+  --color-error: #ff5d6c;
+  --color-nostr: #b388ff;
+
+  --color-accent: #ff5d6c;
+  --color-accent-alt: #34d399;
+
+  --pixel-shadow: #0c0a18;
+
+  --ceramic-highlight: rgba(255 255 255 / 0.14);
+  --ceramic-highlight-soft: rgba(255 255 255 / 0.06);
+  --ceramic-inner-shadow: rgba(0 0 0 / 0.4);
+  --ceramic-gloss-strong: rgba(255 255 255 / 0.18);
+  --ceramic-gloss-soft: rgba(255 255 255 / 0.06);
+  --ceramic-gloss-edge: rgba(255 255 255 / 0.28);
+  --ceramic-shadow-edge: rgba(0 0 0 / 0.35);
 }
 
-// — Game-object colors (theme-independent; keep in sync with
-//   lib/game/config.ts GAME_COLORS) —
+// — Game-object colors (theme-independent; keep in sync with config.ts) —
 :root {
   --game-runner: #ffd166;
   --game-energy: #4ade80;

@@ -133,16 +133,12 @@
         "users_pubkey_unique": {
           "name": "users_pubkey_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "pubkey"
-          ]
+          "columns": ["pubkey"]
         },
         "users_slug_unique": {
           "name": "users_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},

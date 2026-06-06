@@ -9,7 +9,7 @@
   background-repeat: no-repeat;
   background-size: var(--rs-sheet-width, 928px) var(--rs-frame, 116px);
   image-rendering: pixelated;
-  transform: scale(1.5);
+  transform: scale(1.25);
   transform-origin: center bottom;
   animation: runner-run 0.62s steps(8) infinite;
 }
