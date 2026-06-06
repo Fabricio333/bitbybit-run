@@ -38,8 +38,11 @@
   --color-accent: #e63b56;
   --color-accent-alt: #16a06b;
 
-  // Hard pixel shadow color (for blocky borders/shadows).
+  // Hard pixel shadow color (for blocky borders/shadows + title text-shadows).
   --pixel-shadow: #1a1230;
+  // Arcade block edge (hard border + offset shadow): contrasts the background,
+  // so it's dark on light and light on dark (see dark theme below).
+  --arcade-edge: #1a1230;
 
   // Ceramic tints (used by the ported login components).
   --ceramic-highlight: rgba(255 255 255 / 0.85);
@@ -82,6 +85,10 @@
   --color-accent-alt: #34d399;
 
   --pixel-shadow: #0c0a18;
+  // Light edge so the arcade border + offset block stay visible on the dark bg
+  // (neon-sticker look) instead of vanishing into it. A muted lavender-white
+  // rather than pure white, so the contrast pops without feeling harsh.
+  --arcade-edge: #cfc7ea;
 
   --ceramic-highlight: rgba(255 255 255 / 0.14);
   --ceramic-highlight-soft: rgba(255 255 255 / 0.06);

@@ -2,13 +2,31 @@
 @use "@/styles/spacing" as *;
 @use "@/styles/typography" as *;
 
+// Arcade pixel block (same hard border + offset shadow as <Button>), but always
+// white so it reads as a neutral control next to the pink CTA.
 .group {
   display: inline-flex;
   align-items: stretch;
-  border: 1px solid $color-border;
-  border-radius: $border-radius-md;
+  background: $static-white;
+  // White box in both themes → keep a dark border + divider so they stay
+  // visible; only the offset shadow flips to the contrasting arcade edge.
+  border: 3px solid $pixel-shadow;
+  border-radius: 4px;
   overflow: hidden;
-  background: $color-surface;
+  box-shadow: 4px 4px 0 0 $arcade-edge;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 $arcade-edge;
+  }
+
+  &:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 0 $arcade-edge;
+  }
 }
 
 .toggle {
@@ -19,22 +37,36 @@
   padding: $spacing-8 $spacing-12;
   background: transparent;
   border: none;
-  color: $color-text-secondary;
+  color: $static-navy;
   cursor: pointer;
   font-size: $font-size-base;
   font-weight: $font-weight-bold;
-  font-family: $font-body;
+  font-family: $font-display;
   line-height: 1;
-  transition:
-    color 0.2s ease,
-    background 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease;
 
   &:hover {
     color: $color-primary;
     background: alpha($color-primary, 10%);
   }
 
+  &:focus-visible {
+    outline: 3px solid $focus-ring;
+    outline-offset: -3px;
+  }
+
   & + & {
-    border-left: 1px solid $color-border;
+    border-left: 3px solid $pixel-shadow;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group {
+    transition: none;
+
+    &:hover,
+    &:active {
+      transform: none;
+    }
   }
 }

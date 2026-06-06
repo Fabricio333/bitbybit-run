@@ -16,7 +16,7 @@
   "landing": {
     "title": "Bit by Bit Run",
     "subtitle": "Corré por la pista. Agarrá la comida buena para acelerar, esquivá la chatarra o volvés al principio. El primero en llegar gana.",
-    "tagline": "Corré, comé, esquivá la chatarra. El cardio es libertad — el primero en llegar se lleva los sats. 🏃💨",
+    "tagline": "Corré, comé, ganá 🏃💨\nEl cardio nunca pagó tan bien. ₿",
     "play": "Jugar",
     "howToPlay": "Cómo jugar"
   },
@@ -40,7 +40,6 @@
   },
   "footer": {
     "ariaLabel": "Enlaces del pie de página",
-    "howToPlay": "Cómo jugar",
     "cursats": "BitByBit Cursats",
     "habits": "BitByBit Habits",
     "arena": "BitByBit Arena",

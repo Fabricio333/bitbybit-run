@@ -22,3 +22,10 @@
   justify-content: center;
   max-width: none;
 }
+
+// Single-screen pages: become a vertical flex column so a `flex: 1` child fills
+// the height and can center its own content (keeps the max-width + padding).
+.fill {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,44 @@
+@use "@/styles/colors" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.title {
+  margin: 0;
+  line-height: 1;
+  font-family: $font-display;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  // Smaller floor so it shrinks on phones; caps large on desktop.
+  font-size: clamp(2rem, 8.5vw, 5rem);
+  text-shadow: 3px 3px 0 $pixel-shadow;
+
+  @include mobile {
+    text-shadow: 2px 2px 0 $pixel-shadow;
+  }
+}
+
+// Allow "BitByBit RUN" to wrap onto two lines on narrow screens.
+.inner {
+  display: inline-block;
+  transform-origin: center bottom;
+  white-space: normal;
+}
+
+// "BitByBit" — the Bitcoin "₿" stands in for each capital B but shares the same
+// color (and inherited text-shadow) as the rest of the word, so it reads as one
+// wordmark: dark indigo on light, near-white on dark.
+.primary {
+  color: $color-text-primary;
+}
+
+.gradient {
+  background: linear-gradient(
+    90deg,
+    $color-primary 0%,
+    $color-secondary 50%,
+    $color-highlight 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

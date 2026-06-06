@@ -1,0 +1,56 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.polaroid {
+  cursor: default;
+  flex-shrink: 0;
+}
+
+// Classic polaroid: white card, hard pixel border + offset shadow, extra room
+// below the photo for the caption. White in both themes (it's a physical photo).
+.frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 150px;
+  padding: $spacing-12 $spacing-12 $spacing-8;
+  background: $static-white;
+  border: 3px solid $pixel-shadow;
+  box-shadow: 4px 4px 0 0 $pixel-shadow;
+
+  @include mobile {
+    width: 130px;
+  }
+}
+
+.photo {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 130px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #efe9ff 0%, #d4c7ff 100%);
+  border: 2px solid alpha($static-navy, 25%);
+
+  @include mobile {
+    height: 116px;
+  }
+}
+
+// Fit the runner inside the frame (the sprite's own rule scales it to 1.25).
+// Two-class selector wins specificity over the single `.runner` class.
+.photo .sprite {
+  transform: scale(0.92);
+  transform-origin: center bottom;
+}
+
+.caption {
+  margin-top: $spacing-8;
+  font-family: $font-display;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-md;
+  color: $static-navy;
+}

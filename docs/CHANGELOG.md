@@ -8,6 +8,25 @@ Dates use `YYYY-MM-DD`.
 
 ### Changed (design)
 
+- **Dark-mode arcade fix**: added an `--arcade-edge` token (dark on light /
+  light on dark) so the hard border + offset shadow of buttons, cards, the
+  locale/theme toggle and logo blocks stay visible on the dark background
+  (neon-sticker look) instead of vanishing into it. Title text-shadows and the
+  (white) polaroids keep the dark `--pixel-shadow`.
+- **Landing polish**: the hero title uses the wordmark treatment (gradient
+  "RUN") with the **Bitcoin "₿" as each capital B** of BitByBit (same color as
+  the rest of the word — dark indigo on light, white on dark). The 4 runners sit
+  inside tilted **polaroid** frames, wrapped in a reusable `<Container fill>`:
+  flanking the center on desktop (≥1024px), and **2 above / 2 below** the text on
+  tablet & mobile. **Framer Motion**: spring "pop" + idle wobble on the title,
+  staggered entrance + idle float + hover lift/straighten on the polaroids (all
+  respecting `prefers-reduced-motion`). Shorter two-line tagline ("Corré, comé,
+  ganá 🏃💨 / El cardio nunca pagó tan bien. ₿"), smaller hero/tagline type on
+  mobile. The **locale/theme toggle** uses the white pixel/arcade style, the
+  **primary pink button** flips to white bg + pink text on hover, the footer was
+  made fully responsive (centered, wrapping links on mobile), and the redundant
+  "Cómo jugar" footer link was removed. `Container` gained a `fill` variant for
+  single-screen pages.
 - **Arcade overhaul**: new "Arcade Night" palette (indigo + pink/green/yellow,
   light variant too), **Pixelify Sans** pixel display font (titles, buttons, and
   the in-game canvas text), and **blocky arcade buttons/cards** (hard border +

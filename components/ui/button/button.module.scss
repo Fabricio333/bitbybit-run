@@ -9,7 +9,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid $pixel-shadow;
+  border: 3px solid $arcade-edge;
   border-radius: 4px;
   font-family: $font-family-display;
   font-weight: $font-weight-bold;
@@ -17,19 +17,19 @@
   cursor: pointer;
   text-decoration: none;
   text-align: center;
-  box-shadow: 4px 4px 0 0 $pixel-shadow;
+  box-shadow: 4px 4px 0 0 $arcade-edge;
   transition:
     transform 0.1s ease,
     box-shadow 0.1s ease;
 
   &:hover {
     transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 0 $pixel-shadow;
+    box-shadow: 6px 6px 0 0 $arcade-edge;
   }
 
   &:active:not(:disabled) {
     transform: translate(2px, 2px);
-    box-shadow: 0 0 0 0 $pixel-shadow;
+    box-shadow: 0 0 0 0 $arcade-edge;
   }
 
   &:focus-visible {
@@ -43,7 +43,7 @@
 
     &:hover {
       transform: none;
-      box-shadow: 4px 4px 0 0 $pixel-shadow;
+      box-shadow: 4px 4px 0 0 $arcade-edge;
     }
   }
 }
@@ -51,6 +51,12 @@
 .variant-primary {
   background: $color-primary;
   color: $static-white;
+
+  // On hover, flip to white bg + pink text for stronger contrast.
+  &:hover:not(:disabled) {
+    background: $static-white;
+    color: $color-primary;
+  }
 }
 
 .variant-secondary {

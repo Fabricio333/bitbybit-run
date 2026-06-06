@@ -3,7 +3,10 @@
 @use "@/styles/typography" as *;
 @use "@/styles/media-mixins" as *;
 
-// Single-screen hero (fills the space between navbar and footer).
+// Mobile/tablet first: a single centered column — 2 polaroids, the text, then
+// 2 more polaroids (document order: leftCast, center, rightCast). On desktop
+// (>=1024px) it becomes a 3-column grid with polaroids flanking the center.
+// Width/padding come from the wrapping <Container fill>.
 .hero {
   flex: 1;
   display: flex;
@@ -11,56 +14,55 @@
   align-items: center;
   justify-content: center;
   gap: $spacing-24;
-  text-align: center;
-  padding: $spacing-16 $spacing-24;
-  overflow: hidden;
 
-  @include mobile {
-    overflow: visible;
-    gap: $spacing-20;
-    padding: $spacing-32 $spacing-24;
+  @media (min-width: #{$breakpoint-tablet}) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: $spacing-32;
   }
 }
 
-.title {
-  margin: 0;
-  font-family: $font-family-display;
-  font-size: clamp(2.6rem, 7vw, 5rem);
-  font-weight: $font-weight-bold;
-  color: $color-text-primary;
-  line-height: 1;
-  text-shadow: 4px 4px 0 $pixel-shadow;
+// Each side holds 2 polaroids: a row when stacked, a column when flanking.
+.cast {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-16;
+
+  @media (min-width: #{$breakpoint-tablet}) {
+    flex-direction: column;
+    gap: $spacing-32;
+  }
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-20;
+  text-align: center;
+
+  @media (min-width: #{$breakpoint-tablet}) {
+    gap: $spacing-24;
+  }
 }
 
 .tagline {
   margin: 0;
-  max-width: 620px;
+  max-width: 560px;
   font-family: $font-family-base;
-  font-size: $font-size-lg;
+  font-size: $font-size-base;
   color: $color-text-secondary;
   line-height: $line-height-base;
-}
+  white-space: pre-line;
 
-.cast {
-  display: flex;
-  gap: $spacing-8;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.char {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: $spacing-8;
-  width: 160px;
-}
-
-.charName {
-  font-family: $font-family-display;
-  font-size: $font-size-md;
-  color: $color-text-primary;
+  @include tabletAndUp {
+    font-size: $font-size-lg;
+  }
 }
 
 .actions {

@@ -1,6 +1,8 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button/button";
-import { RunnerSprite } from "@/components/common/runner-sprite/runner-sprite";
+import { Container } from "@/components/ui/container";
+import { HeroTitle } from "@/components/landing/hero-title";
+import { Polaroid } from "@/components/landing/polaroid";
 import { CHARACTERS } from "@/lib/game/characters";
 import styles from "./page.module.scss";
 
@@ -13,28 +15,38 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("landing");
 
+  const leftCast = CHARACTERS.slice(0, 2);
+  const rightCast = CHARACTERS.slice(2, 4);
+
   return (
-    <div className={styles.hero}>
-      <h1 className={styles.title}>{t("title")}</h1>
-      <p className={styles.tagline}>{t("tagline")}</p>
+    <Container fill>
+      <div className={styles.hero}>
+        <div className={styles.cast}>
+          {leftCast.map((c, i) => (
+            <Polaroid key={c.id} character={c} index={i} />
+          ))}
+        </div>
 
-      <div className={styles.cast}>
-        {CHARACTERS.map((c) => (
-          <div key={c.id} className={styles.char}>
-            <RunnerSprite character={c} />
-            <span className={styles.charName}>{c.label}</span>
+        <div className={styles.center}>
+          <HeroTitle label={t("title")} />
+          <p className={styles.tagline}>{t("tagline")}</p>
+
+          <div className={styles.actions}>
+            <Button href="/play" size="lg">
+              {t("play")} ▶
+            </Button>
+            <Button href="/how-to-play" variant="outline" size="lg">
+              {t("howToPlay")}
+            </Button>
           </div>
-        ))}
-      </div>
+        </div>
 
-      <div className={styles.actions}>
-        <Button href="/play" size="lg">
-          {t("play")} ▶
-        </Button>
-        <Button href="/how-to-play" variant="outline" size="lg">
-          {t("howToPlay")}
-        </Button>
+        <div className={styles.cast}>
+          {rightCast.map((c, i) => (
+            <Polaroid key={c.id} character={c} index={i + 2} />
+          ))}
+        </div>
       </div>
-    </div>
+    </Container>
   );
 }

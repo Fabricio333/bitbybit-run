@@ -1,5 +1,4 @@
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
 import { LogoBlocks } from "@/components/common/logo-blocks/logo-blocks";
 import { Wordmark } from "@/components/common/wordmark/wordmark";
 import { GithubIcon } from "@/components/icons/github-icon";
@@ -17,9 +16,6 @@ export function Footer() {
         </div>
 
         <nav className={styles.links} aria-label={t("ariaLabel")}>
-          <Link href="/how-to-play" className={styles.link}>
-            {t("howToPlay")}
-          </Link>
           <a
             href="https://cursats.bitbybit.com.ar"
             target="_blank"

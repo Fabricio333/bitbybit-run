@@ -16,7 +16,7 @@
   "landing": {
     "title": "Bit by Bit Run",
     "subtitle": "Race down the track. Grab the good food to sprint, dodge the junk or you'll be sent back to the start. First to the finish wins.",
-    "tagline": "Run, eat, dodge the junk. Cardio is freedom — first to the finish keeps the sats. 🏃💨",
+    "tagline": "Run, eat, win 🏃💨\nCardio never paid this well. ₿",
     "play": "Play",
     "howToPlay": "How to play"
   },
@@ -40,7 +40,6 @@
   },
   "footer": {
     "ariaLabel": "Footer links",
-    "howToPlay": "How to play",
     "cursats": "BitByBit Cursats",
     "habits": "BitByBit Habits",
     "arena": "BitByBit Arena",

@@ -6,7 +6,7 @@
   background: $color-surface;
   border: 2px solid $color-border;
   border-radius: $border-radius-lg;
-  box-shadow: 6px 6px 0 0 $pixel-shadow;
+  box-shadow: 6px 6px 0 0 $arcade-edge;
   padding: $spacing-24;
 }
 
@@ -21,7 +21,7 @@
 
   &:hover {
     transform: translate(-2px, -2px);
-    box-shadow: 8px 8px 0 0 $pixel-shadow;
+    box-shadow: 8px 8px 0 0 $arcade-edge;
   }
 }
 
