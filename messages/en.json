@@ -144,7 +144,7 @@
     "controlsSprint": "sprint (spends energy)",
     "controlsBrake": "brake",
     "controlsRestart": "restart",
-    "zapTitle": "⚡ Zap the winner",
+    "zapTitle": "⚡️ Zap the winner",
     "zapText": "When the race ends, you can send sat zaps to the winner. Running fast pays out in Bitcoin.",
     "rankingTitle": "🏆 Ranking",
     "rankingText": "Your position when you cross the finish sets your place in the ranking. Climb it race after race.",

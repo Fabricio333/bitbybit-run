@@ -22,19 +22,21 @@
   gap: 4px;
 }
 
+// Arcade keycap — matches the how-to-play controls.
 .cap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 26px;
-  height: 26px;
-  padding: 0 6px;
-  border-radius: $border-radius-xs;
-  border: 1px solid $color-border;
-  border-bottom-width: 2px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 $spacing-4;
+  border: 2px solid $arcade-edge;
+  border-radius: 4px;
   background: $color-surface;
+  box-shadow: 2px 2px 0 0 $arcade-edge;
   color: $color-text-primary;
-  font-family: $font-family-base;
+  // Body font — the pixel font isn't readable at keycap size.
+  font-family: $font-body;
   font-size: $font-size-sm;
   font-weight: $font-weight-bold;
   line-height: 1;

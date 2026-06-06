@@ -134,7 +134,8 @@
   background: $color-surface;
   box-shadow: 2px 2px 0 0 $arcade-edge;
   color: $color-text-primary;
-  font-family: $font-display;
+  // Body font — the pixel font isn't readable at keycap size.
+  font-family: $font-body;
   font-size: $font-size-sm;
   font-weight: $font-weight-bold;
 }
