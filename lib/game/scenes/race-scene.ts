@@ -430,6 +430,11 @@ export class RaceScene extends Phaser.Scene {
         `${this.strings.finish}\n${this.elapsed.toFixed(1)}s   ${this.points} pts\n${this.strings.again}`,
         9999
       );
+      // Surface the finish to React (e.g. the demo's login-invite modal).
+      const onFinish = this.registry.get("onFinish") as
+        | ((result: { time: number; points: number }) => void)
+        | undefined;
+      onFinish?.({ time: this.elapsed, points: this.points });
     }
   }
 
@@ -777,7 +782,8 @@ export type SpriteChoice = {
 export const createGameConfig = (
   parent: HTMLElement,
   strings?: GameStrings,
-  character?: SpriteChoice
+  character?: SpriteChoice,
+  onFinish?: (result: { time: number; points: number }) => void
 ): Phaser.Types.Core.GameConfig => ({
   type: Phaser.AUTO,
   parent,
@@ -792,6 +798,7 @@ export const createGameConfig = (
     preBoot: (game) => {
       game.registry.set("strings", strings ?? DEFAULT_STRINGS);
       if (character) game.registry.set("character", character);
+      if (onFinish) game.registry.set("onFinish", onFinish);
     },
   },
   scene: [RaceScene],

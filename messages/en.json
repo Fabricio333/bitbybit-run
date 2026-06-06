@@ -16,7 +16,7 @@
   "landing": {
     "title": "Bit by Bit Run",
     "subtitle": "Race down the track. Grab the good food to sprint, dodge the junk or you'll be sent back to the start. First to the finish wins.",
-    "tagline": "Run, eat, win 🏃💨\nCardio never paid this well. ₿",
+    "tagline": "Run, eat, win 🏃💨\nCardio never paid this well.",
     "play": "Play",
     "howToPlay": "How to play"
   },
@@ -33,6 +33,14 @@
       "brake": "brake",
       "restart": "restart"
     }
+  },
+  "demo": {
+    "title": "Demo",
+    "phase": "Demo · single player",
+    "finishTitle": "🏁 You crossed the finish!",
+    "finishText": "Sign in to compete with others and earn zaps ⚡",
+    "login": "Log in",
+    "keepPlaying": "Keep playing"
   },
   "theme": {
     "toLight": "Switch to light mode",
@@ -124,16 +132,21 @@
     "title": "How to play",
     "intro": "Race down the 8-lane athletics track and be the first to cross the finish line.",
     "goalTitle": "🎯 Goal",
-    "goalText": "Reach the finish line before everyone else. Your spot when the winner finishes sets your place in the ranking.",
-    "controlsTitle": "🎮 Controls",
-    "controlsLanes": "← →  move between lanes",
-    "controlsSprint": "↑  sprint (spends energy)",
-    "controlsBrake": "↓  brake",
-    "controlsRestart": "R  restart",
+    "goalText": "Reach the finish line before everyone else. Crossing first locks in the top spot.",
     "energyTitle": "⚡ Energy",
-    "energyText": "Grab ⚡ at the hydration stations to fill your energy bar, then spend it to sprint past your rivals. At zero energy you slow down.",
+    "energyText": "Grab good food to fill your energy bar, then spend it to sprint. The better the food, the more energy and points:",
     "poisonTitle": "🍔 Junk food",
-    "poisonText": "Dodge 🍔! It fills your poison bar — when it's full you have to run to the bathroom 🚽 and start over.",
+    "poisonText": "Dodge junk food: it fills your poison bar and, if it fills up, you run to the bathroom 🚽 and start over. The worse it is, the more it costs you:",
+    "controlsTitle": "🎮 Controls",
+    "controlsLanes": "move between lanes",
+    "controlsSprint": "sprint (spends energy)",
+    "controlsBrake": "brake",
+    "controlsRestart": "restart",
+    "zapTitle": "⚡ Zap the winner",
+    "zapText": "When the race ends, you can send sat zaps to the winner. Running fast pays out in Bitcoin.",
+    "rankingTitle": "🏆 Ranking",
+    "rankingText": "Your position when you cross the finish sets your place in the ranking. Climb it race after race.",
+    "demo": "Demo",
     "cta": "Play now ▶"
   },
   "login": {

@@ -42,3 +42,32 @@
   background-clip: text;
   color: transparent;
 }
+
+// On dark, "RUN" reads solid white like the rest of the wordmark, but its
+// drop-shadow keeps the brand gradient. text-shadow can't hold a gradient, so a
+// duplicate "RUN" with the gradient fill sits offset behind the white text.
+:global([data-theme="dark"]) .gradient {
+  position: relative;
+  background: none;
+  color: $color-text-primary;
+  -webkit-text-fill-color: $color-text-primary;
+  text-shadow: none;
+}
+
+:global([data-theme="dark"]) .gradient::after {
+  content: "RUN";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    $color-primary 0%,
+    $color-secondary 50%,
+    $color-highlight 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}

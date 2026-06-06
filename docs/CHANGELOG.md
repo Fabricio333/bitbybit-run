@@ -6,6 +6,28 @@ Dates use `YYYY-MM-DD`.
 
 ## [Unreleased]
 
+### Added
+
+- **Free demo mode** (`/demo`): single-player race with the Sprinter (no
+  character picker, no login). Crossing the finish line opens a modal inviting
+  the player to sign in to compete for zaps (returns to `/play` after login).
+  The game now surfaces a finish event to React via an `onFinish` callback
+  (`createGameConfig` → registry → `RaceScene.checkFinish`).
+
+### Changed
+
+- **`/play` now requires login** — anonymous visitors are redirected to
+  `/sign-in?next=/play` (they can still try `/demo`).
+- **How-to-play redesigned**: wrapped in `<Container>`, fully responsive card
+  grid (3→2→1 columns) with **Framer Motion** entrance animations. Added the
+  missing **Zap the winner** and **Ranking** cards; the Energy/Junk cards now
+  show **per-food score chips** (💧+5 🍌+8 🧃+14 ⚡+20 / 🍩−5 🍟−8 🍔−12 🍺−16),
+  and Controls use the **custom arrow-key icons** in keycaps. Added an outlined
+  **Demo** button beside **Play now**.
+- **Locale**: disabled `Accept-Language` auto-detection (`localeDetection:
+  false`) so the prefix-free default (es) always loads at the root —
+  run.bitbybit.com.ar shows es; `/en/*` is the English variant via the toggle.
+
 ### Changed (design)
 
 - **Dark-mode arcade fix**: added an `--arcade-edge` token (dark on light /

@@ -16,7 +16,7 @@
   "landing": {
     "title": "Bit by Bit Run",
     "subtitle": "Corré por la pista. Agarrá la comida buena para acelerar, esquivá la chatarra o volvés al principio. El primero en llegar gana.",
-    "tagline": "Corré, comé, ganá 🏃💨\nEl cardio nunca pagó tan bien. ₿",
+    "tagline": "Corré, comé, ganá 🏃💨\nEl cardio nunca pagó tan bien.",
     "play": "Jugar",
     "howToPlay": "Cómo jugar"
   },
@@ -33,6 +33,14 @@
       "brake": "frenar",
       "restart": "reiniciar"
     }
+  },
+  "demo": {
+    "title": "Demo",
+    "phase": "Demo · un jugador",
+    "finishTitle": "🏁 ¡Cruzaste la meta!",
+    "finishText": "Iniciá sesión para competir con otros y ganar zaps ⚡",
+    "login": "Entrar",
+    "keepPlaying": "Seguir jugando"
   },
   "theme": {
     "toLight": "Cambiar a modo claro",
@@ -124,16 +132,21 @@
     "title": "Cómo jugar",
     "intro": "Corré por la pista de atletismo de 8 carriles y sé el primero en cruzar la meta.",
     "goalTitle": "🎯 Objetivo",
-    "goalText": "Llegá a la meta antes que los demás. Tu posición cuando el ganador llega define tu lugar en el ranking.",
-    "controlsTitle": "🎮 Controles",
-    "controlsLanes": "← →  cambiar de carril",
-    "controlsSprint": "↑  acelerar (gasta energía)",
-    "controlsBrake": "↓  frenar",
-    "controlsRestart": "R  reiniciar",
+    "goalText": "Llegá a la meta antes que los demás. Cruzar primero te asegura el mejor puesto.",
     "energyTitle": "⚡ Energía",
-    "energyText": "Agarrá ⚡ en los puestos de hidratación para llenar tu barra de energía y gastala para acelerar y pasar a tus rivales. Sin energía vas más lento.",
+    "energyText": "Agarrá comida buena para llenar tu barra de energía y gastala para acelerar. Cuanto mejor la comida, más energía y más puntos:",
     "poisonTitle": "🍔 Chatarra",
-    "poisonText": "¡Esquivá 🍔! Te llena la barra de veneno; cuando se llena tenés que ir al baño 🚽 y empezar de nuevo.",
+    "poisonText": "Esquivá la chatarra: llena tu barra de veneno y, si se llena, vas al baño 🚽 y arrancás de nuevo. Cuanto peor, más puntos en contra:",
+    "controlsTitle": "🎮 Controles",
+    "controlsLanes": "cambiar de carril",
+    "controlsSprint": "acelerar (gasta energía)",
+    "controlsBrake": "frenar",
+    "controlsRestart": "reiniciar",
+    "zapTitle": "⚡ Zap al ganador",
+    "zapText": "Cuando termina la carrera, podés mandarle zaps de sats al ganador. Correr rápido se paga en Bitcoin.",
+    "rankingTitle": "🏆 Ranking",
+    "rankingText": "Tu posición al cruzar la meta define tu lugar en el ranking. Mejorá tu puesto carrera a carrera.",
+    "demo": "Demo",
     "cta": "Jugar ahora ▶"
   },
   "login": {

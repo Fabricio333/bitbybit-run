@@ -1,0 +1,154 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-24;
+  padding: $spacing-16 0 $spacing-32;
+}
+
+.title {
+  margin: 0;
+  text-align: center;
+  font-family: $font-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  text-shadow: 3px 3px 0 $pixel-shadow;
+}
+
+.intro {
+  margin: 0 auto;
+  max-width: 640px;
+  text-align: center;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: $spacing-20;
+}
+
+// Arcade panel — surface card with the theme-aware offset edge (neon on dark).
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-12;
+  padding: $spacing-20;
+  background: $color-surface;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-lg;
+  box-shadow: 4px 4px 0 0 $arcade-edge;
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: $font-display;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.cardText {
+  margin: 0;
+  font-size: $font-size-body;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+// Per-food score chips.
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-8;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-4 $spacing-8;
+  border-radius: $border-radius-full;
+  background: $color-bg-2;
+  font-family: $font-display;
+  font-size: $font-size-sm;
+}
+
+.chipIcon {
+  font-size: 1.15em;
+  line-height: 1;
+}
+
+.chipGood {
+  color: $color-secondary;
+  font-weight: $font-weight-bold;
+}
+
+.chipBad {
+  color: $color-error;
+  font-weight: $font-weight-bold;
+}
+
+// Controls list with arrow-key icons.
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.controls li {
+  display: flex;
+  align-items: center;
+  gap: $spacing-12;
+  font-size: $font-size-body;
+  color: $color-text-secondary;
+}
+
+.keys {
+  display: inline-flex;
+  gap: $spacing-4;
+  flex-shrink: 0;
+}
+
+.key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 $spacing-4;
+  border: 2px solid $arcade-edge;
+  border-radius: 4px;
+  background: $color-surface;
+  box-shadow: 2px 2px 0 0 $arcade-edge;
+  color: $color-text-primary;
+  font-family: $font-display;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-16;
+  justify-content: center;
+  margin-top: $spacing-8;
+}
+
+@include mobile {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

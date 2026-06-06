@@ -17,13 +17,18 @@ import styles from "./game-canvas.module.scss";
  */
 export function GameCanvas({
   character = DEFAULT_CHARACTER,
+  onFinish,
 }: {
   character?: Character;
+  onFinish?: (result: { time: number; points: number }) => void;
 }) {
   const t = useTranslations("game");
   const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
+  // Keep the latest callback without re-running the game-creation effect.
+  const onFinishRef = useRef(onFinish);
+  onFinishRef.current = onFinish;
 
   useEffect(() => {
     // Guard against React StrictMode double-invoke in dev.
@@ -57,7 +62,9 @@ export function GameCanvas({
       if (document.fonts?.ready) await document.fonts.ready;
       if (cancelled || !containerRef.current) return;
       game = new Phaser.Game(
-        createGameConfig(containerRef.current, strings, sprite)
+        createGameConfig(containerRef.current, strings, sprite, (result) =>
+          onFinishRef.current?.(result)
+        )
       );
     })();
 
