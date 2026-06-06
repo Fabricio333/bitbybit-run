@@ -19,7 +19,6 @@ type FinishResult = { time: number; points: number };
  * sign in to compete for zaps.
  */
 export function PlayStage({ demo = false }: { demo?: boolean }) {
-  const t = useTranslations("play");
   const tDemo = useTranslations("demo");
   const [selectedId, setSelectedId] = useState<CharacterId>("default");
   const [started, setStarted] = useState(demo);
@@ -103,13 +102,6 @@ export function PlayStage({ demo = false }: { demo?: boolean }) {
     <div className={styles.wrap}>
       <GameCanvas key={selectedId} character={getCharacter(selectedId)} />
       <GameControls />
-      <button
-        type="button"
-        className={styles.change}
-        onClick={() => setStarted(false)}
-      >
-        ← {t("change")}
-      </button>
     </div>
   );
 }

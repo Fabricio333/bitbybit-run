@@ -68,6 +68,10 @@
   font-size: $font-size-xs;
   opacity: 0.85;
   font-weight: $font-weight-normal;
+  // Body font, natural case — the pixel/uppercase Button style isn't
+  // legible for this small descriptive line.
+  font-family: $font-body;
+  text-transform: none;
 }
 
 // Inline help text shown below the disabled button when no NIP-07

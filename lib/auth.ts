@@ -102,5 +102,15 @@ export async function verifySessionToken(
 
 export async function clearSession(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete(SESSION_COOKIE_NAME);
+  // Overwrite with an expired cookie using the SAME attributes it was
+  // set with — a bare `delete(name)` doesn't reliably clear a cookie
+  // set with `secure`/`sameSite`, leaving a valid session that bounces
+  // the user straight back out of /sign-in.
+  cookieStore.set(SESSION_COOKIE_NAME, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 0,
+  });
 }

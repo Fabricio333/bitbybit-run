@@ -108,8 +108,10 @@
 
 .createDescription {
   @include method-button-subtitle;
-  // Body font — the pixel display font isn't legible at this small size.
+  // Body font, natural case — the pixel/uppercase Button style isn't
+  // legible at this small size.
   font-family: $font-body;
+  text-transform: none;
 }
 
 // — Create-identity modal contents —

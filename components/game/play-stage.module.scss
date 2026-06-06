@@ -10,21 +10,6 @@
   width: 100%;
 }
 
-.change {
-  margin-top: $spacing-4;
-  background: none;
-  border: none;
-  color: $color-text-secondary;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  cursor: pointer;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: $color-primary;
-  }
-}
-
 // Demo finish → login-invite modal body.
 .invite {
   display: flex;

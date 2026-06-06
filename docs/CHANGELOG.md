@@ -6,6 +6,26 @@ Dates use `YYYY-MM-DD`.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Sign-out** left a valid session cookie (a bare `cookies().delete()` doesn't
+  clear a `secure`/`sameSite` cookie), so the navbar showed "Login" but `/sign-in`
+  bounced the user straight back. `clearSession` now overwrites the cookie with
+  `maxAge: 0` + matching attributes.
+- **Nostr profile fetch** (first login + "sync profile") returned empty because
+  the configured relays (damus/primal/nostr.band) frequently EOSE with no kind:0
+  event. Switched to a metadata-reliable relay set (purplepag.es + nos.lol first)
+  and raised the query timeout 3s→6s, so name/avatar/lightning actually populate.
+- **Game restart** left the food bubbles invisible: `resetRace()` didn't clear
+  the `resolved` set, so the whole track stayed "already eaten". Cleared on reset.
+
+### Changed
+
+- **/play** no longer shows the "change runner" button — the runner is locked
+  once the race starts (pick it before starting). Sign-in method/extension
+  descriptions use the body font in natural case (not the pixel/uppercase Button
+  style) for legibility.
+
 ### Added (account)
 
 - **Nostr profile in the navbar**: once signed in, the Login button is replaced

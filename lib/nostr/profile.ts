@@ -25,7 +25,7 @@ export interface Kind0Profile {
   lud16?: string;
 }
 
-const QUERY_TIMEOUT_MS = 3_000;
+const QUERY_TIMEOUT_MS = 6_000;
 
 function parseKind0(content: string): Kind0Profile {
   try {

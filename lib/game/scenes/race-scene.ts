@@ -274,6 +274,9 @@ export class RaceScene extends Phaser.Scene {
     this.drunkTimer = 0;
     this.toastText.setText("");
     this.toastTimer = 0;
+    // Forget which foods were eaten/passed so the bubbles render again
+    // on the fresh run (otherwise the whole track stays "resolved").
+    this.resolved.clear();
   }
 
   private pick(arr: string[]): string {
