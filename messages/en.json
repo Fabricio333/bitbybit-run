@@ -228,6 +228,176 @@
     "network": "Connection failed. Check your network and try again.",
     "notFound": "We couldn't find what you were looking for."
   },
+  "fakeAds": {
+    "regionLabelLeft": "Fake advertising (left)",
+    "regionLabelRight": "Fake advertising (right)",
+    "badgeAd": "Ad",
+    "close": "Close ad",
+    "allClosedTitle": "You cleared the spam 🧹",
+    "allClosedBody": "Thanks for not buying shitcoins 🫡",
+    "gagKicker": "Gotcha!",
+    "gagDisclaimer": "This was a fake ad. No sats were harmed.",
+    "gagBackHome": "Back to safety",
+    "gagLearn": "Learn to play",
+    "ads": {
+      "free-bitcoin": {
+        "title": "You won 1 BTC! 🎉",
+        "cta": "Claim now"
+      },
+      "hot-zaps": {
+        "title": "Singles nearby want your zaps 💜",
+        "cta": "See profiles"
+      },
+      "cloud-seed": {
+        "title": "Back up your seed to the cloud ☁️✅",
+        "cta": "Upload seed"
+      },
+      "lambo-90-days": {
+        "title": "Lambo in 90 days 🏎️",
+        "cta": "I want mine"
+      },
+      "browser-miner": {
+        "title": "Mine BTC in your browser ⛏️",
+        "cta": "Start mining"
+      },
+      "sat-faucet": {
+        "title": "FREE SATS 💧 click 4587 times",
+        "cta": "Start clicking"
+      },
+      "double-btc": {
+        "title": "Send 1 BTC, get 2 back 🚀",
+        "cta": "Double now"
+      },
+      "scarcity-21m": {
+        "title": "Only 21M left! Act NOW ⏳",
+        "cta": "Before it's gone"
+      },
+      "elon-giveaway": {
+        "title": "Elon is giving away BTC LIVE 🔴",
+        "cta": "Join the stream"
+      },
+      "shitcoin-1000x": {
+        "title": "$SCAM does 1000x this week 📈",
+        "cta": "Buy now"
+      },
+      "nft-rare": {
+        "title": "ULTRA RARE NFT — 3 left 🖼️",
+        "cta": "Mint it"
+      },
+      "wallet-airdrop": {
+        "title": "Connect your wallet to the airdrop 🪂",
+        "cta": "Connect wallet"
+      },
+      "telegram-signals": {
+        "title": "VIP signals group 💎📲",
+        "cta": "Join free"
+      },
+      "lightning-yield": {
+        "title": "50% APY on your Lightning channel ⚡",
+        "cta": "Enable yield"
+      },
+      "nostr-verify": {
+        "title": "Verify your Nostr account ✅",
+        "cta": "Verify now"
+      },
+      "mining-rig": {
+        "title": "Mining rig -90% TODAY ⛏️🔥",
+        "cta": "Grab the deal"
+      },
+      "quantum-safe": {
+        "title": "Quantum is coming for your BTC! 🛡️",
+        "cta": "Protect now"
+      },
+      "btc-pizza": {
+        "title": "2 pizzas for 10,000 BTC 🍕",
+        "cta": "Order now"
+      }
+    },
+    "gag": {
+      "free-bitcoin": {
+        "headline": "You won 1 BTC… the fake kind 🎈",
+        "body": "Congrats, you just claimed exactly 0 satoshis. Your prize is this free lesson: if it looks too good to be true, it's a scam."
+      },
+      "hot-zaps": {
+        "headline": "The singles were bots ⚡🤖",
+        "body": "The only zaps you'll be sending are to your own notes. Still, good practice."
+      },
+      "cloud-seed": {
+        "headline": "Never upload your seed to the cloud 🙅",
+        "body": "If someone offers to 'back up your seed phrase for you', they're after your money. Not your keys, not your coins."
+      },
+      "lambo-90-days": {
+        "headline": "The only lambo is cardio 🏃",
+        "body": "We don't give away cars here. But if you run in the game, at least you'll burn the calories of an imaginary lambo."
+      },
+      "browser-miner": {
+        "headline": "All you mined was your battery 🔋",
+        "body": "Those 'browser miners' just cook your laptop. Real Bitcoin isn't mined with a click."
+      },
+      "sat-faucet": {
+        "headline": "The faucet was dry 🚰",
+        "body": "4587 clicks later… zero sats. But hey, good exercise for your finger."
+      },
+      "double-btc": {
+        "headline": "Spoiler: nobody doubles your BTC 💸",
+        "body": "The oldest trick in the book. Send 1 BTC and you get exactly nothing back. Keep your coins."
+      },
+      "scarcity-21m": {
+        "headline": "Yes, there are 21 million. Forever. 🪙",
+        "body": "Scarcity is real, the urgency is fake. Nobody is going to 'take' your spot. Breathe."
+      },
+      "elon-giveaway": {
+        "headline": "Elon doesn't know you 🚀",
+        "body": "No billionaire doubles your BTC on a stream. Send coins to that 'official address' and they're gone for good."
+      },
+      "shitcoin-1000x": {
+        "headline": "1000x… straight down 📉",
+        "body": "The only guaranteed shitcoin is the one that leaves you with nothing. Stick to bitcoin and sleep well."
+      },
+      "nft-rare": {
+        "headline": "The JPG is still free with right-click 🖱️",
+        "body": "You paid for the 'right' to a link that can die tomorrow. The art is nice; the urgency isn't."
+      },
+      "wallet-airdrop": {
+        "headline": "You connected your wallet to nothing 🕳️",
+        "body": "Those 'airdrops' that ask you to connect and sign are wallet drainers. Never sign what you don't understand."
+      },
+      "telegram-signals": {
+        "headline": "The only signal was 'run' 🏃",
+        "body": "'Signal' groups make money selling you the entry, not trading. Alpha isn't sold in a Telegram."
+      },
+      "lightning-yield": {
+        "headline": "Your Lightning node isn't a bank ⚡",
+        "body": "Anyone promising magic yield on your sats is playing with your money. Not your node, not your rules."
+      },
+      "nostr-verify": {
+        "headline": "Nostr has no blue check — that's the point 🟣",
+        "body": "Nobody 'verifies' you on Nostr. Your identity is your keys, not a badge someone sells you."
+      },
+      "mining-rig": {
+        "headline": "The rig shipped without the chips 🪫",
+        "body": "'Unmissable' mining deals are usually empty boxes or prepaid scams. If it's too cheap, it's smoke."
+      },
+      "quantum-safe": {
+        "headline": "Your BTC isn't in quantum danger today 🛡️",
+        "body": "Quantum fear is the new excuse to make you move your coins to a 'safe' wallet someone else controls. Relax."
+      },
+      "btc-pizza": {
+        "headline": "That pizza got really expensive 🍕",
+        "body": "A nod to Bitcoin Pizza Day: in 2010 someone paid 10,000 BTC for 2 pizzas. Moral: think twice before spending your sats."
+      },
+      "fallback": {
+        "headline": "You fell for it anyway 🎣",
+        "body": "We're not sure which ad you clicked, but it brought you here. Lesson learned: on the internet, be suspicious of shiny banners."
+      }
+    }
+  },
+  "notFound": {
+    "code": "404",
+    "title": "You ran off the track 🏁",
+    "body": "This page sprinted away and we couldn't catch it. Head back home before the State finds you.",
+    "cta": "Back to home"
+  },
   "common": {
     "back": "Back",
     "cancel": "Cancel",

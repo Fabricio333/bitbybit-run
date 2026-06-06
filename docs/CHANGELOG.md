@@ -13,6 +13,26 @@ Dates use `YYYY-MM-DD`.
   the player to sign in to compete for zaps (returns to `/play` after login).
   The game now surfaces a finish event to React via an `onFinish` callback
   (`createGameConfig` → registry → `RaceScene.checkFinish`).
+- **Fake margin ads (prototype)** — desktop-only "spam" banners pinned to the
+  empty page margins, rendered once from the shared `[locale]` layout so they
+  appear on every page (hidden below `1280px` and over the full-bleed game
+  stages `/play` and `/demo`). Loud arcade styling (thick block border + hard
+  offset shadow, rotated blinking sticker, "Ad" badge, X to close),
+  `prefers-reduced-motion` aware. Closing a banner plays a **slide-out**, then
+  after a short beat a fresh ad from the pool **slides in** from the same edge
+  (dismissals persist in `sessionStorage`); clearing the whole **18-ad pool**
+  reveals a small reward. Each ad has a **unique URL** (`/gotcha/<slug>`) but
+  they all resolve to one dynamic gag page that renders a **different
+  bitcoin/nostr/lightning-scam-debunking joke per slug** (18 gags + a generic
+  fallback for unknown slugs); gag CTAs only point to safe pages (home /
+  how-to-play), never the game. Copy is i18n'd (`fakeAds` namespace, es/en).
+  Files: `lib/fake-ads/ads.ts`, `components/layout/fake-ads/`,
+  `app/[locale]/gotcha/[slug]/`.
+- **Custom 404** — themed `app/[locale]/not-found.tsx` (pixel "404" + runner,
+  arcade styling) plus an `app/[locale]/[...rest]` catch-all that triggers it so
+  unknown localized paths render the styled 404 **inside** the layout (navbar,
+  footer, providers, fonts) instead of Next's bare default. New `notFound` i18n
+  namespace (es/en).
 
 ### Changed
 
@@ -25,7 +45,7 @@ Dates use `YYYY-MM-DD`.
   and Controls use the **custom arrow-key icons** in keycaps. Added an outlined
   **Demo** button beside **Play now**.
 - **Locale**: disabled `Accept-Language` auto-detection (`localeDetection:
-  false`) so the prefix-free default (es) always loads at the root —
+false`) so the prefix-free default (es) always loads at the root —
   run.bitbybit.com.ar shows es; `/en/*` is the English variant via the toggle.
 
 ### Changed (design)

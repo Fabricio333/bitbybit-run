@@ -228,6 +228,176 @@
     "network": "No pudimos conectarnos. Revisá tu conexión y reintentá.",
     "notFound": "No encontramos lo que buscabas."
   },
+  "fakeAds": {
+    "regionLabelLeft": "Publicidad de mentira (izquierda)",
+    "regionLabelRight": "Publicidad de mentira (derecha)",
+    "badgeAd": "Ad",
+    "close": "Cerrar anuncio",
+    "allClosedTitle": "Limpiaste el spam 🧹",
+    "allClosedBody": "Gracias por no comprar shitcoins 🫡",
+    "gagKicker": "¡Caíste!",
+    "gagDisclaimer": "Esto era un anuncio falso. Ningún sat resultó herido.",
+    "gagBackHome": "Volver a lo seguro",
+    "gagLearn": "Aprendé a jugar",
+    "ads": {
+      "free-bitcoin": {
+        "title": "¡Ganaste 1 BTC! 🎉",
+        "cta": "Reclamar ya"
+      },
+      "hot-zaps": {
+        "title": "Solteras cerca quieren tus zaps 💜",
+        "cta": "Ver perfiles"
+      },
+      "cloud-seed": {
+        "title": "Guardá tu seed en la nube ☁️✅",
+        "cta": "Subir seed"
+      },
+      "lambo-90-days": {
+        "title": "Lambo en 90 días 🏎️",
+        "cta": "Quiero el mío"
+      },
+      "browser-miner": {
+        "title": "Miná BTC con tu navegador ⛏️",
+        "cta": "Activar minería"
+      },
+      "sat-faucet": {
+        "title": "SATS GRATIS 💧 clickeá 4587 veces",
+        "cta": "Empezar a clickear"
+      },
+      "double-btc": {
+        "title": "Mandá 1 BTC, te devolvemos 2 🚀",
+        "cta": "Duplicar ahora"
+      },
+      "scarcity-21m": {
+        "title": "¡Solo quedan 21M! Actuá YA ⏳",
+        "cta": "Antes que se acabe"
+      },
+      "elon-giveaway": {
+        "title": "Elon regala BTC EN VIVO 🔴",
+        "cta": "Sumate al stream"
+      },
+      "shitcoin-1000x": {
+        "title": "$SCAM hace 1000x esta semana 📈",
+        "cta": "Comprar ahora"
+      },
+      "nft-rare": {
+        "title": "NFT ULTRA RARO — quedan 3 🖼️",
+        "cta": "Mintear"
+      },
+      "wallet-airdrop": {
+        "title": "Conectá tu wallet al airdrop 🪂",
+        "cta": "Conectar wallet"
+      },
+      "telegram-signals": {
+        "title": "Grupo VIP de señales 💎📲",
+        "cta": "Unirme gratis"
+      },
+      "lightning-yield": {
+        "title": "50% APY en tu canal Lightning ⚡",
+        "cta": "Activar rendimiento"
+      },
+      "nostr-verify": {
+        "title": "Verificá tu cuenta Nostr ✅",
+        "cta": "Verificar ahora"
+      },
+      "mining-rig": {
+        "title": "Rig de minería -90% HOY ⛏️🔥",
+        "cta": "Aprovechar oferta"
+      },
+      "quantum-safe": {
+        "title": "¡Quantum viene por tu BTC! 🛡️",
+        "cta": "Proteger ahora"
+      },
+      "btc-pizza": {
+        "title": "2 pizzas por 10.000 BTC 🍕",
+        "cta": "Pedir ahora"
+      }
+    },
+    "gag": {
+      "free-bitcoin": {
+        "headline": "Ganaste 1 BTC… de los falsos 🎈",
+        "body": "Felicitaciones, acabás de reclamar exactamente 0 satoshis. Tu premio es esta lección gratis: si parece demasiado bueno, es un scam."
+      },
+      "hot-zaps": {
+        "headline": "Las solteras eran bots ⚡🤖",
+        "body": "Los únicos zaps que vas a mandar son a tus propias notas. Igual, nunca está de más practicar."
+      },
+      "cloud-seed": {
+        "headline": "Jamás subas tu seed a la nube 🙅",
+        "body": "Si alguien se ofrece a 'guardar tu frase semilla por vos', lo que quiere es tu plata. Not your keys, not your coins."
+      },
+      "lambo-90-days": {
+        "headline": "El único lambo es el cardio 🏃",
+        "body": "Acá no regalamos autos. Pero si corrés en el juego, al menos quemás las calorías del lambo imaginario."
+      },
+      "browser-miner": {
+        "headline": "Lo único que minaste fue tu batería 🔋",
+        "body": "Esos 'mineros de navegador' solo recalientan tu compu. Bitcoin de verdad no se mina con un click."
+      },
+      "sat-faucet": {
+        "headline": "El grifo estaba seco 🚰",
+        "body": "4587 clicks después… cero sats. Pero bueno, buen ejercicio para el dedo."
+      },
+      "double-btc": {
+        "headline": "Spoiler: nadie duplica tu BTC 💸",
+        "body": "El clásico de los clásicos. Si mandás 1 BTC, te devuelven exactamente nada. Quedate con tus monedas."
+      },
+      "scarcity-21m": {
+        "headline": "Sí, hay 21 millones. Para siempre. 🪙",
+        "body": "La escasez es real, pero el apuro es mentira. Nadie te va a 'sacar' tu lugar. Respirá."
+      },
+      "elon-giveaway": {
+        "headline": "Elon no te conoce 🚀",
+        "body": "Ningún millonario duplica tu BTC en un stream. Si mandás monedas a esa 'dirección oficial', no vuelven nunca."
+      },
+      "shitcoin-1000x": {
+        "headline": "1000x… pero para abajo 📉",
+        "body": "La única shitcoin garantizada es la que te deja sin nada. Quedate con bitcoin y dormí tranquilo."
+      },
+      "nft-rare": {
+        "headline": "El JPG sigue siendo gratis con click derecho 🖱️",
+        "body": "Pagaste por el 'derecho' a un link que puede morir mañana. El arte está bueno; el apuro, no."
+      },
+      "wallet-airdrop": {
+        "headline": "Conectaste tu wallet a la nada 🕳️",
+        "body": "Esos 'airdrops' que te piden conectar y firmar son drenadores de wallet. Nunca firmes algo que no entendés."
+      },
+      "telegram-signals": {
+        "headline": "La única señal era 'corré' 🏃",
+        "body": "Los grupos de 'señales' ganan vendiéndote la entrada, no operando. El alfa no se paga en un Telegram."
+      },
+      "lightning-yield": {
+        "headline": "Tu nodo Lightning no es un banco ⚡",
+        "body": "Cualquiera que prometa rendimiento mágico sobre tus sats está jugando con tu plata. Not your node, not your rules."
+      },
+      "nostr-verify": {
+        "headline": "Nostr no tiene tilde azul — ese es el punto 🟣",
+        "body": "Nadie te 'verifica' en Nostr. Tu identidad son tus claves, no una insignia que alguien te vende."
+      },
+      "mining-rig": {
+        "headline": "El rig venía sin los chips 🪫",
+        "body": "Las gangas de minería 'imperdibles' suelen ser cajas vacías o estafas de prepago. Si es demasiado barato, es humo."
+      },
+      "quantum-safe": {
+        "headline": "Tu BTC no corre peligro cuántico hoy 🛡️",
+        "body": "El miedo cuántico es la nueva excusa para que muevas tus monedas a una wallet 'segura' que controla otro. Tranqui."
+      },
+      "btc-pizza": {
+        "headline": "Esa pizza salió carísima 🍕",
+        "body": "Homenaje al Bitcoin Pizza Day: en 2010 alguien pagó 10.000 BTC por 2 pizzas. Moraleja: pensá dos veces antes de gastar tus sats."
+      },
+      "fallback": {
+        "headline": "Igual caíste 🎣",
+        "body": "No sabemos a qué anuncio le diste click, pero te trajo hasta acá. Lección aprendida: en internet, desconfiá de los carteles que brillan."
+      }
+    }
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Te fuiste de pista 🏁",
+    "body": "Esta página salió a correr y no la alcanzamos. Volvé al inicio antes de que el Estado te encuentre.",
+    "cta": "Volver al inicio"
+  },
   "common": {
     "back": "Atrás",
     "cancel": "Cancelar",
