@@ -1,0 +1,78 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.sent {
+  margin: 0;
+  font-family: $font-display;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-secondary;
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+}
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-8;
+}
+
+.preset {
+  flex: 1 1 0;
+  min-width: 64px;
+  padding: $spacing-8 $spacing-12;
+  background: $color-surface;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-md;
+  color: $color-text-primary;
+  font-family: $font-display;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+
+  &[aria-pressed="true"] {
+    border-color: $color-primary;
+    background: alpha($color-primary, 12%);
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.fieldLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.input {
+  padding: $spacing-12;
+  background: $color-bg;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-md;
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-body;
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+  }
+}
+
+.error {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

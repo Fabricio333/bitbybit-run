@@ -74,7 +74,9 @@ feel-tuning pending.
 
 **Goal:** the "zaps" theme + a demo-ready feel.
 
-- [ ] Results screen: show winner `lud16` + **⚡ Zap winner** (WebLN)
+- [x] Results screen: **⚡️ Zap winner** — manual LNURL-pay tip to the winner's
+      `lud16` via WebLN, with a Nostr-style amount + message picker
+      (`lib/lightning/zap.ts`, `GET /api/lud16`).
 - [ ] Landing page (100vh) + Rules & demo page
 - [ ] Visual/audio polish, tiny sprites, juice (tweens, particles)
 - [ ] Test with 4 real players; tune relay throttling & interpolation

@@ -8,6 +8,18 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **⚡️ Zap the winner.** The results screen offers a manual Lightning tip to the
+  winner (never shown to the winner themselves). The button opens a Nostr-style
+  dialog to pick the **amount** (preset chips 21/100/1000/5000 + a custom field)
+  and an optional **message** (suggested chips + a custom field). It resolves the
+  winner's `lud16` via a new public `GET /api/lud16?pubkey=` (from the users
+  table), runs the LNURL-pay flow — sending the message as the `comment` param
+  when the recipient supports it — and pays the invoice with the viewer's WebLN
+  wallet (`lib/lightning/zap.ts`). No custody, no backend secrets (ARCHITECTURE
+  §7). Shows zapping / sent / friendly-error states (incl. a "need a Lightning
+  wallet" hint). New `components/game/zap-winner.tsx`; `play.results.zap*`
+  strings (es/en); the pure LNURL helpers are unit-tested.
+
 - **End-of-match results screen.** When every runner finishes, the race swaps to
   a standings screen: a winner banner (🏆 You won! / 🏁 {name} wins), the final
   table — rank · player · time · points, with the local player's row

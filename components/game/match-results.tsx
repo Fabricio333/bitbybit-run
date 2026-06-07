@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button/button";
 import { RankingTable } from "@/components/leaderboard/ranking-table";
+import { ZapWinner } from "./zap-winner";
 import { shortPubkey } from "@/lib/utils";
 import type { MatchSnapshot } from "@/lib/multiplayer/types";
 import styles from "./match-results.module.scss";
@@ -57,6 +58,11 @@ export function MatchResults({
         columns={[{ label: t("time") }, { label: t("points") }]}
         rows={rows}
       />
+
+      {/* Tip the winner over Lightning — never shown to the winner. */}
+      {winner && !iWon && (
+        <ZapWinner winnerPubkey={winner.pubkey} winnerName={winnerName} />
+      )}
 
       <div className={styles.actions}>
         <Button href={{ pathname: "/leaderboard" }} size="lg">
