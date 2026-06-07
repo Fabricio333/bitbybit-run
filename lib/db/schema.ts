@@ -4,6 +4,7 @@ import {
   varchar,
   text,
   boolean,
+  integer,
   timestamp,
   uniqueIndex,
   index,
@@ -42,5 +43,51 @@ export const users = pgTable(
     uniqueIndex("users_pubkey_idx").on(table.pubkey),
     uniqueIndex("users_slug_idx").on(table.slug),
     index("users_active_idx").on(table.active),
+  ]
+);
+
+// --- Matches ---
+// One row per *completed* race that gets persisted. The live match runs
+// entirely over Nostr (no server); we only write to the DB when a match
+// ends so the leaderboard and history are queryable. `host_pubkey` is the
+// Nostr identity that hosted; it references `users.pubkey` by value (no FK
+// — a host may not have a local user row yet).
+export const matches = pgTable(
+  "matches",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    // Shared static track id (e.g. "classic-v1") — see lib/game/track.ts.
+    track_id: varchar("track_id", { length: 64 }).notNull(),
+    host_pubkey: varchar("host_pubkey", { length: 64 }).notNull(),
+    started_at: timestamp("started_at"),
+    finished_at: timestamp("finished_at"),
+    created_at: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [index("matches_host_idx").on(table.host_pubkey)]
+);
+
+// --- Results ---
+// One row per player per match: their final placement and points. Keyed to
+// the player by `pubkey` (matches `users.pubkey`, joined lazily for display
+// name/avatar). The unique (match_id, pubkey) pair makes result-saving
+// idempotent.
+export const results = pgTable(
+  "results",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    match_id: uuid("match_id")
+      .notNull()
+      .references(() => matches.id, { onDelete: "cascade" }),
+    pubkey: varchar("pubkey", { length: 64 }).notNull(),
+    position: integer("position").notNull(),
+    points: integer("points").notNull().default(0),
+    // Unix-ms finish time the client reported; null if they never finished.
+    finish_time: timestamp("finish_time"),
+    created_at: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("results_match_idx").on(table.match_id),
+    index("results_pubkey_idx").on(table.pubkey),
+    uniqueIndex("results_match_pubkey_idx").on(table.match_id, table.pubkey),
   ]
 );

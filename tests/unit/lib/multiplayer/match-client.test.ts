@@ -1,0 +1,123 @@
+// @vitest-environment node
+import { describe, it, expect } from "vitest";
+import { generateSecretKey, getPublicKey } from "nostr-tools/pure";
+import { makeNsecSigner } from "@/lib/nostr/signers";
+import { MatchClient, type RunnerInput } from "@/lib/multiplayer/match-client";
+import { MemoryHub, MemoryTransport } from "@/lib/multiplayer/memory-transport";
+
+/**
+ * The core multiplayer contract: two clients sharing one (in-memory)
+ * transport must converge on the same view of the race — same playing
+ * state, same runners, same winner — with zero network. This is the relay
+ * round-trip minus the flakiness.
+ */
+
+function makeSigner() {
+  const sk = generateSecretKey();
+  return makeNsecSigner(sk, getPublicKey(sk));
+}
+
+const moving: RunnerInput = {
+  progress: 0.5,
+  lane: 0,
+  speed: 300,
+  energy: 0.6,
+  poison: 0,
+  status: "running",
+  points: 50,
+};
+
+describe("MatchClient over a shared memory transport", () => {
+  it("converges on roster, play state, runners and winner", async () => {
+    const hub = new MemoryHub();
+    const hostSigner = makeSigner();
+    const guestSigner = makeSigner();
+
+    const roster = [
+      { pubkey: hostSigner.pubkey, lane: 0 },
+      { pubkey: guestSigner.pubkey, lane: 1 },
+    ];
+
+    const host = new MatchClient({
+      transport: new MemoryTransport(hub),
+      signer: hostSigner,
+      matchId: "m1",
+      trackId: "classic-v1",
+      players: roster,
+      isHost: true,
+    });
+    const guest = new MatchClient({
+      transport: new MemoryTransport(hub),
+      signer: guestSigner,
+      matchId: "m1",
+      trackId: "classic-v1",
+      players: roster,
+    });
+
+    // Host starts with a zero countdown → both flip to playing synchronously.
+    await host.start(0);
+    expect(host.getSnapshot().status).toBe("playing");
+    expect(guest.getSnapshot().status).toBe("playing");
+
+    // Each broadcasts its own runner; both should see both runners.
+    await host.broadcastRunner({ ...moving, lane: 0 }, { force: true });
+    await guest.broadcastRunner({ ...moving, lane: 1 }, { force: true });
+
+    for (const client of [host, guest]) {
+      const runners = client.getSnapshot().runners;
+      expect(Object.keys(runners).sort()).toEqual(
+        [hostSigner.pubkey, guestSigner.pubkey].sort()
+      );
+      expect(runners[guestSigner.pubkey].lane).toBe(1);
+    }
+
+    // Host finishes first (earlier finishTime) → wins regardless of order.
+    await guest.finish({ points: 510, finishTime: 200 });
+    await host.finish({ points: 520, finishTime: 100 });
+
+    for (const client of [host, guest]) {
+      const snap = client.getSnapshot();
+      expect(snap.status).toBe("finished");
+      expect(snap.standings.map((r) => r.pubkey)).toEqual([
+        hostSigner.pubkey,
+        guestSigner.pubkey,
+      ]);
+      expect(snap.standings[0].position).toBe(1);
+    }
+
+    host.leave();
+    guest.leave();
+  });
+
+  it("throttles runner broadcasts to the configured rate", async () => {
+    const hub = new MemoryHub();
+    const signer = makeSigner();
+    const client = new MatchClient({
+      transport: new MemoryTransport(hub),
+      signer,
+      matchId: "m2",
+      trackId: "classic-v1",
+      broadcastHz: 5,
+    });
+
+    const first = await client.broadcastRunner(moving);
+    const second = await client.broadcastRunner(moving); // within the 200ms window
+    expect(first).toBe(true);
+    expect(second).toBe(false);
+    expect(await client.broadcastRunner(moving, { force: true })).toBe(true);
+
+    client.leave();
+  });
+
+  it("guards host-only actions", async () => {
+    const hub = new MemoryHub();
+    const client = new MatchClient({
+      transport: new MemoryTransport(hub),
+      signer: makeSigner(),
+      matchId: "m3",
+      trackId: "classic-v1",
+    });
+    await expect(client.start(0)).rejects.toThrow(/host-only/);
+    client.leave();
+  });
+});

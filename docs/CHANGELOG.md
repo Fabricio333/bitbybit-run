@@ -6,6 +6,31 @@ Dates use `YYYY-MM-DD`.
 
 ## [Unreleased]
 
+### Added
+
+- **Multiplayer foundation (Phase 2 groundwork).** The serverless realtime
+  layer from `ARCHITECTURE.md §4` now exists in code — no UI yet, fully
+  unit-tested. New `lib/multiplayer/`:
+  - `transport.ts` — a thin `Transport` interface (publish/subscribe) with two
+    implementations: `nostr-transport.ts` (public relays via `SimplePool`,
+    dedupes by event id) and `memory-transport.ts` (in-process bus, makes the
+    realtime contract testable with zero network).
+  - `events.ts` + `lib/schemas/match.ts` — Zod-validated payloads and
+    build/parse for the four event kinds (30078 discovery, 21001 control,
+    21000 runner state, 21002 finish). Every inbound relay event is validated
+    before it reaches state.
+  - `match-state.ts` — a pure reducer: roster from discovery, newest-wins
+    runner merge, winner resolved by earliest finish time (claimed positions
+    are never trusted).
+  - `match-client.ts` — orchestrator tying transport + reducer + a
+    `SignerHandle`, with ~5 Hz broadcast throttling and a synced countdown;
+    plus a `useMatch` React hook (`lib/hooks/use-match.ts`).
+  - DB: `matches` + `results` tables (`lib/db/schema.ts`, migration
+    `drizzle/0002`) reusing the existing `users.pubkey` identity, and
+    server-only persistence/leaderboard queries in `lib/multiplayer/store.ts`.
+  - Tests cover the schemas, the reducer, and two `MatchClient`s converging
+    over the in-memory transport (same play state, runners and winner).
+
 ### Changed (design)
 
 - **Track reduced from 8 lanes / 8 players to 4 lanes / 4 players.** Two reasons:
