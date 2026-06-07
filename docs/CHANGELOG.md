@@ -8,6 +8,17 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **Match persistence → real leaderboard data.** When a real (≥2-player) match
+  finishes, the host's client POSTs the final standings to a new
+  `POST /api/matches` route, which writes a `matches` row + one `results` row
+  per player via `persistMatchResult`. Idempotent: `matches` gained a unique
+  `nostr_id` (the client match id, migration `0003`), so a retry upserts instead
+  of duplicating, and `results` already dedupes on `(match_id, pubkey)`. The
+  route is session-gated and only accepts a submission from the match's host
+  (client-authoritative — an MVP tradeoff). The leaderboard's `getLeaderboard()`
+  now has real rows to aggregate. New `lib/schemas/match.ts#PersistMatchSchema`;
+  `store.ts` gained `upsertMatch` + `persistMatchResult` (replacing the unused
+  `createMatch`/`finishMatch`). Needs `DATABASE_URL` to run.
 - **Real multiplayer — join via invite link.** Two browsers can now race in the
   same match. The roster model moved from host-authoritative to **self-presence
   aggregation**: each peer publishes its own seat (kind 30078, replaceable per

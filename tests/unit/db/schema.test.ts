@@ -63,6 +63,7 @@ describe("db/schema matches", () => {
     expect(columnNames).toEqual(
       [
         "id",
+        "nostr_id",
         "track_id",
         "host_pubkey",
         "started_at",
@@ -70,6 +71,11 @@ describe("db/schema matches", () => {
         "created_at",
       ].sort()
     );
+  });
+
+  it("keys idempotency on a unique nostr_id", () => {
+    const col = config.columns.find((c) => c.name === "nostr_id");
+    expect(col?.isUnique).toBe(true);
   });
 });
 

@@ -63,7 +63,9 @@ feel-tuning pending.
 - [x] **Join flow**: self-presence aggregation + invite-link join — two real
       browsers race in the same match. Verified end-to-end over public Nostr
       relays. (A browse-all-matches lobby screen is the remaining nicety.)
-- [ ] Neon + Drizzle: persist `Match` / `Result`
+- [x] Neon + Drizzle: persist `Match` / `Result` — host POSTs final standings to
+      `POST /api/matches` on finish (idempotent by `nostr_id`); feeds the
+      leaderboard.
 - [x] Global leaderboard page (`/leaderboard`) — reads `getLeaderboard()`
 
 **Milestone (≈ Jun 18): 2–4 players can race and the leaderboard updates.**
