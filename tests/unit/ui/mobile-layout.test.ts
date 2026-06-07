@@ -17,14 +17,14 @@ describe("mobile game UI layout", () => {
     expect(canvasStyles).toContain("height: 100%");
   });
 
-  it("locks game routes to a no-scroll fullscreen canvas", () => {
+  it("keeps fullscreen/no-scroll game layout scoped to mobile", () => {
     const canvasStyles = read("components/game/game-canvas.module.scss");
     expect(canvasStyles).toContain("touch-action: manipulation");
+    expect(canvasStyles).toContain("@media (max-width: 760px)");
+    expect(canvasStyles).toContain("height: 100dvh");
 
     const pageStyles = read("app/[locale]/play/page.module.scss");
-    expect(pageStyles).toContain("height: 100dvh");
-    expect(pageStyles).toContain("overflow: hidden");
-    expect(pageStyles).toContain("padding: 0");
+    expect(pageStyles).toContain("overflow-y: auto");
   });
 
   it("hides desktop keyboard legend on mobile so it does not waste screen space", () => {
@@ -33,12 +33,14 @@ describe("mobile game UI layout", () => {
     expect(controlsStyles).toContain("display: none");
   });
 
-  it("uses one shared fullscreen game route shell for demo and play", () => {
+  it("uses one shared responsive game route shell for demo and play", () => {
     const shell = read("components/game/game-route-shell.tsx");
     const shellStyles = read("components/game/game-route-shell.module.scss");
     expect(shell).toContain("children: React.ReactNode");
     expect(shell).toContain("styles.page");
     expect(shell).toContain("styles.stage");
+    expect(shellStyles).toContain("overflow-y: auto");
+    expect(shellStyles).toContain("@media (max-width: 760px)");
     expect(shellStyles).toContain("height: 100dvh");
     expect(shellStyles).toContain("overflow: hidden");
 
@@ -48,7 +50,7 @@ describe("mobile game UI layout", () => {
     expect(demo).toContain("<GameRouteShell>");
   });
 
-  it("uses swipe movement plus only boost and power touch buttons over the track", () => {
+  it("uses swipe movement plus only boost and power touch buttons on mobile", () => {
     const canvas = read("components/game/game-canvas.tsx");
     expect(canvas).toContain('dispatchAction(dx > 0 ? "right" : "left")');
     expect(canvas).toContain('dispatchAction(dy > 0 ? "duck" : "jump")');
@@ -56,10 +58,10 @@ describe("mobile game UI layout", () => {
     expect(canvas).toContain('dispatchAction("power")');
     expect(canvas).toContain("styles.boostButton");
     expect(canvas).toContain("styles.powerButton");
-    expect(canvas).not.toContain("laneButtonLeft");
-    expect(canvas).not.toContain("laneButtonRight");
-    expect(canvas).not.toContain("jumpButton");
-    expect(canvas).not.toContain("duckButton");
+    expect(canvas).toContain("styles.laneButtonLeft");
+    expect(canvas).toContain("styles.laneButtonRight");
+    expect(canvas).toContain("styles.jumpButton");
+    expect(canvas).toContain("styles.duckButton");
 
     const canvasStyles = read("components/game/game-canvas.module.scss");
     expect(canvasStyles).toContain(".touchButton");
@@ -68,13 +70,19 @@ describe("mobile game UI layout", () => {
     expect(canvasStyles).toContain("font-size: clamp(1.6rem, 5vw, 2.2rem)");
     expect(canvasStyles).toContain(".boostButton");
     expect(canvasStyles).toContain(".powerButton");
+    expect(canvasStyles).toContain(".laneButtonLeft,");
+    expect(canvasStyles).toContain(".laneButtonRight,");
+    expect(canvasStyles).toContain(".jumpButton,");
+    expect(canvasStyles).toContain(".duckButton");
+    expect(canvasStyles).toContain("display: none");
     expect(canvasStyles).toContain("bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px))");
   });
 
-  it("hides site chrome and in-page game headers on game routes", () => {
+  it("hides site chrome and in-page game headers only on mobile game routes", () => {
     const siteNavbar = read("components/layout/navbar/site-navbar.tsx");
     expect(siteNavbar).toContain('pathname.startsWith("/play")');
     expect(siteNavbar).toContain('pathname.startsWith("/demo")');
+    expect(siteNavbar).toContain("gameRouteChrome");
 
     const layout = read("app/[locale]/layout.tsx");
     expect(layout).toContain("<SiteNavbar />");
@@ -82,19 +90,27 @@ describe("mobile game UI layout", () => {
     const siteFooter = read("components/layout/footer/site-footer.tsx");
     expect(siteFooter).toContain('pathname.startsWith("/play")');
     expect(siteFooter).toContain('pathname.startsWith("/demo")');
+    expect(siteFooter).toContain("gameRouteChrome");
 
     const play = read("app/[locale]/play/page.tsx");
     const demo = read("app/[locale]/demo/page.tsx");
-    expect(play).not.toContain("GameHeader");
-    expect(demo).not.toContain("GameHeader");
+    expect(play).toContain("GameHeader");
+    expect(demo).toContain("GameHeader");
+    expect(play).toContain("styles.mobileHidden");
+    expect(demo).toContain("styles.mobileHidden");
   });
 
-  it("renders the track zoomed in, flatter, and with wider lanes", () => {
+  it("keeps original desktop camera and applies zoomed mobile camera only on phones", () => {
     const scene = read("lib/game/scenes/race-scene.ts");
-    expect(scene).toContain("const NEAR = 620");
-    expect(scene).toContain("this.horizonY = height * 0.12");
-    expect(scene).toContain("this.bottomY = height * 1.08");
-    expect(scene).toContain("this.laneSpacing = width * 0.24");
+    expect(scene).toContain("const DESKTOP_NEAR = 230");
+    expect(scene).toContain("const MOBILE_NEAR = 620");
+    expect(scene).toContain("isMobileGameViewport");
+    expect(scene).toContain("this.near = isMobileGameViewport ? MOBILE_NEAR : DESKTOP_NEAR");
+    expect(scene).toContain("height * 1.08");
+    expect(scene).toContain("height * 0.32");
+    expect(scene).toContain("width * 0.118");
+    expect(scene).toContain("height * 0.12");
+    expect(scene).toContain("width * 0.24");
   });
 
   it("keeps the runner visible when the zoomed track projects below the viewport", () => {

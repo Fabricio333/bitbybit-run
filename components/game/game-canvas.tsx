@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { BoltIcon, BadgeIcon } from "@/components/icons";
 import { DEFAULT_CHARACTER, type Character } from "@/lib/game/characters";
 import type { RunnerAction } from "@/lib/game/player-state";
+import { ArrowIcon } from "@/components/icons/arrow-icon";
+import { BadgeIcon, BoltIcon } from "@/components/icons";
 import styles from "./game-canvas.module.scss";
 
 const SWIPE_THRESHOLD = 32;
@@ -121,6 +122,46 @@ export function GameCanvas({
       }}
     >
       <div ref={containerRef} className={styles.canvas} />
+      <button
+        type="button"
+        className={`${styles.touchButton} ${styles.laneButtonLeft}`}
+        aria-label={tControls("changeLane")}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => dispatchAction("left")}
+      >
+        <ArrowIcon dir="left" />
+        <span>{tControls("changeLane")}</span>
+      </button>
+      <button
+        type="button"
+        className={`${styles.touchButton} ${styles.laneButtonRight}`}
+        aria-label={tControls("changeLane")}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => dispatchAction("right")}
+      >
+        <ArrowIcon dir="right" />
+        <span>{tControls("changeLane")}</span>
+      </button>
+      <button
+        type="button"
+        className={`${styles.touchButton} ${styles.jumpButton}`}
+        aria-label={tControls("jump")}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => dispatchAction("jump")}
+      >
+        <ArrowIcon dir="up" />
+        <span>{tControls("jump")}</span>
+      </button>
+      <button
+        type="button"
+        className={`${styles.touchButton} ${styles.duckButton}`}
+        aria-label={tControls("duck")}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => dispatchAction("duck")}
+      >
+        <ArrowIcon dir="down" />
+        <span>{tControls("duck")}</span>
+      </button>
       <button
         type="button"
         className={`${styles.touchButton} ${styles.powerButton}`}

@@ -2,11 +2,18 @@
 
 import { usePathname } from "@/i18n/routing";
 import { Navbar } from "./navbar";
+import styles from "../game-route-chrome.module.scss";
 
-/** Hide the site navbar on game routes: the game owns the whole viewport. */
+/** Keep desktop chrome intact; hide it with CSS only on mobile game routes. */
 export function SiteNavbar() {
   const pathname = usePathname();
-  if (pathname.startsWith("/play") || pathname.startsWith("/demo")) return null;
+  if (pathname.startsWith("/play") || pathname.startsWith("/demo")) {
+    return (
+      <div className={styles.gameRouteChrome}>
+        <Navbar />
+      </div>
+    );
+  }
   return <Navbar />;
 }
 

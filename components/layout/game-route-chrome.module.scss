@@ -1,0 +1,9 @@
+.gameRouteChrome {
+  display: contents;
+}
+
+@media (max-width: 760px) {
+  .gameRouteChrome {
+    display: none;
+  }
+}

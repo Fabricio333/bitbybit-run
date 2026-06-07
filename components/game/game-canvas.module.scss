@@ -3,19 +3,18 @@
 
 .shell {
   position: relative;
-  width: 100vw;
-  max-width: 100vw;
-  height: 100dvh;
+  width: 100%;
+  max-width: min(100%, 540px);
   margin: 0 auto;
-  overflow: hidden;
   touch-action: manipulation;
 }
 
 .canvas {
   width: 100%;
-  height: 100%;
   aspect-ratio: 9 / 16;
-  border-radius: 0;
+  height: min(100dvh, 960px);
+  max-height: 960px;
+  border-radius: $border-radius-md;
   overflow: hidden;
 }
 
@@ -55,9 +54,29 @@
   }
 }
 
+.laneButtonLeft {
+  left: clamp(10px, 3vw, 20px);
+  bottom: clamp(92px, 18vw, 138px);
+}
+
+.laneButtonRight {
+  right: clamp(10px, 3vw, 20px);
+  bottom: clamp(92px, 18vw, 138px);
+}
+
+.jumpButton {
+  right: clamp(12px, 4vw, 26px);
+  bottom: clamp(176px, 34vw, 248px);
+}
+
+.duckButton {
+  left: clamp(12px, 4vw, 26px);
+  bottom: clamp(176px, 34vw, 248px);
+}
+
 .powerButton,
 .boostButton {
-  bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px));
+  bottom: clamp(14px, 4vw, 28px);
 
   svg {
     width: 62%;
@@ -66,10 +85,45 @@
 }
 
 .powerButton {
-  left: max(14px, env(safe-area-inset-left));
+  left: clamp(14px, 4vw, 28px);
 }
 
 .boostButton {
-  right: max(14px, env(safe-area-inset-right));
+  right: clamp(12px, 4vw, 28px);
   background: rgba(74, 222, 128, 0.3);
+}
+
+@media (max-width: 760px) {
+  .shell {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .canvas {
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .laneButtonLeft,
+  .laneButtonRight,
+  .jumpButton,
+  .duckButton {
+    display: none;
+  }
+
+  .powerButton,
+  .boostButton {
+    bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px));
+  }
+
+  .powerButton {
+    left: max(14px, env(safe-area-inset-left));
+  }
+
+  .boostButton {
+    right: max(14px, env(safe-area-inset-right));
+  }
 }

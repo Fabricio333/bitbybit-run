@@ -34,7 +34,8 @@ import {
  * signs line the track. No 3D, no image assets.
  */
 
-const NEAR = 620; // perspective strength (bigger = closer/flatter)
+const DESKTOP_NEAR = 230; // original desktop perspective strength
+const MOBILE_NEAR = 620; // mobile perspective strength (bigger = closer/flatter)
 const VIEW_DISTANCE = 750; // how far ahead food/signs are rendered
 const HIT_LANE_TOLERANCE = 0.5; // how close to a lane center counts as "in it"
 const FOOD_POOL_SIZE = 20; // reusable emoji slots for visible food
@@ -117,6 +118,7 @@ export class RaceScene extends Phaser.Scene {
   private horizonY = 0;
   private bottomY = 0;
   private laneSpacing = 0;
+  private near = DESKTOP_NEAR;
   private toastTimer = 0;
   private externalInputHandler?: (event: Event) => void;
 
@@ -140,9 +142,13 @@ export class RaceScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-    this.horizonY = height * 0.12;
-    this.bottomY = height * 1.08; // push the near track below the screen for zoom-in
-    this.laneSpacing = width * 0.24;
+    const isMobileGameViewport = window.matchMedia("(max-width: 760px)").matches;
+    this.near = isMobileGameViewport ? MOBILE_NEAR : DESKTOP_NEAR;
+    this.horizonY = isMobileGameViewport ? height * 0.12 : height * 0.32;
+    this.bottomY = isMobileGameViewport
+      ? height * 1.08 // push the near track below the screen for zoom-in
+      : height;
+    this.laneSpacing = isMobileGameViewport ? width * 0.24 : width * 0.118;
 
     this.readFonts();
     const s = this.registry.get("strings") as GameStrings | undefined;
@@ -323,7 +329,7 @@ export class RaceScene extends Phaser.Scene {
 
   /** Project a point at distance `d` ahead, in `lane`, to screen space. */
   private project(d: number, lane: number): Projected {
-    const s = NEAR / (NEAR + Math.max(0, d));
+    const s = this.near / (this.near + Math.max(0, d));
     const y = this.horizonY + (this.bottomY - this.horizonY) * s;
     const x =
       this.scale.width / 2 + (lane - (LANES - 1) / 2) * this.laneSpacing * s;
@@ -608,7 +614,7 @@ export class RaceScene extends Phaser.Scene {
         const t = (d - TRACK_BEND_START) / bendSpan;
         xOff = TRACK_BEND_AMOUNT * t * t;
       }
-      const s = NEAR / (NEAR + d);
+      const s = this.near / (this.near + d);
       const y = this.horizonY + (this.bottomY - this.horizonY) * s;
       segs.push({ s, y, cx: width / 2 + xOff });
     }
@@ -639,7 +645,7 @@ export class RaceScene extends Phaser.Scene {
 
   /** Like project() but allows d < 0 (start line / numbers receding). */
   private projectRaw(d: number, lane: number): Projected {
-    const s = NEAR / (NEAR + d);
+    const s = this.near / (this.near + d);
     const y = this.horizonY + (this.bottomY - this.horizonY) * s;
     const x =
       this.scale.width / 2 + (lane - (LANES - 1) / 2) * this.laneSpacing * s;
@@ -685,7 +691,7 @@ export class RaceScene extends Phaser.Scene {
     const g = this.world;
 
     const lineD = START_LINE_WORLD - this.playerDistance;
-    if (lineD > -40 && NEAR + lineD > 1) {
+    if (lineD > -40 && this.near + lineD > 1) {
       const sl = this.projectRaw(lineD, -0.5);
       const sr = this.projectRaw(lineD, LANES - 0.5);
       g.lineStyle(Math.max(4, 12 * Math.min(1.2, sl.s)), 0xffffff, 1);
@@ -693,7 +699,7 @@ export class RaceScene extends Phaser.Scene {
     }
 
     const d = NUMBERS_WORLD - this.playerDistance;
-    const show = d > -26 && NEAR + d > 1;
+    const show = d > -26 && this.near + d > 1;
     for (let i = 0; i < LANES; i++) {
       const txt = this.startNumbers[i];
       if (!show) {
