@@ -33,7 +33,7 @@ real-time backbone instead of a dedicated game server.**
                       ┌────────────────────────┐
                       │  Next.js API routes      │  (Vercel serverless)
                       │           +              │
-                      │   Neon Postgres (Prisma) │  ← persistent data (free)
+                      │  Neon Postgres (Drizzle) │  ← persistent data (free)
                       └────────────────────────┘
 ```
 
@@ -89,7 +89,7 @@ everyone.
 // shared/track.ts (illustrative)
 export const TRACK = {
   id: "classic-v1",
-  lanes: 8,
+  lanes: 4,
   length: 1000,                       // abstract units to the finish line
   goodFood:  [{ lane: 2, at: 120 }, { lane: 5, at: 300 }, ...],  // hydration
   junkFood:  [{ lane: 3, at: 200 }, { lane: 6, at: 260 }, ...],  // obstacles
@@ -117,7 +117,7 @@ Published & updated in place by the **host**. Lets the lobby list open matches.
     ["t", "bitbybit-run"], // discovery filter
     ["status", "waiting"], // waiting | playing | finished
     ["players", "3"],
-    ["max", "8"],
+    ["max", "4"],
     ["name", "Analia's race"],
   ],
   "content": "{ matchId, host, trackId, players:[{pubkey,lane,name}], createdAt }",
@@ -144,7 +144,7 @@ Each player broadcasts **only their own runner**. Tiny payload, throttled.
 
 ```jsonc
 { "kind": 21000, "tags": [["d","<matchId>"]],
-  "content": "{ pubkey, progress:0..1, lane:0..7, speed, energy:0..1, poison:0..1,
+  "content": "{ pubkey, progress:0..1, lane:0..3, speed, energy:0..1, poison:0..1,
                status:'running'|'bathroom'|'finished', points, t:<unixMs> }" }
 ```
 

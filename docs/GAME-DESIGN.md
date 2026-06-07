@@ -2,15 +2,16 @@
 
 ## 1. Concept
 
-**Bit by Bit Run** is a real-time, multiplayer arcade **runner race** on an
-8-lane athletics track. Up to **8 players** race to the finish line. The twist is
+**Bit by Bit Run** is a real-time, multiplayer arcade **runner race** on a
+4-lane athletics track. Up to **4 players** race to the finish line. The twist is
 a risk/reward food system: eat well to sprint, eat badly and you're sent back to
 the start.
 
 - **Genre:** arcade racer / endless-runner hybrid
-- **Players:** 1–8 per match (8 lanes = 8 runners)
+- **Players:** 1–4 per match (4 lanes = 4 runners)
 - **Session length:** ~60–120 seconds per race
-- **Platform:** web (desktop keyboard first; mobile-friendly later)
+- **Platform:** web, **mobile-friendly by design** (4 lanes read clearly in a
+  narrow portrait viewport; desktop keyboard first, touch controls in Phase 3)
 - **View:** 2.5D "behind the runner" (the track recedes toward a horizon)
 
 ## 2. Core loop
@@ -52,7 +53,7 @@ Design rule: controls must be **dead simple** and readable at a glance. No combo
 - **Accelerating** raises your speed _above_ base — but only while you have
   **energy**. With energy at zero, accelerating does little and you run slow.
 - **Braking** lowers your speed (useful to line up a lane change and dodge junk).
-- You change lanes by moving sideways; lanes are fixed (8 of them).
+- You change lanes by moving sideways; lanes are fixed (4 of them).
 
 ### 4.2 Energy bar (the "good" resource)
 
@@ -105,7 +106,7 @@ Players earn **points** during the race (shown live and in the final ranking):
 2. **Login** — Nostr login (NIP-07); shows your name + avatar from your profile.
 3. **Waiting room (lobby)** — list of **open matches** (discovered via Nostr).
    - Join an existing match, **or** create a new one.
-   - The **host** can start the match with a button, or wait until all 8 lanes
+   - The **host** can start the match with a button, or wait until all 4 lanes
      fill (auto-start).
 4. **Game room** — the race itself. On screen:
    - **Main view (2.5D):** your runner from behind, upcoming food & obstacles.
@@ -118,9 +119,9 @@ Players earn **points** during the race (shown live and in the final ranking):
 ## 8. Match flow
 
 ```
-Create match ──► Lobby fills (1..8 players join via Nostr)
+Create match ──► Lobby fills (1..4 players join via Nostr)
                       │
-        host clicks "Start"  OR  8/8 lanes filled (auto)
+        host clicks "Start"  OR  4/4 lanes filled (auto)
                       │
                  Countdown 3..2..1.. GO  (synced start time)
                       │
