@@ -67,6 +67,10 @@ Everything runs on free tiers — Vercel (hosting), public Nostr relays
 
 - **[`bitbybit-cursats`](https://github.com/bitbybit-ar/bitbybit-cursats)** —
   sibling project in the same family.
+- **[`bitbybit-arena`](https://github.com/bitbybit-ar/bitbybit-arena)** —
+    public Nostr challenges with badges and zaps.
+- **[`bitbybit-habits`](https://github.com/bitbybit-ar/bitbybit-habits)** —
+  habit tracker with Lightning rewards.
 
 ## 📄 License
 
