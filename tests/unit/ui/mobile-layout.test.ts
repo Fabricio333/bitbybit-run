@@ -85,11 +85,11 @@ describe("mobile game UI layout", () => {
     expect(demo).not.toContain("GameHeader");
   });
 
-  it("renders the track closer to the runner", () => {
+  it("renders the track larger with a flatter viewing angle", () => {
     const scene = read("lib/game/scenes/race-scene.ts");
-    expect(scene).toContain("const NEAR = 320");
-    expect(scene).toContain("this.horizonY = height * 0.24");
-    expect(scene).toContain("this.laneSpacing = width * 0.16");
+    expect(scene).toContain("const NEAR = 460");
+    expect(scene).toContain("this.horizonY = height * 0.18");
+    expect(scene).toContain("this.laneSpacing = width * 0.19");
   });
 
   it("does not ask mobile players for the R key after finishing", () => {
