@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { DEFAULT_CHARACTER, type Character } from "@/lib/game/characters";
+import type { RaceNet } from "@/lib/game/race-net";
 import styles from "./game-canvas.module.scss";
 
 /**
@@ -18,9 +19,12 @@ import styles from "./game-canvas.module.scss";
 export function GameCanvas({
   character = DEFAULT_CHARACTER,
   onFinish,
+  raceNet,
 }: {
   character?: Character;
   onFinish?: (result: { time: number; points: number }) => void;
+  /** Multiplayer port (from the lobby). Absent → the canvas is single-player. */
+  raceNet?: RaceNet;
 }) {
   const t = useTranslations("game");
   const locale = useLocale();
@@ -29,6 +33,9 @@ export function GameCanvas({
   // Keep the latest callback without re-running the game-creation effect.
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
+  // The match is fixed for this canvas's life; read at boot, don't re-create.
+  const raceNetRef = useRef(raceNet);
+  raceNetRef.current = raceNet;
 
   useEffect(() => {
     // Guard against React StrictMode double-invoke in dev.
@@ -63,8 +70,12 @@ export function GameCanvas({
       if (document.fonts?.ready) await document.fonts.ready;
       if (cancelled || !containerRef.current) return;
       game = new Phaser.Game(
-        createGameConfig(containerRef.current, strings, sprite, (result) =>
-          onFinishRef.current?.(result)
+        createGameConfig(
+          containerRef.current,
+          strings,
+          sprite,
+          (result) => onFinishRef.current?.(result),
+          raceNetRef.current
         )
       );
     })();
