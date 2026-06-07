@@ -5,6 +5,7 @@ import {
   MatchControlSchema,
   MatchDiscoverySchema,
   MatchFinishSchema,
+  PersistMatchSchema,
   RunnerStateSchema,
 } from "@/lib/schemas/match";
 import {
@@ -115,6 +116,52 @@ describe("schemas/match control + finish", () => {
     expect(MatchFinishSchema.safeParse({ ...ok, position: 0 }).success).toBe(
       false
     );
+  });
+});
+
+describe("schemas/match PersistMatchSchema", () => {
+  const base = {
+    nostrId: "bbr-abc123-1700000000000",
+    trackId: "classic-v1",
+    host: PK,
+    startedAt: 1700000000000,
+    standings: [
+      { pubkey: PK, position: 1, points: 520, finishTime: 100 },
+      { pubkey: "c".repeat(64), position: 2, points: 510, finishTime: null },
+    ],
+  };
+
+  it("accepts a well-formed persist body", () => {
+    expect(PersistMatchSchema.safeParse(base).success).toBe(true);
+  });
+
+  it("requires at least one standing", () => {
+    expect(
+      PersistMatchSchema.safeParse({ ...base, standings: [] }).success
+    ).toBe(false);
+  });
+
+  it("rejects more standings than lanes", () => {
+    const standings = Array.from({ length: LANES + 1 }, (_, i) => ({
+      pubkey: PK,
+      position: i + 1,
+      points: 0,
+      finishTime: null,
+    }));
+    expect(PersistMatchSchema.safeParse({ ...base, standings }).success).toBe(
+      false
+    );
+  });
+
+  it("allows a null finishTime (DNF) but rejects a bad pubkey", () => {
+    expect(
+      PersistMatchSchema.safeParse({
+        ...base,
+        standings: [
+          { pubkey: "xyz", position: 1, points: 0, finishTime: null },
+        ],
+      }).success
+    ).toBe(false);
   });
 });
 

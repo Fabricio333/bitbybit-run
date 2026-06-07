@@ -92,3 +92,24 @@ export const MatchFinishSchema = z.object({
   points: z.number().int(),
 });
 export type MatchFinish = z.infer<typeof MatchFinishSchema>;
+
+/** One resolved placement, as posted to `POST /api/matches`. */
+export const FinalStandingSchema = z.object({
+  pubkey: NostrPubkeySchema,
+  position: z.number().int().positive(),
+  points: z.number().int(),
+  finishTime: z.number().int().nonnegative().nullable(),
+});
+
+/**
+ * Body of `POST /api/matches` — the host submits a finished match's standings
+ * to persist for the leaderboard. `nostrId` is the idempotency key.
+ */
+export const PersistMatchSchema = z.object({
+  nostrId: ShortIdSchema.max(80),
+  trackId: ShortIdSchema,
+  host: NostrPubkeySchema,
+  startedAt: z.number().int().nonnegative().nullable().optional(),
+  standings: z.array(FinalStandingSchema).min(1).max(LANES),
+});
+export type PersistMatchInput = z.infer<typeof PersistMatchSchema>;

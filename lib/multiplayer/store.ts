@@ -7,7 +7,7 @@ import "server-only";
  * `results` row per player, then the leaderboard aggregates across all of
  * them. Mirrors the server-only query style of `lib/creator/users.ts`.
  *
- * Wired for a future `POST /api/matches` route; nothing calls it yet.
+ * Called by `POST /api/matches` when the host's client sees the match finish.
  */
 import { desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
@@ -17,38 +17,60 @@ import type { FinalStanding } from "./types";
 export type Match = typeof matches.$inferSelect;
 export type Result = typeof results.$inferSelect;
 
-export interface CreateMatchInput {
+export interface UpsertMatchInput {
+  /** Client-generated match id (the idempotency key). */
+  nostrId: string;
   trackId: string;
   hostPubkey: string;
-  startedAt?: Date;
+  startedAt?: Date | null;
+  finishedAt?: Date | null;
 }
 
-/** Insert a match row and return it. */
-export async function createMatch(input: CreateMatchInput): Promise<Match> {
+/**
+ * Insert a match keyed by its `nostr_id`, or return the existing row —
+ * idempotent so re-submitting the same finished match never duplicates it.
+ */
+export async function upsertMatch(input: UpsertMatchInput): Promise<Match> {
   const db = getDb();
   const [row] = await db
     .insert(matches)
     .values({
+      nostr_id: input.nostrId,
       track_id: input.trackId,
       host_pubkey: input.hostPubkey,
       started_at: input.startedAt ?? null,
+      finished_at: input.finishedAt ?? null,
+    })
+    .onConflictDoUpdate({
+      target: matches.nostr_id,
+      set: { finished_at: input.finishedAt ?? new Date() },
     })
     .returning();
   return row;
 }
 
-/** Stamp a match as finished. */
-export async function finishMatch(
-  matchId: string,
-  finishedAt: Date = new Date()
-): Promise<Match | null> {
-  const db = getDb();
-  const [row] = await db
-    .update(matches)
-    .set({ finished_at: finishedAt })
-    .where(eq(matches.id, matchId))
-    .returning();
-  return row ?? null;
+/**
+ * Persist a finished match end-to-end: upsert the match row (by `nostr_id`)
+ * then its standings. Fully idempotent — safe to call more than once for the
+ * same match. Returns the match's DB id.
+ */
+export async function persistMatchResult(input: {
+  nostrId: string;
+  trackId: string;
+  hostPubkey: string;
+  startedAt?: Date | null;
+  finishedAt?: Date | null;
+  standings: FinalStanding[];
+}): Promise<string> {
+  const match = await upsertMatch({
+    nostrId: input.nostrId,
+    trackId: input.trackId,
+    hostPubkey: input.hostPubkey,
+    startedAt: input.startedAt,
+    finishedAt: input.finishedAt ?? new Date(),
+  });
+  await saveResults(match.id, input.standings);
+  return match.id;
 }
 
 /**

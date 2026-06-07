@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { GameCanvas } from "./game-canvas";
@@ -98,6 +98,7 @@ function SignedInStage({
 function LobbyAndRace({ currentUser }: { currentUser: CurrentUser }) {
   const match = useMatchContext();
   const [selectedId, setSelectedId] = useState<CharacterId>("default");
+  usePersistOnFinish(match);
 
   const status = match.snapshot?.status ?? "waiting";
   if (status === "waiting") {
@@ -117,6 +118,34 @@ function LobbyAndRace({ currentUser }: { currentUser: CurrentUser }) {
       <GameControls />
     </div>
   );
+}
+
+/**
+ * Once a real match (≥2 players) finishes, the host posts the final standings
+ * to persist them for the leaderboard — exactly once, best-effort.
+ */
+function usePersistOnFinish(match: ReturnType<typeof useMatchContext>) {
+  const postedRef = useRef(false);
+  const snap = match.snapshot;
+  const finished = snap?.status === "finished";
+  const multiplayer = (snap?.players.length ?? 0) > 1;
+
+  useEffect(() => {
+    if (postedRef.current) return;
+    if (!match.isHost || !finished || !multiplayer || !snap) return;
+    postedRef.current = true;
+    void fetch("/api/matches", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        nostrId: snap.matchId,
+        trackId: snap.trackId,
+        host: match.selfPubkey,
+        startedAt: snap.startAt,
+        standings: snap.standings,
+      }),
+    }).catch(() => {});
+  }, [match.isHost, match.selfPubkey, finished, multiplayer, snap]);
 }
 
 /** No live signer: a local single-player lobby + race (no match). */

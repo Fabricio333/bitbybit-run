@@ -56,6 +56,9 @@ export const matches = pgTable(
   "matches",
   {
     id: uuid("id").primaryKey().defaultRandom(),
+    // Client-generated match id from the Nostr layer (e.g. "bbr-<host>-<ts>").
+    // Unique so persisting the same match twice upserts instead of duplicating.
+    nostr_id: varchar("nostr_id", { length: 80 }).notNull().unique(),
     // Shared static track id (e.g. "classic-v1") — see lib/game/track.ts.
     track_id: varchar("track_id", { length: 64 }).notNull(),
     host_pubkey: varchar("host_pubkey", { length: 64 }).notNull(),
