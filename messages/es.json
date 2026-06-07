@@ -13,7 +13,8 @@
     "signOut": "Cerrar sesión",
     "account": "Cuenta",
     "syncProfile": "Sincronizar perfil de Nostr",
-    "syncing": "Sincronizando…"
+    "syncing": "Sincronizando…",
+    "leaderboard": "Ranking"
   },
   "landing": {
     "title": "Bit by Bit Run",
@@ -21,6 +22,16 @@
     "tagline": "Corré, Comé, Ganá 🏃💨\nEl cardio nunca pagó tan bien.",
     "play": "Jugar",
     "howToPlay": "Cómo jugar"
+  },
+  "leaderboard": {
+    "title": "Ranking",
+    "subtitle": "Cada carrera cuenta. Ganá carriles, sumá puntos y escalá la tabla.",
+    "rank": "#",
+    "player": "Jugador",
+    "wins": "Victorias",
+    "points": "Puntos",
+    "races": "Carreras",
+    "empty": "Todavía no hay carreras — sé el primero en liderar la tabla."
   },
   "play": {
     "phase": "Fase 1 · prototipo de un jugador",

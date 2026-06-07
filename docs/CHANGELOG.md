@@ -8,6 +8,16 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **Global leaderboard page.** New `/leaderboard` route (server component,
+  `force-dynamic`) that renders the existing `getLeaderboard()` aggregation as a
+  ranked table: rank · player (Nostr avatar + display name, falling back to a
+  shortened pubkey and an initial badge) · wins · points · races, with a podium
+  accent on the top three and the `races` column collapsing on phones. Reachable
+  from a new **Leaderboard / Ranking** link in the navbar. Until match
+  persistence is wired the query returns no rows, so the page shows a friendly
+  empty state (and degrades to it if the DB is absent). New
+  `components/leaderboard/leaderboard-table.tsx`; `leaderboard` + `nav.leaderboard`
+  message keys added in both locales.
 - **Lobby → race handoff.** The match now lives in a new `<MatchProvider>` above
   the whole competitive flow, so the lobby's `MatchClient` carries straight into
   the race instead of being thrown away on start. `useMatch` exposes the live
