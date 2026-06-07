@@ -12,6 +12,7 @@ import {
 import { SESSION_INACTIVITY_MINUTES } from "@/lib/auth-constants";
 import { fetchKind0Profile } from "@/lib/nostr/profile";
 import { ensureUserForPubkey, refreshUserFromKind0 } from "@/lib/creator/users";
+import { publicRequestUrl } from "@/lib/auth/request-url";
 
 /**
  * NIP-98 (HTTP Auth) login.
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const signedEvent = parsed.event;
 
   const validation = validateNip98AuthEvent(signedEvent, {
-    url: req.nextUrl.toString(),
+    url: publicRequestUrl(req.url, req.headers),
     method: req.method,
   });
   if (!validation.ok) {
