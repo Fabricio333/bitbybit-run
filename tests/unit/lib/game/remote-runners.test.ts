@@ -28,11 +28,7 @@ function runner(pubkey: string, over: Partial<RunnerState> = {}): RunnerState {
 describe("remote-runners interpolation", () => {
   it("excludes the local player", () => {
     const rr = new RemoteRunners();
-    rr.ingest(
-      { [A]: runner(A), [SELF]: runner(SELF) },
-      SELF,
-      1000
-    );
+    rr.ingest({ [A]: runner(A), [SELF]: runner(SELF) }, SELF, 1000);
     const views = rr.frame(1000);
     expect(views.map((v) => v.pubkey)).toEqual([A]);
   });
@@ -69,11 +65,19 @@ describe("remote-runners interpolation", () => {
 
   it("ignores stale samples (older sender timestamp)", () => {
     const rr = new RemoteRunners();
-    rr.ingest({ [A]: runner(A, { t: 5, progress: 0.5, speed: 0 }) }, SELF, 1000);
+    rr.ingest(
+      { [A]: runner(A, { t: 5, progress: 0.5, speed: 0 }) },
+      SELF,
+      1000
+    );
     // settle near 0.5
     for (let now = 1000; now <= 1500; now += 50) rr.frame(now);
     // a stale, lower-progress sample must not rewind the runner
-    rr.ingest({ [A]: runner(A, { t: 2, progress: 0.05, speed: 0 }) }, SELF, 1500);
+    rr.ingest(
+      { [A]: runner(A, { t: 2, progress: 0.05, speed: 0 }) },
+      SELF,
+      1500
+    );
     const p = rr.frame(1550)[0].progress;
     expect(p).toBeGreaterThan(0.4);
   });

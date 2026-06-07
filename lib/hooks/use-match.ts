@@ -21,6 +21,8 @@ export interface UseMatchOptions {
   signer: SignerHandle;
   matchId: string;
   trackId: string;
+  /** Match creator's pubkey (joiners pass the host they're joining). */
+  host?: string;
   players?: MatchPlayer[];
   isHost?: boolean;
   /** Override the realtime transport (defaults to public Nostr relays). */
@@ -32,14 +34,14 @@ export interface UseMatch {
    *  game layer can build a `RaceNet` from the same instance. */
   client: MatchClient | null;
   snapshot: MatchSnapshot;
-  announceLobby: (name?: string) => Promise<void>;
+  /** Announce/update this peer's own seat (claim a lane, set a name). */
+  announceSelf: (seat: { lane: number; name?: string }) => Promise<void>;
   start: (countdownMs?: number) => Promise<void>;
   broadcastRunner: (
     input: RunnerInput,
     opts?: { force?: boolean }
   ) => Promise<boolean>;
   finish: (input: { points: number; finishTime?: number }) => Promise<void>;
-  setRoster: (players: MatchPlayer[]) => void;
 }
 
 export function useMatch(options: UseMatchOptions): UseMatch {
@@ -47,6 +49,7 @@ export function useMatch(options: UseMatchOptions): UseMatch {
     signer,
     matchId,
     trackId,
+    host,
     players,
     isHost,
     transport: injectedTransport,
@@ -64,6 +67,7 @@ export function useMatch(options: UseMatchOptions): UseMatch {
       signer,
       matchId,
       trackId,
+      host,
       players,
       isHost,
     });
@@ -80,12 +84,13 @@ export function useMatch(options: UseMatchOptions): UseMatch {
       setClient(null);
     };
     // Re-init only on a genuine identity change. `players` is just a seed
-    // (a fresh array each render); roster updates flow through setRoster, so
-    // it is intentionally excluded to avoid tearing down the live client.
-  }, [signer, matchId, trackId, isHost, injectedTransport]);
+    // (a fresh array each render); the roster aggregates from presence, so it
+    // is intentionally excluded to avoid tearing down the live client.
+  }, [signer, matchId, trackId, host, isHost, injectedTransport]);
 
-  const announceLobby = useCallback(
-    (name?: string) => clientRef.current!.announceLobby(name),
+  const announceSelf = useCallback(
+    (seat: { lane: number; name?: string }) =>
+      clientRef.current!.announceSelf(seat),
     []
   );
   const start = useCallback(
@@ -102,17 +107,13 @@ export function useMatch(options: UseMatchOptions): UseMatch {
       clientRef.current!.finish(input),
     []
   );
-  const setRoster = useCallback(
-    (next: MatchPlayer[]) => clientRef.current!.setRoster(next),
-    []
-  );
 
   // Stable empty snapshot for the first render before the effect runs.
   const fallback = useMemo<MatchSnapshot>(
     () => ({
       matchId,
       trackId,
-      host: isHost ? signer.pubkey : "",
+      host: host ?? (isHost ? signer.pubkey : ""),
       status: "waiting",
       startAt: null,
       players: players ?? [],
@@ -120,16 +121,15 @@ export function useMatch(options: UseMatchOptions): UseMatch {
       finishes: {},
       standings: [],
     }),
-    [matchId, trackId, isHost, signer.pubkey, players]
+    [matchId, trackId, host, isHost, signer.pubkey, players]
   );
 
   return {
     client,
     snapshot: snapshot ?? fallback,
-    announceLobby,
+    announceSelf,
     start,
     broadcastRunner,
     finish,
-    setRoster,
   };
 }

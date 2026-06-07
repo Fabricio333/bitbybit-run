@@ -8,6 +8,21 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **Real multiplayer — join via invite link.** Two browsers can now race in the
+  same match. The roster model moved from host-authoritative to **self-presence
+  aggregation**: each peer publishes its own seat (kind 30078, replaceable per
+  author) on the match channel and every client aggregates the presences into
+  the roster — no server to own it. Joining is an invite link: the host's lobby
+  shows a copyable `/play?m=<matchId>&h=<host>` URL; opening it joins that match
+  instead of hosting a new one. `MatchClient.announceLobby`/`setRoster` were
+  replaced by `announceSelf({lane,name})` (any peer); `matchFilter` now carries
+  discovery so presence rides the same channel; `match-state` upserts seats by
+  pubkey. The lobby reads `isHost` (joiners wait, host starts), and the host's
+  start signal flips everyone into the race via match status. Verified end-to-end
+  over **public Nostr relays** (two independent clients: roster converges, start
+  propagates, runner state crosses, both resolve the same winner) plus a
+  two-client unit test. Still pending: a browse-all-matches lobby screen (invite
+  links cover joining for now).
 - **Global leaderboard page.** New `/leaderboard` route (server component,
   `force-dynamic`) that renders the existing `getLeaderboard()` aggregation as a
   ranked table: rank · player (Nostr avatar + display name, falling back to a

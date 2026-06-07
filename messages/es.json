@@ -45,7 +45,11 @@
       "claimHint": "Elegí un corredor para ocupar un carril",
       "ready": "Estoy listo",
       "cancelReady": "No estoy listo",
-      "startRace": "Empezar carrera"
+      "startRace": "Empezar carrera",
+      "waitingHost": "Esperando que el anfitrión arranque…",
+      "invite": "Invitá a tus rivales",
+      "copy": "Copiar link",
+      "copied": "¡Copiado!"
     },
     "soundOn": "Activar sonido",
     "soundOff": "Silenciar",

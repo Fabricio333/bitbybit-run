@@ -120,4 +120,55 @@ describe("MatchClient over a shared memory transport", () => {
     await expect(client.start(0)).rejects.toThrow(/host-only/);
     client.leave();
   });
+
+  it("builds a shared roster from each peer's self-presence (join flow)", async () => {
+    const hub = new MemoryHub();
+    const hostSigner = makeSigner();
+    const guestSigner = makeSigner();
+
+    // Host creates the match; guest joins it by id (no seed roster).
+    const host = new MatchClient({
+      transport: new MemoryTransport(hub),
+      signer: hostSigner,
+      matchId: "m4",
+      trackId: "classic-v1",
+      isHost: true,
+    });
+    const guest = new MatchClient({
+      transport: new MemoryTransport(hub),
+      signer: guestSigner,
+      matchId: "m4",
+      trackId: "classic-v1",
+      host: hostSigner.pubkey,
+    });
+
+    // Each announces their own seat; both rosters converge to 2, lane-sorted.
+    await host.announceSelf({ lane: 0, name: "Host" });
+    await guest.announceSelf({ lane: 1, name: "Guest" });
+
+    for (const client of [host, guest]) {
+      const players = client.getSnapshot().players;
+      expect(players.map((p) => p.pubkey)).toEqual([
+        hostSigner.pubkey,
+        guestSigner.pubkey,
+      ]);
+      expect(client.getSnapshot().host).toBe(hostSigner.pubkey);
+    }
+
+    // Re-claiming a lane updates in place (no duplicate seat).
+    await guest.announceSelf({ lane: 2, name: "Guest" });
+    expect(host.getSnapshot().players).toHaveLength(2);
+    expect(
+      host.getSnapshot().players.find((p) => p.pubkey === guestSigner.pubkey)
+        ?.lane
+    ).toBe(2);
+
+    // Only the host may start.
+    await expect(guest.start(0)).rejects.toThrow(/host-only/);
+    await host.start(0);
+    expect(guest.getSnapshot().status).toBe("playing");
+
+    host.leave();
+    guest.leave();
+  });
 });

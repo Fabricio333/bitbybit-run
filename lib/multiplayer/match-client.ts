@@ -25,11 +25,7 @@ import {
   matchFilter,
   parseEvent,
 } from "./events";
-import {
-  applyEvent,
-  beginPlaying,
-  createMatchState,
-} from "./match-state";
+import { applyEvent, beginPlaying, createMatchState } from "./match-state";
 import type { Subscription, Transport } from "./transport";
 import type { MatchPlayer, MatchSnapshot } from "./types";
 
@@ -38,9 +34,11 @@ export interface MatchClientOptions {
   signer: SignerHandle;
   matchId: string;
   trackId: string;
-  /** Seed roster (the lobby resolves who's in before the race). */
+  /** Match creator's pubkey. Defaults to this signer when `isHost`. */
+  host?: string;
+  /** Seed roster (e.g. tests); normally the roster aggregates from presence. */
   players?: MatchPlayer[];
-  /** Is this client the match host (can announce + start)? */
+  /** Is this client the match host (can start the race)? */
   isHost?: boolean;
   /** Runner-state broadcast rate; defaults to ~5 Hz (ARCHITECTURE §4.3). */
   broadcastHz?: number;
@@ -58,6 +56,7 @@ export class MatchClient {
   private readonly transport: Transport;
   private readonly signer: SignerHandle;
   private readonly isHost: boolean;
+  private readonly host: string;
   private readonly intervalMs: number;
 
   private state: MatchSnapshot;
@@ -72,17 +71,17 @@ export class MatchClient {
     this.transport = opts.transport;
     this.signer = opts.signer;
     this.isHost = opts.isHost ?? false;
+    this.host = opts.host ?? (this.isHost ? opts.signer.pubkey : "");
     this.intervalMs = 1000 / (opts.broadcastHz ?? 5);
     this.state = createMatchState({
       matchId: opts.matchId,
       trackId: opts.trackId,
-      host: opts.isHost ? opts.signer.pubkey : "",
+      host: this.host,
       players: opts.players,
     });
 
-    this.sub = this.transport.subscribe(
-      matchFilter(this.matchId),
-      (event) => this.handleEvent(event)
+    this.sub = this.transport.subscribe(matchFilter(this.matchId), (event) =>
+      this.handleEvent(event)
     );
   }
 
@@ -102,29 +101,29 @@ export class MatchClient {
     return () => this.listeners.delete(listener);
   }
 
-  /** Replace the roster (the lobby owns who's in; injected before racing). */
-  setRoster(players: MatchPlayer[]): void {
-    this.state = { ...this.state, players };
-    this.emit();
-  }
-
   /**
-   * Host-only: publish/refresh the kind 30078 lobby roster. No-op echo into
-   * the match channel (discovery isn't part of `matchFilter`); the lobby
-   * subscribes separately to surface it.
+   * Announce (or update) this peer's own seat — claiming a lane, setting a
+   * name. Every client does this; the roster aggregates the presences. The
+   * local state is updated optimistically so the UI doesn't wait for the echo.
    */
-  async announceLobby(name?: string): Promise<void> {
-    this.assertHost("announceLobby");
-    this.state = { ...this.state, host: this.signer.pubkey };
+  async announceSelf(seat: { lane: number; name?: string }): Promise<void> {
     const payload: MatchDiscovery = {
       matchId: this.matchId,
-      host: this.signer.pubkey,
       trackId: this.trackId,
-      players: this.state.players,
+      host: this.host,
+      pubkey: this.signer.pubkey,
+      lane: seat.lane,
+      name: seat.name,
       createdAt: Date.now(),
     };
+    // Optimistic local upsert (same path as an inbound presence).
+    const next = applyEvent(this.state, { type: "discovery", data: payload });
+    if (next !== this.state) {
+      this.state = next;
+      this.emit();
+    }
     const event = await this.signer.sign(
-      buildDiscoveryEvent(payload, this.state.status, name)
+      buildDiscoveryEvent(payload, this.state.status)
     );
     await this.transport.publish(event);
   }
@@ -157,7 +156,11 @@ export class MatchClient {
       return false;
     }
     this.lastBroadcast = now;
-    const payload: RunnerState = { ...input, pubkey: this.signer.pubkey, t: now };
+    const payload: RunnerState = {
+      ...input,
+      pubkey: this.signer.pubkey,
+      t: now,
+    };
     const event = await this.signer.sign(
       buildRunnerEvent(this.matchId, payload)
     );
@@ -166,10 +169,7 @@ export class MatchClient {
   }
 
   /** Announce the local runner crossing the line. */
-  async finish(input: {
-    points: number;
-    finishTime?: number;
-  }): Promise<void> {
+  async finish(input: { points: number; finishTime?: number }): Promise<void> {
     const finishTime = input.finishTime ?? Date.now();
     // Tentative position from what we've seen; the reducer recomputes the
     // authoritative order from finish times, so this is only a hint.

@@ -32,29 +32,27 @@ export const KIND = {
 /** Project discovery tag — `["t", T_TAG]` filters the lobby. */
 export const T_TAG = "bitbybit-run";
 
-/** Discovery events are addressed `bitbybit-run-<matchId>`; control /
- *  runner / finish events use the bare `<matchId>` as their `d` tag. */
-function discoveryAddress(matchId: string): string {
-  return `${T_TAG}-${matchId}`;
-}
-
 function nowSeconds(): number {
   return Math.floor(Date.now() / 1000);
 }
 
+/**
+ * Build this peer's self-presence (kind 30078). Replaceable per author, so
+ * re-announcing (e.g. changing lane) overwrites the previous one. The `#d`
+ * tag is the bare matchId so it rides the same channel as control/runner/
+ * finish; the `#t` tag keeps it discoverable by a future lobby browser.
+ */
 export function buildDiscoveryEvent(
   payload: MatchDiscovery,
-  status: MatchStatus,
-  name?: string
+  status: MatchStatus = "waiting"
 ): UnsignedNostrEvent {
   const tags: string[][] = [
-    ["d", discoveryAddress(payload.matchId)],
+    ["d", payload.matchId],
     ["t", T_TAG],
     ["status", status],
-    ["players", String(payload.players.length)],
     ["max", String(MAX_PLAYERS)],
   ];
-  if (name) tags.push(["name", name]);
+  if (payload.name) tags.push(["name", payload.name]);
   return {
     kind: KIND.DISCOVERY,
     created_at: nowSeconds(),
@@ -144,12 +142,14 @@ export function lobbyFilter(): Filter {
 }
 
 /**
- * Subscription for a single match's realtime channel (control + runner +
- * finish). `sinceSeconds` trims replayed history when (re)joining.
+ * Subscription for a single match's whole channel — presence (discovery),
+ * control, runner state and finish all ride the bare `#d = matchId` tag, so
+ * one filter delivers the roster *and* the realtime traffic. `sinceSeconds`
+ * trims replayed history when (re)joining.
  */
 export function matchFilter(matchId: string, sinceSeconds?: number): Filter {
   const filter: Filter = {
-    kinds: [KIND.CONTROL, KIND.RUNNER, KIND.FINISH],
+    kinds: [KIND.DISCOVERY, KIND.CONTROL, KIND.RUNNER, KIND.FINISH],
     "#d": [matchId],
   };
   if (sinceSeconds !== undefined) filter.since = sinceSeconds;
