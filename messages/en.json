@@ -33,7 +33,10 @@
       "changeLane": "change lane",
       "sprint": "sprint",
       "brake": "brake",
-      "restart": "restart"
+      "restart": "restart",
+      "touchLanes": "tap the sides to change lane",
+      "touchSprint": "hold the centre to sprint",
+      "touchRestart": "tap to restart"
     }
   },
   "demo": {

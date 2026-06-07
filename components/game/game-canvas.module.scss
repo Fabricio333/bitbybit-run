@@ -3,8 +3,20 @@
 .canvas {
   width: 100%;
   max-width: 960px;
+  // Landscape/desktop: the familiar 16:9 box. The Phaser canvas (Scale.RESIZE)
+  // fills this element, so the box shape decides the play area's aspect.
   aspect-ratio: 16 / 9;
+  max-height: 80svh;
   margin: 0 auto;
   border-radius: $border-radius-md;
   overflow: hidden;
+}
+
+// Portrait/mobile: give the track real vertical room (a taller box) instead of
+// a thin 16:9 strip. The track keeps its width and stays fully visible; the
+// roadside signs are what get squeezed.
+@media (orientation: portrait) {
+  .canvas {
+    aspect-ratio: 3 / 4;
+  }
 }

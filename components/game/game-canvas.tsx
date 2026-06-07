@@ -52,6 +52,7 @@ export function GameCanvas({
       sheet: character.sheet,
       frameWidth: character.frameWidth,
       frameHeight: character.frameHeight,
+      startLane: character.startLane,
     };
 
     (async () => {
