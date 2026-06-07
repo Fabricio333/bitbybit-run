@@ -36,6 +36,13 @@ feel-tuning pending.
 - [x] Nostr login — full sign-in ported from cursats (NIP-07 extension, NIP-46
       bunker/QR/Amber, nsec, create-identity) + JWT session + Neon `users` table.
       See [AUTH.md](AUTH.md). (Needs `DATABASE_URL` + `AUTH_SECRET` to run.)
+- [x] **Multiplayer foundation** (`lib/multiplayer/`): swappable `Transport`
+      (Nostr relays + in-memory test bus), Zod schemas + build/parse for the
+      four event kinds, pure match state machine (roster, runner merge, winner
+      resolution), `MatchClient` orchestrator + `useMatch` hook, and the
+      `matches`/`results` tables + leaderboard queries. Unit-tested (two clients
+      converge over the in-memory transport); no UI yet — the items below build
+      on it.
 - [ ] Lobby: publish/discover matches via kind `30078` (`t = bitbybit-run`)
 - [ ] Create match / join match; host start button + auto-start at 4/4
 - [ ] Synced countdown via `startAt` (kind `21001`)
