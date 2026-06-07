@@ -59,6 +59,15 @@ describe("mobile game UI layout", () => {
     expect(es).toContain('"language"');
   });
 
+  it("does not show global sticky ad banners on game routes", () => {
+    const siteAds = read("components/layout/fake-ads/site-fake-ads.tsx");
+    expect(siteAds).toContain('pathname.startsWith("/play")');
+    expect(siteAds).toContain('pathname.startsWith("/demo")');
+
+    const layout = read("app/[locale]/layout.tsx");
+    expect(layout).toContain("<SiteFakeAds />");
+  });
+
   it("does not let the PWA service worker pin stale Next.js CSS/JS assets", () => {
     const sw = read("public/sw.js");
     expect(sw).toContain("bitbybit-run-pwa-v3");

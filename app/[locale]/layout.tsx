@@ -11,7 +11,7 @@ import { routing } from "@/i18n/routing";
 import { ThemeProvider } from "@/lib/contexts/theme-context";
 import { Navbar } from "@/components/layout/navbar/navbar";
 import { SiteFooter } from "@/components/layout/footer/site-footer";
-import { FakeAds } from "@/components/layout/fake-ads/fake-ads";
+import { SiteFakeAds } from "@/components/layout/fake-ads/site-fake-ads";
 import { SignerProviderClient } from "@/components/auth/signer-provider-client";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { getSession } from "@/lib/auth";
@@ -137,7 +137,7 @@ export default async function LocaleLayout({
               </a>
               <Navbar />
               <main id="main">{children}</main>
-              <FakeAds />
+              <SiteFakeAds />
               <SiteFooter />
             </SignerProviderClient>
           </ThemeProvider>
