@@ -65,6 +65,7 @@ describe("mobile game UI layout", () => {
     expect(canvasStyles).toContain(".touchButton");
     expect(canvasStyles).toContain(".boostButton");
     expect(canvasStyles).toContain(".powerButton");
+    expect(canvasStyles).toContain("bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px))");
   });
 
   it("hides site chrome and in-page game headers on game routes", () => {
@@ -85,11 +86,12 @@ describe("mobile game UI layout", () => {
     expect(demo).not.toContain("GameHeader");
   });
 
-  it("renders the track larger with a flatter viewing angle", () => {
+  it("renders the track zoomed in, flatter, and with wider lanes", () => {
     const scene = read("lib/game/scenes/race-scene.ts");
-    expect(scene).toContain("const NEAR = 460");
-    expect(scene).toContain("this.horizonY = height * 0.18");
-    expect(scene).toContain("this.laneSpacing = width * 0.19");
+    expect(scene).toContain("const NEAR = 620");
+    expect(scene).toContain("this.horizonY = height * 0.12");
+    expect(scene).toContain("this.bottomY = height * 1.08");
+    expect(scene).toContain("this.laneSpacing = width * 0.24");
   });
 
   it("does not ask mobile players for the R key after finishing", () => {

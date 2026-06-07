@@ -34,7 +34,7 @@ import {
  * signs line the track. No 3D, no image assets.
  */
 
-const NEAR = 460; // perspective strength (bigger = closer/flatter)
+const NEAR = 620; // perspective strength (bigger = closer/flatter)
 const VIEW_DISTANCE = 750; // how far ahead food/signs are rendered
 const HIT_LANE_TOLERANCE = 0.5; // how close to a lane center counts as "in it"
 const FOOD_POOL_SIZE = 20; // reusable emoji slots for visible food
@@ -140,9 +140,9 @@ export class RaceScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-    this.horizonY = height * 0.18;
-    this.bottomY = height; // track starts at the very bottom edge
-    this.laneSpacing = width * 0.19;
+    this.horizonY = height * 0.12;
+    this.bottomY = height * 1.08; // push the near track below the screen for zoom-in
+    this.laneSpacing = width * 0.24;
 
     this.readFonts();
     const s = this.registry.get("strings") as GameStrings | undefined;

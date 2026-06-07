@@ -57,7 +57,7 @@
 
 .powerButton,
 .boostButton {
-  bottom: max(14px, env(safe-area-inset-bottom));
+  bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px));
 
   svg {
     width: 58%;
