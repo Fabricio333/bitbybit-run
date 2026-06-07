@@ -8,6 +8,18 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **Lobby → race handoff.** The match now lives in a new `<MatchProvider>` above
+  the whole competitive flow, so the lobby's `MatchClient` carries straight into
+  the race instead of being thrown away on start. `useMatch` exposes the live
+  `client`; the provider builds one `RaceNet` from it (and owns its lifecycle —
+  the scene no longer disposes it), the lobby reads roster/start/announce from
+  context, and `PlayStage` hands the race a `RaceNet` so the Phaser scene
+  broadcasts + renders runners. The net is passed **only when ≥2 players are in
+  the roster**, so a solo host keeps the plain single-player race (no lonely
+  minimap, restart still works). `RunnerLobby` now consumes the context (its
+  local-only fallback is unchanged). Last missing piece for a real race is the
+  **join** flow (discover + join a host's match via kind 30078) — until then
+  each player still hosts their own one-seat match.
 - **Runner-select lobby, wired to the live match layer.** The character picker
   now reads as a 4-lane starting grid: numbered, color-accented lanes; hovering a
   runner flips it to its **back-facing** sprite (lined up at the blocks); claiming
