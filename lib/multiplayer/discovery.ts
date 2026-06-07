@@ -8,7 +8,7 @@
  * the `useMatchDiscovery` hook feeds relay events through `addPresence` and
  * renders `selectOpenMatches`.
  */
-import type { MatchDiscovery } from "@/lib/schemas/match";
+import type { MatchDiscovery, MatchLobbyStatus } from "@/lib/schemas/match";
 import { MAX_PLAYERS } from "./types";
 
 /** A joinable match surfaced in the lobby browser. */
@@ -26,6 +26,7 @@ interface Seat {
   name?: string;
   host: string;
   trackId: string;
+  status: MatchLobbyStatus;
   createdAt: number;
 }
 
@@ -51,6 +52,7 @@ export function addPresence(
         name: p.name,
         host: p.host,
         trackId: p.trackId,
+        status: p.status,
         createdAt: p.createdAt,
       },
     },
@@ -70,6 +72,9 @@ export function selectOpenMatches(
   for (const [matchId, seats] of Object.entries(state)) {
     const entries = Object.values(seats);
     if (entries.length === 0 || entries.length >= MAX_PLAYERS) continue;
+
+    // Hide matches that already left the lobby (host started / finished).
+    if (entries.some((s) => s.status !== "waiting")) continue;
 
     const updatedAt = Math.max(...entries.map((s) => s.createdAt));
     if (now - updatedAt > FRESH_WINDOW_MS) continue; // stale / abandoned

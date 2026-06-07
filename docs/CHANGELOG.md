@@ -8,6 +8,14 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **Auto-start at 4/4 + the lobby browser hides started matches.** When the grid
+  fills (4/4) the host now auto-sends the start signal (the manual Start button
+  stays). Self-presence (kind 30078) gained a lobby `status`, and clients
+  re-announce it when the match leaves "waiting", so the discovery browser drops
+  matches that already started (only truly open ones remain joinable). New
+  `MatchLobbyStatus` schema; `discovery.selectOpenMatches` filters non-waiting
+  matches (unit-tested).
+
 - **Lobby browser — discover & join open matches.** Signed-in players now land
   on a lobby home that lists open races off the relays (kind 30078 self-presence,
   aggregated by `matchId`) with each host's name and player count, plus a

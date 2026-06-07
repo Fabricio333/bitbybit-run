@@ -12,13 +12,13 @@
  * works — claims just don't broadcast.
  */
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CHARACTERS,
   getCharacter,
   type CharacterId,
 } from "@/lib/game/characters";
-import type { MatchPlayer } from "@/lib/multiplayer/types";
+import { MAX_PLAYERS, type MatchPlayer } from "@/lib/multiplayer/types";
 import { CharacterSelect, type LobbyOccupant } from "./character-select";
 import { useMatchContext, type MatchContextValue } from "./match-provider";
 
@@ -121,6 +121,15 @@ function WiredLobby({
   const startRace = useCallback(() => {
     start(0).catch(() => {});
   }, [start]);
+
+  // Auto-start once the grid is full (4/4). Host only, fires once.
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (isHost && !autoStarted.current && players.length >= MAX_PLAYERS) {
+      autoStarted.current = true;
+      start(0).catch(() => {});
+    }
+  }, [isHost, players.length, start]);
 
   return (
     <CharacterSelect
