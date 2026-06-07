@@ -8,6 +8,16 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **End-of-match results screen.** When every runner finishes, the race swaps to
+  a standings screen: a winner banner (🏆 You won! / 🏁 {name} wins), the final
+  table — rank · player · time · points, with the local player's row
+  highlighted — and **View leaderboard** / **Play again** actions. To match the
+  global leaderboard exactly, its table was extracted into a shared presentational
+  `components/leaderboard/ranking-table.tsx` (podium badges, player chip,
+  configurable numeric columns) now used by both `LeaderboardTable` and the new
+  `components/game/match-results.tsx`. `shortPubkey` moved to `lib/utils`. New
+  `play.results.*` strings (es/en).
+
 - **Match persistence → real leaderboard data.** When a real (≥2-player) match
   finishes, the host's client POSTs the final standings to a new
   `POST /api/matches` route, which writes a `matches` row + one `results` row

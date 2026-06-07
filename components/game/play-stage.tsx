@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { GameCanvas } from "./game-canvas";
 import { GameControls } from "./game-controls";
 import { RunnerLobby } from "./runner-lobby";
+import { MatchResults } from "./match-results";
 import { MatchProvider, useMatchContext } from "./match-provider";
 import { InterstitialAd } from "./interstitial-ad";
 import { Modal } from "@/components/ui/modal";
@@ -100,14 +101,21 @@ function LobbyAndRace({ currentUser }: { currentUser: CurrentUser }) {
   const [selectedId, setSelectedId] = useState<CharacterId>("default");
   usePersistOnFinish(match);
 
-  const status = match.snapshot?.status ?? "waiting";
+  const snap = match.snapshot;
+  const status = snap?.status ?? "waiting";
   if (status === "waiting") {
     return <RunnerLobby currentUser={currentUser} onClaim={setSelectedId} />;
   }
 
   // Only hand the scene a live net when there's company on the track —
   // otherwise a solo host would get MP behavior (lonely minimap, no restart).
-  const multiplayer = (match.snapshot?.players.length ?? 0) > 1;
+  const multiplayer = (snap?.players.length ?? 0) > 1;
+
+  // Everyone finished → swap the canvas for the standings (multiplayer only).
+  if (status === "finished" && multiplayer && snap && match.selfPubkey) {
+    return <MatchResults snapshot={snap} selfPubkey={match.selfPubkey} />;
+  }
+
   return (
     <div className={styles.wrap}>
       <GameCanvas
