@@ -129,7 +129,9 @@ export class RaceScene extends Phaser.Scene {
     const { width, height } = this.scale;
     this.horizonY = height * 0.32;
     this.bottomY = height; // track starts at the very bottom edge
-    this.laneSpacing = width * 0.118;
+    // Keep the outermost lanes at a constant fraction of the viewport (0.826)
+    // regardless of LANES, so the track fills the same width for any lane count.
+    this.laneSpacing = (width * 0.826) / (LANES - 1);
 
     this.readFonts();
     const s = this.registry.get("strings") as GameStrings | undefined;
@@ -221,7 +223,7 @@ export class RaceScene extends Phaser.Scene {
     if (display) this.fontDisplay = `${display}, "Nunito", sans-serif`;
   }
 
-  /** Lane-number labels (1..8), positioned every frame by updateStartArea. */
+  /** Lane-number labels (1..LANES), positioned every frame by updateStartArea. */
   private createStartMarkers() {
     for (let i = 0; i < LANES; i++) {
       const txt = this.add

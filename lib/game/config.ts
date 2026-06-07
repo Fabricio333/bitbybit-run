@@ -3,7 +3,7 @@
  * Keep all "feel" numbers here so they're easy to balance.
  */
 
-export const LANES = 8;
+export const LANES = 4;
 
 /** Logical render resolution (scaled to fit the screen). */
 export const VIEW = {
