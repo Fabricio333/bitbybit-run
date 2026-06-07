@@ -22,6 +22,22 @@ Dates use `YYYY-MM-DD`.
   the synced start signal. Falls back to a local-only lobby when no live signer
   is available (nsec/NIP-46 reload). `/play` passes the signed-in user's
   `display_name`/`avatar_url`.
+- **In-race multiplayer sync.** Wires the Phaser race to the multiplayer
+  foundation through a small `RaceNet` seam (`lib/game/race-net.ts`) — the scene
+  stays single-player by default (no `RaceNet` in the registry → none of it
+  runs) and the lobby drops a live match in without touching the game loop:
+  - `RaceScene` broadcasts the local runner each frame (throttled to ~5 Hz by
+    the client), renders other players as translucent colored **ghosts** on the
+    track, draws a **minimap** of everyone's progress, and announces its finish
+    (kind 21002) once.
+  - `lib/game/remote-runners.ts` — pure interpolation for remote runners
+    (dead-reckoning from local receive time + easing) so ~5 Hz updates render
+    smoothly at 60 Hz; lane-based color palette. Unit-tested.
+  - `GameCanvas` gains an optional `raceNet` prop (forwarded via the game
+    registry); `createGameConfig` takes it as a new optional arg.
+  - Tests: the interpolator and `RaceNet` over two real `MatchClient`s on the
+    in-memory transport (remote surfaced, self excluded, local broadcast seen
+    by the peer).
 - **Multiplayer foundation (Phase 2 groundwork).** The serverless realtime
   layer from `ARCHITECTURE.md §4` now exists in code — no UI yet, fully
   unit-tested. New `lib/multiplayer/`:

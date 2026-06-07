@@ -17,6 +17,9 @@ import {
 import { TRACK, SIGNS, type FoodItem } from "../track";
 import { FOODS } from "../foods";
 import { Sound } from "../sound";
+import { laneColor, type RemoteRunnerView } from "../remote-runners";
+import type { RaceNet } from "../race-net";
+import type { RunnerStatus } from "@/lib/multiplayer/types";
 
 /**
  * RaceScene — Phase 1, single-player.
@@ -75,6 +78,8 @@ const DEFAULT_STRINGS: GameStrings = {
 export class RaceScene extends Phaser.Scene {
   private bg!: Phaser.GameObjects.Graphics; // static backdrop (drawn once)
   private world!: Phaser.GameObjects.Graphics; // food bubbles, signs, finish
+  private remoteG?: Phaser.GameObjects.Graphics; // other players' ghosts (MP only)
+  private minimapG?: Phaser.GameObjects.Graphics; // all-runner minimap (MP only)
   private runnerG!: Phaser.GameObjects.Graphics; // runner shadow + vector fallback
   private runnerSprite?: Phaser.GameObjects.Sprite; // used when a sheet is present
   private useSprite = false;
@@ -111,6 +116,14 @@ export class RaceScene extends Phaser.Scene {
   private startHold = START_HOLD; // "on your marks" pause before the runner moves
   private drunkTimer = 0; // >0 while wobbling after a beer
   private touchSprint = false; // held while a finger is on the centre (sprint) zone
+  private currentSpeed = SPEED.base; // last frame's forward speed (broadcast in MP)
+
+  // Multiplayer (absent in single-player). When a RaceNet is in the registry
+  // we broadcast our own runner and render everyone else's.
+  private net?: RaceNet;
+  private status: RunnerStatus = "running"; // own coarse state, broadcast in MP
+  private remotes: RemoteRunnerView[] = []; // smoothed remote runners this frame
+  private finishReported = false; // guard so finish is announced once
 
   // Per-food "already resolved" flags (consumed or passed).
   private resolved = new Set<string>();
@@ -159,6 +172,16 @@ export class RaceScene extends Phaser.Scene {
     this.createSignMarkers();
 
     this.world = this.add.graphics().setDepth(1);
+
+    // Multiplayer: optional realtime port (set by the lobby). Absent in
+    // single-player, in which case none of the broadcast/ghost code runs.
+    this.net = this.registry.get("raceNet") as RaceNet | undefined;
+    if (this.net) {
+      // Ghosts sit just under the local runner (depth 3); minimap is HUD-level.
+      this.remoteG = this.add.graphics().setDepth(2);
+      this.minimapG = this.add.graphics().setDepth(9);
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.net?.dispose());
+    }
 
     // Reusable emoji slots for food.
     for (let i = 0; i < FOOD_POOL_SIZE; i++) {
@@ -247,7 +270,8 @@ export class RaceScene extends Phaser.Scene {
 
   private onPointerDown(pointer: Phaser.Input.Pointer) {
     if (this.finished) {
-      this.resetRace();
+      // In a match the race is over once you finish — no solo restart.
+      if (!this.net) this.resetRace();
       return;
     }
     const w = this.scale.width;
@@ -346,6 +370,9 @@ export class RaceScene extends Phaser.Scene {
     this.startHold = START_HOLD;
     this.drunkTimer = 0;
     this.touchSprint = false;
+    this.currentSpeed = SPEED.base;
+    this.status = "running";
+    this.finishReported = false;
     this.toastText.setText("");
     this.toastTimer = 0;
     // Forget which foods were eaten/passed so the bubbles render again
@@ -372,7 +399,10 @@ export class RaceScene extends Phaser.Scene {
     this.now = time;
 
     if (this.finished) {
-      if (Phaser.Input.Keyboard.JustDown(this.keys.R)) this.resetRace();
+      // R restarts a solo race; in a match the result stands.
+      if (!this.net && Phaser.Input.Keyboard.JustDown(this.keys.R)) {
+        this.resetRace();
+      }
     } else if (this.startHold > 0) {
       // "On your marks" — hold at the start so the start line + lane numbers
       // are visible before the runner takes off.
@@ -396,11 +426,33 @@ export class RaceScene extends Phaser.Scene {
       if (this.toastTimer <= 0) this.toastText.setText("");
     }
 
+    // Multiplayer: broadcast our own state (throttled in the client) and pull
+    // the smoothed remote runners to draw this frame.
+    if (this.net) {
+      if (!this.finished) this.publishSelf();
+      this.remotes = this.net.frame(time);
+    }
+
     this.drawWorld();
     this.updateSigns();
     this.updateStartArea();
+    if (this.net) this.drawRemotes();
     this.drawRunner();
+    if (this.net) this.drawMinimap();
     this.drawHud();
+  }
+
+  /** Broadcast the local runner over the match (no-op without a RaceNet). */
+  private publishSelf() {
+    this.net?.publishSelf({
+      progress: Math.min(1, this.playerDistance / TRACK.length),
+      lane: Phaser.Math.Clamp(Math.round(this.playerLane), 0, LANES - 1),
+      speed: this.currentSpeed,
+      energy: this.energy,
+      poison: this.poison,
+      status: this.status,
+      points: this.points,
+    });
   }
 
   private handleInput() {
@@ -442,6 +494,8 @@ export class RaceScene extends Phaser.Scene {
       speed = SPEED.exhausted;
     }
 
+    this.currentSpeed = speed;
+    this.status = "running";
     this.playerDistance += speed * dt;
   }
 
@@ -492,6 +546,7 @@ export class RaceScene extends Phaser.Scene {
       this.energy = ENERGY.start;
       this.resolved.clear();
       this.startHold = 1.7;
+      this.status = "bathroom";
       this.showToast(this.pick(this.strings.bathrooms), 1.7);
       Sound.bathroom();
       return;
@@ -502,10 +557,13 @@ export class RaceScene extends Phaser.Scene {
   private checkFinish() {
     if (this.playerDistance >= TRACK.length) {
       this.finished = true;
+      this.status = "finished";
       this.points += POINTS.finishBonus;
       Sound.finish();
+      // In a match, "press R to race again" doesn't apply — the result stands.
+      const tail = this.net ? "" : `\n${this.strings.again}`;
       this.showToast(
-        `${this.strings.finish}\n${this.elapsed.toFixed(1)}s   ${this.points} pts\n${this.strings.again}`,
+        `${this.strings.finish}\n${this.elapsed.toFixed(1)}s   ${this.points} pts${tail}`,
         9999
       );
       // Surface the finish to React (e.g. the demo's login-invite modal).
@@ -513,6 +571,22 @@ export class RaceScene extends Phaser.Scene {
         | ((result: { time: number; points: number }) => void)
         | undefined;
       onFinish?.({ time: this.elapsed, points: this.points });
+
+      // Announce the finish to the match (winner resolved by the foundation
+      // reducer). Guard so it fires exactly once.
+      if (this.net && !this.finishReported) {
+        this.finishReported = true;
+        this.net.publishSelf({
+          progress: 1,
+          lane: Phaser.Math.Clamp(Math.round(this.playerLane), 0, LANES - 1),
+          speed: 0,
+          energy: this.energy,
+          poison: this.poison,
+          status: "finished",
+          points: this.points,
+        });
+        this.net.finish({ points: this.points, finishTime: Date.now() });
+      }
     }
   }
 
@@ -836,6 +910,78 @@ export class RaceScene extends Phaser.Scene {
     g.fillEllipse(cx, headY - 5, 19, 10);
   }
 
+  /** Other players' runners as translucent colored ghosts on the track. Only
+   *  those ahead of us and within view are drawable; the rest live on the
+   *  minimap. Far-to-near so nearer ghosts paint on top. */
+  private drawRemotes() {
+    const g = this.remoteG;
+    if (!g) return;
+    g.clear();
+
+    const visible = this.remotes
+      .map((r) => ({ r, d: r.progress * TRACK.length - this.playerDistance }))
+      .filter(({ d }) => d >= 0 && d <= VIEW_DISTANCE)
+      .sort((a, b) => b.d - a.d);
+
+    for (const { r, d } of visible) {
+      const p = this.project(d, r.lane);
+      const alpha = r.status === "finished" ? 0.35 : 0.62;
+      const h = Math.max(10, 46 * p.s);
+      const w = Math.max(5, 16 * p.s);
+
+      // Shadow.
+      g.fillStyle(0x000000, 0.18);
+      g.fillEllipse(p.x, p.y - 2, w * 2, 8 * p.s);
+      // Body + head.
+      g.fillStyle(r.color, alpha);
+      g.fillRoundedRect(p.x - w / 2, p.y - h, w, h * 0.72, Math.max(2, 6 * p.s));
+      g.fillCircle(p.x, p.y - h, w * 0.5);
+      g.lineStyle(Math.max(1, 1.5 * p.s), 0xffffff, alpha * 0.7);
+      g.strokeCircle(p.x, p.y - h, w * 0.5);
+    }
+  }
+
+  /** A compact vertical track showing every runner's progress (self + remotes)
+   *  regardless of who's on screen — your at-a-glance race position. */
+  private drawMinimap() {
+    const g = this.minimapG;
+    if (!g) return;
+    g.clear();
+
+    const { width } = this.scale;
+    const h = Math.min(180, this.scale.height * 0.4);
+    const x = width - 34; // track centerline
+    const top = 30;
+    const bottom = top + h;
+
+    // Panel + track line (start at the bottom, finish at the top).
+    g.fillStyle(GAME_COLORS.hudPanel, 0.4);
+    g.fillRoundedRect(x - 22, top - 14, 44, h + 28, 8);
+    g.lineStyle(3, 0xffffff, 0.45);
+    g.lineBetween(x, top, x, bottom);
+    g.fillStyle(0xffffff, 0.9);
+    g.fillCircle(x, top, 3); // finish marker
+
+    const plot = (progress: number, lane: number, color: number, self: boolean) => {
+      const py = bottom - Phaser.Math.Clamp(progress, 0, 1) * h;
+      const px = x + (lane - (LANES - 1) / 2) * 7;
+      g.fillStyle(color, 1);
+      g.fillCircle(px, py, self ? 5 : 4);
+      if (self) {
+        g.lineStyle(2, 0xffffff, 1);
+        g.strokeCircle(px, py, 6);
+      }
+    };
+
+    for (const r of this.remotes) plot(r.progress, r.lane, r.color, false);
+    plot(
+      Math.min(1, this.playerDistance / TRACK.length),
+      this.playerLane,
+      laneColor(this.startLane),
+      true
+    );
+  }
+
   private drawHud() {
     const g = this.hud;
     g.clear();
@@ -886,7 +1032,8 @@ export const createGameConfig = (
   parent: HTMLElement,
   strings?: GameStrings,
   character?: SpriteChoice,
-  onFinish?: (result: { time: number; points: number }) => void
+  onFinish?: (result: { time: number; points: number }) => void,
+  raceNet?: RaceNet
 ): Phaser.Types.Core.GameConfig => ({
   type: Phaser.AUTO,
   parent,
@@ -905,6 +1052,7 @@ export const createGameConfig = (
       game.registry.set("strings", strings ?? DEFAULT_STRINGS);
       if (character) game.registry.set("character", character);
       if (onFinish) game.registry.set("onFinish", onFinish);
+      if (raceNet) game.registry.set("raceNet", raceNet);
     },
   },
   scene: [RaceScene],

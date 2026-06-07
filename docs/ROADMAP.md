@@ -46,9 +46,16 @@ feel-tuning pending.
 - [ ] Lobby: publish/discover matches via kind `30078` (`t = bitbybit-run`)
 - [ ] Create match / join match; host start button + auto-start at 4/4
 - [ ] Synced countdown via `startAt` (kind `21001`)
-- [ ] Broadcast own runner state at ~5 Hz (kind `21000`); interpolate others
-- [ ] Minimap showing all runners' positions
-- [ ] Finish events (kind `21002`); resolve winner + final standings
+- [x] Broadcast own runner state at ~5 Hz (kind `21000`); interpolate others
+      — `RaceScene` ⇄ `RaceNet` seam, dead-reckoned ghosts (`lib/game/remote-runners.ts`)
+- [x] Minimap showing all runners' positions
+- [~] Finish events (kind `21002`): the scene announces its finish and the
+      foundation reducer resolves the winner; the standings/results **screen** is
+      still pending (separate task)
+- [ ] **Connect lobby → race**: lift the lobby's `useMatch` client up to
+      `PlayStage` so it survives the start transition, then pass
+      `createRaceNet(client)` to `<GameCanvas raceNet>` (the canvas + scene
+      already consume it). Last seam to make a real 2–4 player race run.
 - [ ] Neon + Drizzle: persist `Match` / `Result`; global leaderboard page
 
 **Milestone (≈ Jun 18): 2–4 players can race and the leaderboard updates.**
