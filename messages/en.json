@@ -13,7 +13,8 @@
     "signOut": "Sign out",
     "account": "Account",
     "syncProfile": "Sync profile from Nostr",
-    "syncing": "Syncing…"
+    "syncing": "Syncing…",
+    "leaderboard": "Leaderboard"
   },
   "landing": {
     "title": "Bit by Bit Run",
@@ -21,6 +22,16 @@
     "tagline": "Run, Eat, Win 🏃💨\nCardio never paid this well.",
     "play": "Play",
     "howToPlay": "How to play"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "subtitle": "Every race counts. Win lanes, bank points, climb the board.",
+    "rank": "#",
+    "player": "Player",
+    "wins": "Wins",
+    "points": "Points",
+    "races": "Races",
+    "empty": "No races yet — be the first to top the board."
   },
   "play": {
     "phase": "Phase 1 · single-player prototype",

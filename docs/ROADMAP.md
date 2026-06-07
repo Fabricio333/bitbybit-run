@@ -59,7 +59,8 @@ feel-tuning pending.
 - [ ] **Join flow**: discover open matches (kind `30078`) and join a host's
       match instead of each player hosting their own — the last piece before two
       real browsers see each other on the track.
-- [ ] Neon + Drizzle: persist `Match` / `Result`; global leaderboard page
+- [ ] Neon + Drizzle: persist `Match` / `Result`
+- [x] Global leaderboard page (`/leaderboard`) — reads `getLeaderboard()`
 
 **Milestone (≈ Jun 18): 2–4 players can race and the leaderboard updates.**
 

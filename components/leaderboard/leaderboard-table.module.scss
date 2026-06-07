@@ -1,0 +1,181 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+  padding: $spacing-16 0 $spacing-32;
+}
+
+.title {
+  margin: 0;
+  text-align: center;
+  font-family: $font-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  text-shadow: 3px 3px 0 $pixel-shadow;
+}
+
+.subtitle {
+  margin: 0 auto $spacing-8;
+  max-width: 640px;
+  text-align: center;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+// Empty state — same arcade panel look as the table, centered message.
+.empty {
+  margin: $spacing-16 auto;
+  max-width: 480px;
+  padding: $spacing-32 $spacing-24;
+  text-align: center;
+  background: $color-surface;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-lg;
+  box-shadow: 4px 4px 0 0 $arcade-edge;
+  color: $color-text-secondary;
+  font-size: $font-size-body;
+  line-height: $line-height-base;
+}
+
+// Arcade panel wrapping the table; horizontal scroll guard on narrow screens.
+.tableWrap {
+  overflow-x: auto;
+  background: $color-surface;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-lg;
+  box-shadow: 4px 4px 0 0 $arcade-edge;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: $font-body;
+  font-size: $font-size-body;
+
+  thead th {
+    padding: $spacing-12 $spacing-16;
+    text-align: left;
+    font-family: $font-display;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    color: $color-text-secondary;
+    border-bottom: 2px solid $color-border;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: $spacing-12 $spacing-16;
+    color: $color-text-primary;
+    border-bottom: 1px solid $color-border;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+.podiumRow {
+  background: alpha($color-highlight, 8%);
+}
+
+.colRank {
+  width: 56px;
+}
+
+.colNum {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: $font-weight-semibold;
+}
+
+.colPlayer {
+  width: 100%;
+}
+
+// Rank badge — neutral by default, podium colors for the top three.
+.rankBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 $spacing-4;
+  border-radius: $border-radius-full;
+  background: $color-bg-2;
+  color: $color-text-secondary;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+}
+
+.gold {
+  background: #f5c542;
+  color: $static-black;
+}
+
+.silver {
+  background: #c8cdd6;
+  color: $static-black;
+}
+
+.bronze {
+  background: #cd8b54;
+  color: $static-black;
+}
+
+.player {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-12;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: $border-radius-full;
+  object-fit: cover;
+  border: 2px solid $color-border;
+  flex-shrink: 0;
+}
+
+.avatarFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: $border-radius-full;
+  background: $color-bg-2;
+  border: 2px solid $color-border;
+  color: $color-text-secondary;
+  font-family: $font-display;
+  font-size: $font-size-md;
+  flex-shrink: 0;
+}
+
+.name {
+  font-weight: $font-weight-semibold;
+  overflow-wrap: anywhere;
+}
+
+// On phones the races column is the least essential — hide to keep rows tidy.
+@include mobile {
+  .colRaces {
+    display: none;
+  }
+
+  .table {
+    thead th,
+    tbody td {
+      padding: $spacing-12 $spacing-12;
+    }
+  }
+}
