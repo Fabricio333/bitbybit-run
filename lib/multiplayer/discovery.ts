@@ -1,0 +1,89 @@
+/**
+ * Lobby discovery — aggregate the self-presence events (kind 30078, `#t`
+ * project tag) floating on the relays into a list of open matches to join.
+ *
+ * Each peer announces its own seat, so a match is the set of presences sharing
+ * a `matchId`; we keep the newest presence per pubkey, drop full and stale
+ * matches, and surface the rest. Pure (no transport/React) so it's unit-tested;
+ * the `useMatchDiscovery` hook feeds relay events through `addPresence` and
+ * renders `selectOpenMatches`.
+ */
+import type { MatchDiscovery } from "@/lib/schemas/match";
+import { MAX_PLAYERS } from "./types";
+
+/** A joinable match surfaced in the lobby browser. */
+export interface OpenMatch {
+  matchId: string;
+  host: string;
+  hostName?: string;
+  trackId: string;
+  players: number;
+  /** Newest presence timestamp in the match (unix ms). */
+  updatedAt: number;
+}
+
+interface Seat {
+  name?: string;
+  host: string;
+  trackId: string;
+  createdAt: number;
+}
+
+/** matchId → (pubkey → latest seat). */
+export type DiscoveryState = Record<string, Record<string, Seat>>;
+
+/** Stop showing a match with no presence newer than this (10 min). */
+export const FRESH_WINDOW_MS = 10 * 60 * 1000;
+
+/** Fold a presence event in, keeping the newest seat per pubkey. */
+export function addPresence(
+  state: DiscoveryState,
+  p: MatchDiscovery
+): DiscoveryState {
+  const seats = state[p.matchId] ?? {};
+  const prev = seats[p.pubkey];
+  if (prev && prev.createdAt >= p.createdAt) return state; // not newer
+  return {
+    ...state,
+    [p.matchId]: {
+      ...seats,
+      [p.pubkey]: {
+        name: p.name,
+        host: p.host,
+        trackId: p.trackId,
+        createdAt: p.createdAt,
+      },
+    },
+  };
+}
+
+/**
+ * Derive the joinable matches: non-empty, not full, with a recent presence —
+ * newest first.
+ */
+export function selectOpenMatches(
+  state: DiscoveryState,
+  now: number
+): OpenMatch[] {
+  const matches: OpenMatch[] = [];
+
+  for (const [matchId, seats] of Object.entries(state)) {
+    const entries = Object.values(seats);
+    if (entries.length === 0 || entries.length >= MAX_PLAYERS) continue;
+
+    const updatedAt = Math.max(...entries.map((s) => s.createdAt));
+    if (now - updatedAt > FRESH_WINDOW_MS) continue; // stale / abandoned
+
+    const host = entries[0].host;
+    matches.push({
+      matchId,
+      host,
+      hostName: seats[host]?.name,
+      trackId: entries[0].trackId,
+      players: entries.length,
+      updatedAt,
+    });
+  }
+
+  return matches.sort((a, b) => b.updatedAt - a.updatedAt);
+}

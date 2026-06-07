@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { GameCanvas } from "./game-canvas";
 import { GameControls } from "./game-controls";
 import { RunnerLobby } from "./runner-lobby";
+import { MatchBrowser } from "./match-browser";
 import { MatchResults } from "./match-results";
 import { MatchProvider, useMatchContext } from "./match-provider";
 import { InterstitialAd } from "./interstitial-ad";
@@ -57,8 +58,11 @@ function CompetitiveStage({ currentUser }: { currentUser: CurrentUser }) {
 
 type Target = { matchId: string; isHost: boolean; host: string };
 
-/** Resolve the match target once: join the one in the invite link, or host a
- *  fresh one. Stable for the session so the client isn't re-created. */
+/**
+ * Resolve which match to enter. An invite link (`?m=&h=`) jumps straight in;
+ * otherwise we show the lobby browser to host a new match or join an open one.
+ * The target is stable once chosen so the match client isn't re-created.
+ */
 function SignedInStage({
   currentUser,
   signer,
@@ -71,15 +75,24 @@ function SignedInStage({
   const params = useSearchParams();
   const joinId = params.get("m");
   const joinHost = params.get("h");
-  const [target] = useState<Target>(() =>
-    joinId
-      ? { matchId: joinId, isHost: false, host: joinHost ?? "" }
-      : {
-          matchId: `bbr-${pubkey.slice(0, 8)}-${Date.now()}`,
-          isHost: true,
-          host: pubkey,
-        }
+  const [target, setTarget] = useState<Target | null>(() =>
+    joinId ? { matchId: joinId, isHost: false, host: joinHost ?? "" } : null
   );
+
+  if (!target) {
+    return (
+      <MatchBrowser
+        onHost={() =>
+          setTarget({
+            matchId: `bbr-${pubkey.slice(0, 8)}-${Date.now()}`,
+            isHost: true,
+            host: pubkey,
+          })
+        }
+        onJoin={(matchId, host) => setTarget({ matchId, isHost: false, host })}
+      />
+    );
+  }
 
   return (
     <MatchProvider

@@ -8,6 +8,14 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **Lobby browser — discover & join open matches.** Signed-in players now land
+  on a lobby home that lists open races off the relays (kind 30078 self-presence,
+  aggregated by `matchId`) with each host's name and player count, plus a
+  **Create race** button — instead of everyone silently hosting their own match.
+  New `lib/multiplayer/discovery.ts` (pure aggregation: newest seat per pubkey,
+  drops full/stale matches, unit-tested), `useMatchDiscovery` hook (its own relay
+  subscription), and `components/game/match-browser.tsx`. Invite links still jump
+  straight into a match. New `play.browser.*` strings (es/en).
 - **⚡️ Zap the winner.** The results screen offers a manual Lightning tip to the
   winner (never shown to the winner themselves). The button opens a Nostr-style
   dialog to pick the **amount** (preset chips 21/100/1000/5000 + a custom field)

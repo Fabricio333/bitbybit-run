@@ -43,9 +43,9 @@ feel-tuning pending.
       `matches`/`results` tables + leaderboard queries. Unit-tested (two clients
       converge over the in-memory transport); no UI yet — the items below build
       on it.
-- [~] Lobby/discovery via kind `30078`: each peer publishes its own seat
-      (self-presence) and clients aggregate the roster. Joining works via an
-      **invite link**; a browse-all-matches screen is still pending.
+- [x] Lobby/discovery via kind `30078`: each peer publishes its own seat
+      (self-presence) and clients aggregate the roster. Join via an **invite
+      link** or the **lobby browser** that lists open matches off the relays.
 - [x] Create match / join match (invite link); host start button. (Auto-start
       at 4/4 still pending.)
 - [x] Synced start via `startAt` (kind `21001`) — host's start flips everyone
@@ -60,9 +60,9 @@ feel-tuning pending.
       the competitive flow (lobby + race), so the lobby's client carries into the
       race; `PlayStage` hands the scene a `RaceNet` (only when ≥2 players, so solo
       hosts keep the plain single-player race).
-- [x] **Join flow**: self-presence aggregation + invite-link join — two real
-      browsers race in the same match. Verified end-to-end over public Nostr
-      relays. (A browse-all-matches lobby screen is the remaining nicety.)
+- [x] **Join flow**: self-presence aggregation + invite-link join + a lobby
+      browser of open matches — two real browsers race in the same match.
+      Verified end-to-end over public Nostr relays.
 - [x] Neon + Drizzle: persist `Match` / `Result` — host POSTs final standings to
       `POST /api/matches` on finish (idempotent by `nostr_id`); feeds the
       leaderboard.
