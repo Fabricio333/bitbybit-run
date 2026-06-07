@@ -63,6 +63,9 @@ describe("mobile game UI layout", () => {
 
     const canvasStyles = read("components/game/game-canvas.module.scss");
     expect(canvasStyles).toContain(".touchButton");
+    expect(canvasStyles).toContain("width: clamp(68px, 17vw, 92px)");
+    expect(canvasStyles).toContain("height: clamp(68px, 17vw, 92px)");
+    expect(canvasStyles).toContain("font-size: clamp(1.6rem, 5vw, 2.2rem)");
     expect(canvasStyles).toContain(".boostButton");
     expect(canvasStyles).toContain(".powerButton");
     expect(canvasStyles).toContain("bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px))");

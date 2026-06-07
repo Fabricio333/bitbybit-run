@@ -25,8 +25,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: clamp(52px, 13vw, 66px);
-  height: clamp(52px, 13vw, 66px);
+  width: clamp(68px, 17vw, 92px);
+  height: clamp(68px, 17vw, 92px);
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 999px;
   background: rgba(11, 16, 32, 0.35);
@@ -34,7 +34,7 @@
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
   color: white;
   font: inherit;
-  font-size: clamp(1.2rem, 4vw, 1.6rem);
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
   font-weight: 900;
   line-height: 1;
   user-select: none;
@@ -60,8 +60,8 @@
   bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px));
 
   svg {
-    width: 58%;
-    height: 58%;
+    width: 62%;
+    height: 62%;
   }
 }
 
