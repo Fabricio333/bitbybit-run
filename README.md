@@ -48,6 +48,12 @@ npm run db:migrate       # apply Drizzle migrations
 Copy `.env.example` to `.env.local` and fill in the values before running
 anything that touches the database or auth.
 
+## 💸 Cost: $0
+
+Everything runs on free tiers — Vercel (hosting), public Nostr relays
+(realtime), and Neon (database). No always-on server is required. See
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for why.
+
 ## 📚 Documentation
 
 - [`docs/GAME-DESIGN.md`](docs/GAME-DESIGN.md) — rules, mechanics, screens
@@ -59,8 +65,8 @@ anything that touches the database or auth.
 
 ## 👯 Sister projects
 
-- **[`bitbybit-cursats`](https://github.com/bitbybit-ar)** — the sibling project
-  this repo mirrors for structure, SCSS tokens, i18n, theme and tooling.
+- **[`bitbybit-cursats`](https://github.com/bitbybit-ar)** — sibling project in
+  the same family.
 
 ## 📄 License
 

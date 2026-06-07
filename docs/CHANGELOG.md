@@ -8,6 +8,18 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **`CONTRIBUTING.md`** — contribution guide: local dev, change/commit/PR
+  conventions, code of conduct, vulnerability reporting, and the security
+  hardening currently in place vs. still pending. Root-level.
+- **Test script split** — `test:unit`, `test:integration`
+  (`--passWithNoTests`), and `test:db:migrate` (migrates against `.env.test`)
+  in `package.json`, backing the parallel CI jobs.
+
+### Changed
+
+- **README** rewritten — spoiler-free intro plus Stack / Quick start /
+  Documentation / Sister projects / License sections (Cost: $0 kept).
+
 - **Fake ads on mobile + every route** — the spam ads are no longer desktop-only
   or hidden over the game. Below the `1280px` side-rail breakpoint a single ad
   now **floats fixed to the bottom of the screen** (the classic annoying mobile
