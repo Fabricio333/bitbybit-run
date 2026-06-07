@@ -130,7 +130,10 @@ describe("mobile game UI layout", () => {
 
   it("does not let the PWA service worker pin stale Next.js CSS/JS assets", () => {
     const sw = read("public/sw.js");
-    expect(sw).toContain("bitbybit-run-pwa-v3");
+    expect(sw).toContain("bitbybit-run-pwa-v4");
     expect(sw).toContain('url.pathname.startsWith("/_next/")');
+    expect(sw).toContain('request.mode === "navigate"');
+    expect(sw).toContain('request.headers.get("accept")');
+    expect(sw).not.toContain('"/demo",');
   });
 });

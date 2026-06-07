@@ -1,7 +1,6 @@
-const CACHE_NAME = "bitbybit-run-pwa-v3";
+const CACHE_NAME = "bitbybit-run-pwa-v4";
 const APP_SHELL = [
   "/",
-  "/demo",
   "/manifest.webmanifest",
   "/icons/icon-192.svg",
   "/icons/icon-512.svg",
@@ -9,8 +8,11 @@ const APP_SHELL = [
 
 function shouldBypassCache(request) {
   const url = new URL(request.url);
+  const accept = request.headers.get("accept") || "";
   return (
     request.method !== "GET" ||
+    request.mode === "navigate" ||
+    accept.includes("text/html") ||
     url.pathname.startsWith("/_next/") ||
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/api/auth/") ||
@@ -37,8 +39,8 @@ self.addEventListener("activate", (event) => {
             .map((key) => caches.delete(key))
         )
       )
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
