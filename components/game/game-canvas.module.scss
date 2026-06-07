@@ -21,7 +21,7 @@
 .touchButton {
   position: absolute;
   z-index: 4;
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: clamp(68px, 17vw, 92px);
@@ -116,6 +116,7 @@
 
   .powerButton,
   .boostButton {
+    display: inline-flex;
     bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px));
   }
 

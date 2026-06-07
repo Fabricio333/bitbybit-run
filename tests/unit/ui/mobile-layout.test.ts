@@ -58,13 +58,10 @@ describe("mobile game UI layout", () => {
     expect(canvas).toContain('dispatchAction("power")');
     expect(canvas).toContain("styles.boostButton");
     expect(canvas).toContain("styles.powerButton");
-    expect(canvas).toContain("styles.laneButtonLeft");
-    expect(canvas).toContain("styles.laneButtonRight");
-    expect(canvas).toContain("styles.jumpButton");
-    expect(canvas).toContain("styles.duckButton");
 
     const canvasStyles = read("components/game/game-canvas.module.scss");
     expect(canvasStyles).toContain(".touchButton");
+    expect(canvasStyles).toContain("display: none");
     expect(canvasStyles).toContain("width: clamp(68px, 17vw, 92px)");
     expect(canvasStyles).toContain("height: clamp(68px, 17vw, 92px)");
     expect(canvasStyles).toContain("font-size: clamp(1.6rem, 5vw, 2.2rem)");
@@ -74,8 +71,42 @@ describe("mobile game UI layout", () => {
     expect(canvasStyles).toContain(".laneButtonRight,");
     expect(canvasStyles).toContain(".jumpButton,");
     expect(canvasStyles).toContain(".duckButton");
-    expect(canvasStyles).toContain("display: none");
+    expect(canvasStyles).toContain("display: inline-flex");
     expect(canvasStyles).toContain("bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px))");
+  });
+
+  it("keeps desktop on three lanes with keyboard controls instead of touch overlays", () => {
+    const config = read("lib/game/config.ts");
+    expect(config).toContain("export const LANES = 3");
+
+    const controls = read("components/game/game-controls.tsx");
+    expect(controls).toContain('<ArrowIcon dir="left" />');
+    expect(controls).toContain('<ArrowIcon dir="right" />');
+    expect(controls).toContain('<ArrowIcon dir="up" />');
+    expect(controls).toContain('<ArrowIcon dir="down" />');
+    expect(controls).toContain("<Cap>A</Cap>");
+    expect(controls).toContain("<Cap>D</Cap>");
+    expect(controls).toContain("<Cap>W</Cap>");
+    expect(controls).toContain("<Cap>S</Cap>");
+    expect(controls).toContain("<Cap>Space</Cap>");
+    expect(controls).toContain("<Cap>B</Cap>");
+    expect(controls).toContain("<Cap>E</Cap>");
+    expect(controls).toContain("<Cap>R</Cap>");
+
+    const scene = read("lib/game/scenes/race-scene.ts");
+    expect(scene).toContain('kb.addKeys("W,A,S,D,R,E,B,SPACE")');
+    expect(scene).toContain("this.cursors.left");
+    expect(scene).toContain("this.cursors.right");
+    expect(scene).toContain("this.cursors.up");
+    expect(scene).toContain("this.cursors.down");
+
+    const canvasStyles = read("components/game/game-canvas.module.scss");
+    expect(canvasStyles).toContain(".touchButton");
+    expect(canvasStyles).toContain("display: none");
+    expect(canvasStyles).toContain("@media (max-width: 760px)");
+    expect(canvasStyles).toContain(".powerButton,");
+    expect(canvasStyles).toContain(".boostButton");
+    expect(canvasStyles).toContain("display: inline-flex");
   });
 
   it("hides site chrome and in-page game headers only on mobile game routes", () => {
