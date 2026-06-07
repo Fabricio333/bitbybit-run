@@ -18,3 +18,58 @@
   border-radius: 0;
   overflow: hidden;
 }
+
+.touchButton {
+  position: absolute;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(52px, 13vw, 66px);
+  height: clamp(52px, 13vw, 66px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  background: rgba(11, 16, 32, 0.35);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  color: white;
+  font: inherit;
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
+  font-weight: 900;
+  line-height: 1;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  &:active {
+    transform: scale(0.92);
+    background: rgba(255, 255, 255, 0.28);
+  }
+}
+
+.powerButton,
+.boostButton {
+  bottom: max(14px, env(safe-area-inset-bottom));
+
+  svg {
+    width: 58%;
+    height: 58%;
+  }
+}
+
+.powerButton {
+  left: max(14px, env(safe-area-inset-left));
+}
+
+.boostButton {
+  right: max(14px, env(safe-area-inset-right));
+  background: rgba(74, 222, 128, 0.3);
+}

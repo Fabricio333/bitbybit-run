@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { PlayStage } from "@/components/game/play-stage";
-import styles from "../play/page.module.scss";
+import { GameRouteShell } from "@/components/game/game-route-shell";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -19,10 +19,8 @@ export default async function DemoPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   return (
-    <div className={styles.page}>
-      <div className={styles.stage}>
-        <PlayStage demo />
-      </div>
-    </div>
+    <GameRouteShell>
+      <PlayStage demo />
+    </GameRouteShell>
   );
 }

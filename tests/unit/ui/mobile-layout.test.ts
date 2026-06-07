@@ -33,15 +33,38 @@ describe("mobile game UI layout", () => {
     expect(controlsStyles).toContain("display: none");
   });
 
-  it("uses swipe-only mobile input with no visible touch buttons over the track", () => {
+  it("uses one shared fullscreen game route shell for demo and play", () => {
+    const shell = read("components/game/game-route-shell.tsx");
+    const shellStyles = read("components/game/game-route-shell.module.scss");
+    expect(shell).toContain("children: React.ReactNode");
+    expect(shell).toContain("styles.page");
+    expect(shell).toContain("styles.stage");
+    expect(shellStyles).toContain("height: 100dvh");
+    expect(shellStyles).toContain("overflow: hidden");
+
+    const play = read("app/[locale]/play/page.tsx");
+    const demo = read("app/[locale]/demo/page.tsx");
+    expect(play).toContain("<GameRouteShell>");
+    expect(demo).toContain("<GameRouteShell>");
+  });
+
+  it("uses swipe movement plus only boost and power touch buttons over the track", () => {
     const canvas = read("components/game/game-canvas.tsx");
     expect(canvas).toContain('dispatchAction(dx > 0 ? "right" : "left")');
     expect(canvas).toContain('dispatchAction(dy > 0 ? "duck" : "jump")');
-    expect(canvas).not.toContain("styles.touchButton");
-    expect(canvas).not.toContain("<button");
+    expect(canvas).toContain('dispatchAction("boost")');
+    expect(canvas).toContain('dispatchAction("power")');
+    expect(canvas).toContain("styles.boostButton");
+    expect(canvas).toContain("styles.powerButton");
+    expect(canvas).not.toContain("laneButtonLeft");
+    expect(canvas).not.toContain("laneButtonRight");
+    expect(canvas).not.toContain("jumpButton");
+    expect(canvas).not.toContain("duckButton");
 
     const canvasStyles = read("components/game/game-canvas.module.scss");
-    expect(canvasStyles).not.toContain(".touchButton");
+    expect(canvasStyles).toContain(".touchButton");
+    expect(canvasStyles).toContain(".boostButton");
+    expect(canvasStyles).toContain(".powerButton");
   });
 
   it("hides site chrome and in-page game headers on game routes", () => {

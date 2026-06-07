@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { BoltIcon, BadgeIcon } from "@/components/icons";
 import { DEFAULT_CHARACTER, type Character } from "@/lib/game/characters";
 import type { RunnerAction } from "@/lib/game/player-state";
 import styles from "./game-canvas.module.scss";
@@ -32,6 +33,7 @@ export function GameCanvas({
   onFinish?: (result: { time: number; points: number }) => void;
 }) {
   const t = useTranslations("game");
+  const tControls = useTranslations("play.controls");
   const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
@@ -119,6 +121,26 @@ export function GameCanvas({
       }}
     >
       <div ref={containerRef} className={styles.canvas} />
+      <button
+        type="button"
+        className={`${styles.touchButton} ${styles.powerButton}`}
+        aria-label={tControls("power")}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => dispatchAction("power")}
+      >
+        <BadgeIcon size={32} />
+        <span>{tControls("power")}</span>
+      </button>
+      <button
+        type="button"
+        className={`${styles.touchButton} ${styles.boostButton}`}
+        aria-label={tControls("boost")}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => dispatchAction("boost")}
+      >
+        <BoltIcon size={34} />
+        <span>{tControls("boost")}</span>
+      </button>
     </div>
   );
 }

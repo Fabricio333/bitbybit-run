@@ -2,7 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
 import { getSession } from "@/lib/auth";
 import { PlayStage } from "@/components/game/play-stage";
-import styles from "./page.module.scss";
+import { GameRouteShell } from "@/components/game/game-route-shell";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -20,10 +20,8 @@ export default async function PlayPage({ params }: Props) {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.stage}>
-        <PlayStage />
-      </div>
-    </div>
+    <GameRouteShell>
+      <PlayStage />
+    </GameRouteShell>
   );
 }
