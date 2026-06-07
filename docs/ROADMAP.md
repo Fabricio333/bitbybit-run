@@ -53,9 +53,9 @@ feel-tuning pending.
 - [x] Broadcast own runner state at ~5 Hz (kind `21000`); interpolate others
       — `RaceScene` ⇄ `RaceNet` seam, dead-reckoned ghosts (`lib/game/remote-runners.ts`)
 - [x] Minimap showing all runners' positions
-- [~] Finish events (kind `21002`): the scene announces its finish and the
-      foundation reducer resolves the winner; the standings/results **screen** is
-      still pending (separate task)
+- [x] Finish events (kind `21002`): the scene announces its finish, the reducer
+      resolves the winner, and an end-of-match **results screen** shows the final
+      standings (reusing the leaderboard's `RankingTable`).
 - [x] **Connect lobby → race**: the match now lives in `<MatchProvider>` above
       the competitive flow (lobby + race), so the lobby's client carries into the
       race; `PlayStage` hands the scene a `RaceNet` (only when ≥2 players, so solo

@@ -51,6 +51,18 @@
       "copy": "Copiar link",
       "copied": "¡Copiado!"
     },
+    "results": {
+      "title": "Resultados",
+      "youWon": "🏆 ¡Ganaste!",
+      "winner": "🏁 Ganó {name}",
+      "rank": "#",
+      "player": "Jugador",
+      "time": "Tiempo",
+      "points": "Puntos",
+      "dnf": "No terminó",
+      "toLeaderboard": "Ver ranking",
+      "playAgain": "Jugar de nuevo"
+    },
     "soundOn": "Activar sonido",
     "soundOff": "Silenciar",
     "controls": {

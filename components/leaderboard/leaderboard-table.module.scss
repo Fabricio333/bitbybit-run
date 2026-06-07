@@ -86,6 +86,12 @@
   background: alpha($color-highlight, 8%);
 }
 
+// The viewer's own row on the results screen — a subtle accent stripe.
+.meRow {
+  background: alpha($color-primary, 10%);
+  box-shadow: inset 3px 0 0 0 $color-primary;
+}
+
 .colRank {
   width: 56px;
 }
