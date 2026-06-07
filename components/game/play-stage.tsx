@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { GameCanvas } from "./game-canvas";
 import { GameControls } from "./game-controls";
-import { CharacterSelect } from "./character-select";
+import { RunnerLobby } from "./runner-lobby";
 import { InterstitialAd } from "./interstitial-ad";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button/button";
@@ -98,11 +98,10 @@ export function PlayStage({
 
   if (!started) {
     return (
-      <CharacterSelect
-        value={selectedId}
-        onSelect={setSelectedId}
-        onStart={() => setStarted(true)}
+      <RunnerLobby
         currentUser={currentUser ?? { name: "Player" }}
+        onClaim={setSelectedId}
+        onStart={() => setStarted(true)}
       />
     );
   }

@@ -4,12 +4,12 @@ import { useState, type CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button/button";
 import { RunnerSprite } from "@/components/common/runner-sprite/runner-sprite";
-import { CHARACTERS, type Character, type CharacterId } from "@/lib/game/characters";
+import { CHARACTERS, type CharacterId } from "@/lib/game/characters";
 import { cn } from "@/lib/utils";
 import styles from "./character-select.module.scss";
 
-/** A player sitting in a lane. Later this comes from the Nostr lobby sync; for
- *  now the current user is the only real one and `occupants` is mock/empty. */
+/** A player sitting in a lane. The lobby container builds this map from the
+ *  live match snapshot (or local state when offline). */
 export interface LobbyOccupant {
   name: string;
   avatarUrl?: string | null;
@@ -18,63 +18,45 @@ export interface LobbyOccupant {
 }
 
 interface CharacterSelectProps {
-  value: CharacterId;
-  onSelect: (id: CharacterId) => void;
+  /** Lane roster keyed by character id — each character owns a lane. */
+  occupants: Partial<Record<CharacterId, LobbyOccupant>>;
+  /** Filled lanes, for the `x/4` counter. */
+  playerCount: number;
+  onClaim: (id: CharacterId) => void;
+  onToggleReady: (next: boolean) => void;
   onStart: () => void;
-  /** The signed-in player claiming a lane. */
-  currentUser: { name: string; avatarUrl?: string | null };
-  /** Lanes already claimed by OTHER players, keyed by character id. Mock for
-   *  now — wired to real lobby state in a later session. */
-  occupants?: Partial<Record<CharacterId, LobbyOccupant>>;
+  /** Whether the local player is allowed to start the race (host + ready). */
+  canStart?: boolean;
 }
 
 export function CharacterSelect({
-  value,
-  onSelect,
+  occupants,
+  playerCount,
+  onClaim,
+  onToggleReady,
   onStart,
-  currentUser,
-  occupants = {},
+  canStart = true,
 }: CharacterSelectProps) {
   const t = useTranslations("play");
   const [hoveredId, setHoveredId] = useState<CharacterId | null>(null);
-  const [hasClaimed, setHasClaimed] = useState(false);
-  const [ready, setReady] = useState(false);
 
-  // Who, if anyone, occupies a given lane — the current user on their claimed
-  // lane, otherwise whichever other player has it (mock for now).
-  const occupantFor = (c: Character): LobbyOccupant | null => {
-    if (hasClaimed && c.id === value) {
-      return {
-        name: currentUser.name,
-        avatarUrl: currentUser.avatarUrl,
-        ready,
-        isCurrentUser: true,
-      };
-    }
-    return occupants[c.id] ?? null;
-  };
-
-  const claimedCount =
-    (hasClaimed ? 1 : 0) +
-    Object.keys(occupants).filter((id) => !(hasClaimed && id === value)).length;
-
-  const claim = (c: Character, taken: boolean) => {
-    if (taken) return; // lane owned by another player
-    onSelect(c.id);
-    setHasClaimed(true);
-    setReady(false);
-  };
+  const me =
+    Object.values(occupants).find((o) => o?.isCurrentUser) ?? null;
+  const hasClaimed = !!me;
+  const ready = me?.ready ?? false;
 
   return (
     <div className={styles.select}>
       <div className={styles.header}>
         <h2 className={styles.heading}>{t("choose")}</h2>
-        <span className={styles.counter}>{t("lobby.players", { count: claimedCount })}</span>
+        <span className={styles.counter}>
+          {t("lobby.players", { count: playerCount })}
+        </span>
       </div>
 
       <ul className={styles.cards}>
         {CHARACTERS.map((c) => {
-          const occupant = occupantFor(c);
+          const occupant = occupants[c.id] ?? null;
           const mine = occupant?.isCurrentUser ?? false;
           const taken = !!occupant && !mine;
           const laneNo = c.startLane + 1;
@@ -84,7 +66,7 @@ export function CharacterSelect({
             <li key={c.id} className={styles.cell}>
               <button
                 type="button"
-                onClick={() => claim(c, taken)}
+                onClick={() => !taken && onClaim(c.id)}
                 onMouseEnter={() => setHoveredId(c.id)}
                 onMouseLeave={() =>
                   setHoveredId((prev) => (prev === c.id ? null : prev))
@@ -151,15 +133,15 @@ export function CharacterSelect({
         {!hasClaimed ? (
           <p className={styles.hint}>{t("lobby.claimHint")}</p>
         ) : !ready ? (
-          <Button size="lg" onClick={() => setReady(true)}>
+          <Button size="lg" onClick={() => onToggleReady(true)}>
             {t("lobby.ready")}
           </Button>
         ) : (
           <>
-            <Button size="lg" onClick={onStart}>
+            <Button size="lg" onClick={onStart} disabled={!canStart}>
               {t("lobby.startRace")} ▶
             </Button>
-            <Button variant="outline" size="lg" onClick={() => setReady(false)}>
+            <Button variant="outline" size="lg" onClick={() => onToggleReady(false)}>
               {t("lobby.cancelReady")}
             </Button>
           </>
