@@ -38,6 +38,16 @@
     "choose": "Elegí tu corredor",
     "start": "Empezar",
     "change": "Cambiar corredor",
+    "browser": {
+      "title": "Carreras",
+      "subtitle": "Creá una carrera e invitá a tus rivales, o unite a una abierta.",
+      "host": "➕ Crear carrera",
+      "openMatches": "Carreras abiertas",
+      "players": "{count}/{max} corredores",
+      "join": "Unirme",
+      "loading": "Buscando carreras…",
+      "empty": "No hay carreras abiertas. ¡Creá una!"
+    },
     "lobby": {
       "players": "{count}/4 corredores",
       "you": "Vos",

@@ -38,6 +38,16 @@
     "choose": "Choose your runner",
     "start": "Start",
     "change": "Change runner",
+    "browser": {
+      "title": "Races",
+      "subtitle": "Create a race and invite your rivals, or join an open one.",
+      "host": "➕ Create race",
+      "openMatches": "Open races",
+      "players": "{count}/{max} runners",
+      "join": "Join",
+      "loading": "Looking for races…",
+      "empty": "No open races. Start one!"
+    },
     "lobby": {
       "players": "{count}/4 runners",
       "you": "You",
