@@ -7,8 +7,8 @@ export const LANES = 3;
 
 /** Logical render resolution (scaled to fit the screen). */
 export const VIEW = {
-  width: 960,
-  height: 540,
+  width: 540,
+  height: 960,
 };
 
 /**

@@ -7,8 +7,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-24;
+  gap: $spacing-16;
   padding: $spacing-24 0;
+  width: 100%;
+}
+
+.topBar {
+  display: flex;
+  width: min(100%, 720px);
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-12;
+
+  @include mobile {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
 
 .heading {
@@ -17,6 +31,55 @@
   font-size: $font-size-xl;
   font-weight: $font-weight-extrabold;
   color: $color-text-primary;
+}
+
+.settingsButton {
+  border: 2px solid alpha($arcade-edge, 55%);
+  border-radius: 999px;
+  background: alpha($color-surface, 76%);
+  color: $color-text-primary;
+  cursor: pointer;
+  font-family: $font-family-display;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  padding: $spacing-8 $spacing-16;
+}
+
+.settingsPanel {
+  display: flex;
+  width: min(100%, 720px);
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-16;
+  padding: $spacing-12 $spacing-16;
+  border: 2px solid alpha($arcade-edge, 35%);
+  border-radius: $border-radius-lg;
+  background: alpha($color-surface, 82%);
+
+  @include mobile {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.settingsTitle,
+.settingsHint {
+  margin: 0;
+}
+
+.settingsTitle {
+  color: $color-text-primary;
+  font-family: $font-family-display;
+  font-weight: $font-weight-bold;
+}
+
+.settingsHint {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+.settingsToggle {
+  flex: 0 0 auto;
 }
 
 .cards {

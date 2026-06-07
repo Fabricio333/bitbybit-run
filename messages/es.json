@@ -29,6 +29,11 @@
     "change": "Cambiar corredor",
     "soundOn": "Activar sonido",
     "soundOff": "Silenciar",
+    "settings": {
+      "button": "Ajustes",
+      "title": "Ajustes de partida",
+      "language": "Idioma / tema"
+    },
     "controls": {
       "changeLane": "cambiar carril",
       "jump": "saltar",

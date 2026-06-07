@@ -29,6 +29,11 @@
     "change": "Change runner",
     "soundOn": "Turn sound on",
     "soundOff": "Mute",
+    "settings": {
+      "button": "Settings",
+      "title": "Match settings",
+      "language": "Language / theme"
+    },
     "controls": {
       "changeLane": "change lane",
       "jump": "jump",
