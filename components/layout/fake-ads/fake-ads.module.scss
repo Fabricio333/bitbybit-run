@@ -66,6 +66,16 @@ $ads-breakpoint: 1280px;
     animation: slide-out-down 0.3s ease-in forwards;
   }
 
+  // Reserve room at the bottom of the page so the fixed banner doesn't cover
+  // the footer links. Scoped to the banner's own breakpoint (on desktop the
+  // banner is display:none but still in the DOM, so :has must be gated), and
+  // only while a banner is present (it vanishes once the pool is dismissed).
+  @media (max-width: #{$ads-breakpoint - 1px}) {
+    :global(body):has(&) {
+      padding-bottom: calc(#{$spacing-80} + env(safe-area-inset-bottom));
+    }
+  }
+
   // Variant accents reuse the border/sticker rules below; the badge sits inline
   // (not pinned) so it doesn't cover the horizontal copy.
   .badge {
