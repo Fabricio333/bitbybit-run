@@ -180,7 +180,8 @@ export class RaceScene extends Phaser.Scene {
       // Ghosts sit just under the local runner (depth 3); minimap is HUD-level.
       this.remoteG = this.add.graphics().setDepth(2);
       this.minimapG = this.add.graphics().setDepth(9);
-      this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.net?.dispose());
+      // The RaceNet lifecycle is owned by React (MatchProvider) — it outlives
+      // this scene (lobby → race), so we don't dispose it on shutdown.
     }
 
     // Reusable emoji slots for food.

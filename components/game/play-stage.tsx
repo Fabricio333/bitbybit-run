@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { GameCanvas } from "./game-canvas";
 import { GameControls } from "./game-controls";
 import { RunnerLobby } from "./runner-lobby";
+import { MatchProvider, useMatchContext } from "./match-provider";
 import { InterstitialAd } from "./interstitial-ad";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button/button";
@@ -27,89 +28,112 @@ export function PlayStage({
   demo?: boolean;
   currentUser?: CurrentUser;
 }) {
-  const tDemo = useTranslations("demo");
+  if (demo) return <DemoStage />;
+  // The competitive flow keeps a single live match across lobby → race.
+  return (
+    <MatchProvider>
+      <CompetitiveStage currentUser={currentUser ?? { name: "Player" }} />
+    </MatchProvider>
+  );
+}
+
+/** Competitive flow: pick a runner in the lobby, then race. The match lives
+ *  in <MatchProvider> above, so the lobby's client carries into the race. */
+function CompetitiveStage({ currentUser }: { currentUser: CurrentUser }) {
+  const match = useMatchContext();
   const [selectedId, setSelectedId] = useState<CharacterId>("default");
-  const [started, setStarted] = useState(demo);
-  const [finish, setFinish] = useState<FinishResult | null>(null);
-  const [showAd, setShowAd] = useState(false);
-  // Bumped to remount GameCanvas (Phaser builds on mount) for a fresh round.
-  const [runId, setRunId] = useState(0);
-
-  if (demo) {
-    return (
-      <div className={styles.wrap}>
-        <GameCanvas
-          key={runId}
-          character={getCharacter("default")}
-          onFinish={setFinish}
-        />
-        <GameControls />
-
-        {finish && (
-          <Modal
-            onClose={() => setFinish(null)}
-            title={tDemo("finishTitle")}
-            ariaLabel={tDemo("finishTitle")}
-            size="sm"
-          >
-            <div className={styles.invite}>
-              <p className={styles.inviteStats}>
-                {finish.time.toFixed(1)}s · {finish.points} pts
-              </p>
-              <p className={styles.inviteText}>{tDemo("finishText")}</p>
-              <div className={styles.inviteActions}>
-                <Button
-                  href={{ pathname: "/sign-in", query: { next: "/play" } }}
-                  size="lg"
-                >
-                  {tDemo("login")}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  onClick={() => {
-                    // Swap the finish modal for the ad so they don't stack.
-                    setFinish(null);
-                    setShowAd(true);
-                  }}
-                >
-                  {tDemo("keepPlaying")}
-                </Button>
-              </div>
-            </div>
-          </Modal>
-        )}
-
-        {showAd && (
-          <InterstitialAd
-            onDone={() => {
-              // Dismissing the ad ends the round: close everything and remount
-              // the canvas so a brand-new race starts from the line.
-              setShowAd(false);
-              setFinish(null);
-              setRunId((n) => n + 1);
-            }}
-          />
-        )}
-      </div>
-    );
-  }
+  const [started, setStarted] = useState(false);
 
   if (!started) {
     return (
       <RunnerLobby
-        currentUser={currentUser ?? { name: "Player" }}
+        currentUser={currentUser}
         onClaim={setSelectedId}
         onStart={() => setStarted(true)}
       />
     );
   }
 
+  // Only hand the scene a live net when there's company on the track —
+  // otherwise a solo host would get MP behavior (lonely minimap, no restart).
+  const multiplayer = match.live && (match.snapshot?.players.length ?? 0) > 1;
+
   return (
     <div className={styles.wrap}>
-      <GameCanvas key={selectedId} character={getCharacter(selectedId)} />
+      <GameCanvas
+        key={selectedId}
+        character={getCharacter(selectedId)}
+        raceNet={multiplayer ? (match.raceNet ?? undefined) : undefined}
+      />
       <GameControls />
+    </div>
+  );
+}
+
+/** Free single-player demo: no match, finish invites sign-in. */
+function DemoStage() {
+  const tDemo = useTranslations("demo");
+  const [finish, setFinish] = useState<FinishResult | null>(null);
+  const [showAd, setShowAd] = useState(false);
+  // Bumped to remount GameCanvas (Phaser builds on mount) for a fresh round.
+  const [runId, setRunId] = useState(0);
+
+  return (
+    <div className={styles.wrap}>
+      <GameCanvas
+        key={runId}
+        character={getCharacter("default")}
+        onFinish={setFinish}
+      />
+      <GameControls />
+
+      {finish && (
+        <Modal
+          onClose={() => setFinish(null)}
+          title={tDemo("finishTitle")}
+          ariaLabel={tDemo("finishTitle")}
+          size="sm"
+        >
+          <div className={styles.invite}>
+            <p className={styles.inviteStats}>
+              {finish.time.toFixed(1)}s · {finish.points} pts
+            </p>
+            <p className={styles.inviteText}>{tDemo("finishText")}</p>
+            <div className={styles.inviteActions}>
+              <Button
+                href={{ pathname: "/sign-in", query: { next: "/play" } }}
+                size="lg"
+              >
+                {tDemo("login")}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={() => {
+                  // Swap the finish modal for the ad so they don't stack.
+                  setFinish(null);
+                  setShowAd(true);
+                }}
+              >
+                {tDemo("keepPlaying")}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {showAd && (
+        <InterstitialAd
+          onDone={() => {
+            // Dismissing the ad ends the round: close everything and remount
+            // the canvas so a brand-new race starts from the line.
+            setShowAd(false);
+            setFinish(null);
+            setRunId((n) => n + 1);
+          }}
+        />
+      )}
     </div>
   );
 }

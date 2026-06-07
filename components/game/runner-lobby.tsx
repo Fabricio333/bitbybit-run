@@ -2,20 +2,18 @@
 
 /**
  * Lobby container — wires the presentational <CharacterSelect> to the live
- * multiplayer layer (`useMatch`). The signed-in player is the host of their
- * own match: claiming a runner writes a seat into the host-authoritative
- * roster (lane = the character's `startLane`) and re-announces the lobby;
- * "Ready → Start" sends the synced start signal.
+ * match held by <MatchProvider> (so the same client survives into the race).
+ * The signed-in player is the host of their own match: claiming a runner
+ * writes a seat into the host-authoritative roster (lane = the character's
+ * `startLane`) and re-announces the lobby; "Ready → Start" sends the synced
+ * start signal.
  *
- * When no live signer is available (nsec / NIP-46 users who reloaded, or the
- * session is still loading) it falls back to a local-only lobby so play still
+ * When the match context is "dead" (no live signer: nsec / NIP-46 reload, or
+ * the session still loading) it falls back to a local-only lobby so play still
  * works — claims just don't broadcast.
  */
 
 import { useCallback, useMemo, useState } from "react";
-import { useSignerContext } from "@/lib/contexts/signer-context";
-import { useMatch } from "@/lib/hooks/use-match";
-import type { SignerHandle } from "@/lib/nostr/signers";
 import {
   CHARACTERS,
   getCharacter,
@@ -23,6 +21,7 @@ import {
 } from "@/lib/game/characters";
 import type { MatchPlayer } from "@/lib/multiplayer/types";
 import { CharacterSelect, type LobbyOccupant } from "./character-select";
+import { useMatchContext, type MatchContextValue } from "./match-provider";
 
 export interface CurrentUser {
   name: string;
@@ -37,8 +36,6 @@ interface RunnerLobbyProps {
   onStart: () => void;
 }
 
-const TRACK_ID = "classic-v1";
-
 /** Short, readable label for a remote pubkey we have no name for. */
 function shortPubkey(pubkey: string): string {
   return `${pubkey.slice(0, 6)}…${pubkey.slice(-4)}`;
@@ -49,7 +46,7 @@ function rosterToOccupants(
   players: MatchPlayer[],
   pubkey: string,
   currentUser: CurrentUser,
-  myReady: boolean,
+  myReady: boolean
 ): Partial<Record<CharacterId, LobbyOccupant>> {
   const map: Partial<Record<CharacterId, LobbyOccupant>> = {};
   for (const p of players) {
@@ -69,10 +66,10 @@ function rosterToOccupants(
 }
 
 export function RunnerLobby(props: RunnerLobbyProps) {
-  const { signer, session } = useSignerContext();
+  const match = useMatchContext();
 
-  if (signer && session?.pubkey) {
-    return <WiredLobby {...props} signer={signer} pubkey={session.pubkey} />;
+  if (match.live && match.selfPubkey) {
+    return <WiredLobby {...props} match={match} pubkey={match.selfPubkey} />;
   }
   return <LocalLobby {...props} />;
 }
@@ -81,29 +78,24 @@ function WiredLobby({
   currentUser,
   onClaim,
   onStart,
-  signer,
+  match,
   pubkey,
-}: RunnerLobbyProps & { signer: SignerHandle; pubkey: string }) {
-  // One stable match identity per lobby session (host = this player).
-  const [matchId] = useState(() => `bbr-${pubkey.slice(0, 8)}-${Date.now()}`);
+}: RunnerLobbyProps & { match: MatchContextValue; pubkey: string }) {
+  const { announceLobby, start, setRoster } = match;
+  const snapshot = match.snapshot;
   const [ready, setReady] = useState(false);
 
-  const { snapshot, announceLobby, start, setRoster } = useMatch({
-    signer,
-    matchId,
-    trackId: TRACK_ID,
-    isHost: true,
-  });
+  const players = useMemo(() => snapshot?.players ?? [], [snapshot]);
 
   const occupants = useMemo(
-    () => rosterToOccupants(snapshot.players, pubkey, currentUser, ready),
-    [snapshot.players, pubkey, currentUser, ready],
+    () => rosterToOccupants(players, pubkey, currentUser, ready),
+    [players, pubkey, currentUser, ready]
   );
 
   const claim = useCallback(
     (id: CharacterId) => {
       const char = getCharacter(id);
-      const others = snapshot.players.filter((p) => p.pubkey !== pubkey);
+      const others = players.filter((p) => p.pubkey !== pubkey);
       const next: MatchPlayer[] = [
         ...others,
         { pubkey, lane: char.startLane, name: currentUser.name },
@@ -114,7 +106,7 @@ function WiredLobby({
       // Best-effort: a relay hiccup must not block the optimistic local update.
       announceLobby(currentUser.name).catch(() => {});
     },
-    [snapshot.players, pubkey, currentUser, setRoster, announceLobby, onClaim],
+    [players, pubkey, currentUser, setRoster, announceLobby, onClaim]
   );
 
   const toggleReady = useCallback(
@@ -122,7 +114,7 @@ function WiredLobby({
       setReady(next);
       if (next) announceLobby(currentUser.name).catch(() => {});
     },
-    [announceLobby, currentUser.name],
+    [announceLobby, currentUser.name]
   );
 
   const startRace = useCallback(() => {
@@ -133,7 +125,7 @@ function WiredLobby({
   return (
     <CharacterSelect
       occupants={occupants}
-      playerCount={snapshot.players.length}
+      playerCount={players.length}
       onClaim={claim}
       onToggleReady={toggleReady}
       onStart={startRace}
@@ -158,7 +150,7 @@ function LocalLobby({ currentUser, onClaim, onStart }: RunnerLobbyProps) {
             },
           }
         : {},
-    [claimedId, ready, currentUser],
+    [claimedId, ready, currentUser]
   );
 
   const claim = useCallback(
@@ -167,7 +159,7 @@ function LocalLobby({ currentUser, onClaim, onStart }: RunnerLobbyProps) {
       setReady(false);
       onClaim(id);
     },
-    [onClaim],
+    [onClaim]
   );
 
   return (

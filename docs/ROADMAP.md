@@ -52,10 +52,13 @@ feel-tuning pending.
 - [~] Finish events (kind `21002`): the scene announces its finish and the
       foundation reducer resolves the winner; the standings/results **screen** is
       still pending (separate task)
-- [ ] **Connect lobby → race**: lift the lobby's `useMatch` client up to
-      `PlayStage` so it survives the start transition, then pass
-      `createRaceNet(client)` to `<GameCanvas raceNet>` (the canvas + scene
-      already consume it). Last seam to make a real 2–4 player race run.
+- [x] **Connect lobby → race**: the match now lives in `<MatchProvider>` above
+      the competitive flow (lobby + race), so the lobby's client carries into the
+      race; `PlayStage` hands the scene a `RaceNet` (only when ≥2 players, so solo
+      hosts keep the plain single-player race).
+- [ ] **Join flow**: discover open matches (kind `30078`) and join a host's
+      match instead of each player hosting their own — the last piece before two
+      real browsers see each other on the track.
 - [ ] Neon + Drizzle: persist `Match` / `Result`; global leaderboard page
 
 **Milestone (≈ Jun 18): 2–4 players can race and the leaderboard updates.**

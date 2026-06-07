@@ -28,6 +28,9 @@ export interface UseMatchOptions {
 }
 
 export interface UseMatch {
+  /** The live client, or null before the init effect runs. Exposed so the
+   *  game layer can build a `RaceNet` from the same instance. */
+  client: MatchClient | null;
   snapshot: MatchSnapshot;
   announceLobby: (name?: string) => Promise<void>;
   start: (countdownMs?: number) => Promise<void>;
@@ -50,12 +53,13 @@ export function useMatch(options: UseMatchOptions): UseMatch {
   } = options;
 
   const clientRef = useRef<MatchClient | null>(null);
+  const [client, setClient] = useState<MatchClient | null>(null);
   const [snapshot, setSnapshot] = useState<MatchSnapshot | null>(null);
 
   // A new MatchClient (and a fresh default transport) per match identity.
   useEffect(() => {
     const transport = injectedTransport ?? new NostrTransport();
-    const client = new MatchClient({
+    const instance = new MatchClient({
       transport,
       signer,
       matchId,
@@ -63,15 +67,17 @@ export function useMatch(options: UseMatchOptions): UseMatch {
       players,
       isHost,
     });
-    clientRef.current = client;
-    const unsubscribe = client.onSnapshot(setSnapshot);
+    clientRef.current = instance;
+    setClient(instance);
+    const unsubscribe = instance.onSnapshot(setSnapshot);
 
     return () => {
       unsubscribe();
-      client.leave();
+      instance.leave();
       // Only close a transport we created; an injected one is the caller's.
       if (!injectedTransport) transport.close();
       clientRef.current = null;
+      setClient(null);
     };
     // Re-init only on a genuine identity change. `players` is just a seed
     // (a fresh array each render); roster updates flow through setRoster, so
@@ -118,6 +124,7 @@ export function useMatch(options: UseMatchOptions): UseMatch {
   );
 
   return {
+    client,
     snapshot: snapshot ?? fallback,
     announceLobby,
     start,
