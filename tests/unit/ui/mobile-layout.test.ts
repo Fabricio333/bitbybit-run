@@ -69,6 +69,19 @@ describe("mobile game UI layout", () => {
     expect(scene).toContain("this.laneSpacing = width * 0.16");
   });
 
+  it("does not ask mobile players for the R key after finishing", () => {
+    const en = read("messages/en.json");
+    const es = read("messages/es.json");
+    expect(en).not.toContain("press R");
+    expect(es).not.toContain("apretá R");
+
+    const scene = read("lib/game/scenes/race-scene.ts");
+    const canvas = read("components/game/game-canvas.tsx");
+    expect(scene).toContain('if (this.finished) this.resetRace();');
+    expect(scene).toContain('again: "tap to race again"');
+    expect(canvas).toContain('dispatchAction("restart")');
+  });
+
   it("shows compact pre-match settings with language controls before starting", () => {
     const select = read("components/game/character-select.tsx");
     expect(select).toContain("LocaleThemeToggle");

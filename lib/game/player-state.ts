@@ -2,7 +2,14 @@ import { ENERGY, LANES } from "./config";
 
 export type RunnerPower = "shield";
 
-export type RunnerAction = "left" | "right" | "jump" | "duck" | "boost" | "power";
+export type RunnerAction =
+  | "left"
+  | "right"
+  | "jump"
+  | "duck"
+  | "boost"
+  | "power"
+  | "restart";
 
 export type RunnerState = {
   targetLane: number;
@@ -100,5 +107,7 @@ export function applyRunnerAction(
         heldPower: state.powerCharges - 1 > 0 ? state.heldPower : null,
         shieldTimer: RUNNER_ACTION.shieldSeconds,
       };
+    case "restart":
+      return state;
   }
 }

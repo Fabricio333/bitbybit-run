@@ -103,6 +103,7 @@ export function GameCanvas({
           Math.abs(dx) < SWIPE_THRESHOLD &&
           Math.abs(dy) < SWIPE_THRESHOLD
         ) {
+          dispatchAction("restart");
           return;
         }
 

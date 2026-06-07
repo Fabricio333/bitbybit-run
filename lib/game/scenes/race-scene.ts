@@ -62,7 +62,7 @@ export type GameStrings = {
 const DEFAULT_STRINGS: GameStrings = {
   go: "GO!",
   finish: "🏁 FINISH!",
-  again: "press R to race again",
+  again: "tap to race again",
   goodPhrases: ["yum! 😋", "pure energy ⚡"],
   badPhrases: ["ugh, bad idea 🤢"],
   bathrooms: ["🚽 Bathroom break!"],
@@ -335,7 +335,7 @@ export class RaceScene extends Phaser.Scene {
     this.now = time;
 
     if (this.finished) {
-      if (Phaser.Input.Keyboard.JustDown(this.keys.R)) this.resetRace();
+      this.handleRestartInput();
     } else if (this.startHold > 0) {
       // "On your marks" — hold at the start so the start line + lane numbers
       // are visible before the runner takes off.
@@ -368,6 +368,11 @@ export class RaceScene extends Phaser.Scene {
   }
 
   private applyAction(action: RunnerAction) {
+    if (action === "restart") {
+      if (this.finished) this.resetRace();
+      return;
+    }
+
     if (this.finished || this.startHold > 0) return;
 
     const before = this.runnerState;
@@ -422,6 +427,10 @@ export class RaceScene extends Phaser.Scene {
       this.applyAction("power");
     }
 
+    if (Phaser.Input.Keyboard.JustDown(this.keys.R)) this.resetRace();
+  }
+
+  private handleRestartInput() {
     if (Phaser.Input.Keyboard.JustDown(this.keys.R)) this.resetRace();
   }
 
