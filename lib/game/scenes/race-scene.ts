@@ -1,6 +1,8 @@
 import * as Phaser from "phaser";
 import {
   LANES,
+  LANE_WIDTH,
+  MAX_TRACK_FRAC,
   VIEW,
   SPEED,
   ENERGY,
@@ -31,6 +33,16 @@ const VIEW_DISTANCE = 750; // how far ahead food/signs are rendered
 const HIT_LANE_TOLERANCE = 0.5; // how close to a lane center counts as "in it"
 const FOOD_POOL_SIZE = 20; // reusable emoji slots for visible food
 const SIGN_POOL_SIZE = 6; // reusable billboards for visible signs
+// Signs only render once their perspective scale passes SIGN_MIN_SCALE, i.e.
+// when they're down at the roadside (lower, wider screen). Farther than that
+// they'd shrink onto the vanishing point near the horizon — crowding the path
+// and the centered food toast — so we hold them back and fade them in.
+const SIGN_MIN_SCALE = 0.46;
+const SIGN_FADE = 0.14; // scale range over which a sign fades from 0→1 alpha
+// Minimum side-margin (px) needed to fit a readable billboard. Below this — i.e.
+// narrow portrait phones, where the track fills the screen — signs are hidden so
+// they never crowd the track. They return on wider (landscape/desktop) layouts.
+const SIGN_MIN_MARGIN = 64;
 const START_LINE_WORLD = 0; // start line at the very start of the race
 const NUMBERS_WORLD = 22; // lane numbers painted just past the start line
 const START_HOLD = 1.2; // seconds the runner waits at the start ("on your marks")
@@ -90,6 +102,7 @@ export class RaceScene extends Phaser.Scene {
   private playerDistance = 0; // 0..TRACK.length
   private playerLane = (LANES - 1) / 2; // fractional, tweened
   private targetLane = Math.round((LANES - 1) / 2);
+  private startLane = Math.round((LANES - 1) / 2); // set from the chosen character
   private energy = ENERGY.start;
   private poison = 0;
   private points = 0;
@@ -97,6 +110,7 @@ export class RaceScene extends Phaser.Scene {
   private finished = false;
   private startHold = START_HOLD; // "on your marks" pause before the runner moves
   private drunkTimer = 0; // >0 while wobbling after a beer
+  private touchSprint = false; // held while a finger is on the centre (sprint) zone
 
   // Per-food "already resolved" flags (consumed or passed).
   private resolved = new Set<string>();
@@ -126,14 +140,17 @@ export class RaceScene extends Phaser.Scene {
   }
 
   create() {
-    const { width, height } = this.scale;
-    this.horizonY = height * 0.32;
-    this.bottomY = height; // track starts at the very bottom edge
-    this.laneSpacing = width * 0.118;
+    this.layout();
 
     this.readFonts();
     const s = this.registry.get("strings") as GameStrings | undefined;
     if (s) this.strings = s;
+
+    // Each character owns a starting lane (Sprinter 1 … Bitcoin 4).
+    const ch = this.registry.get("character") as SpriteChoice | undefined;
+    if (ch?.startLane != null) {
+      this.startLane = Phaser.Math.Clamp(ch.startLane, 0, LANES - 1);
+    }
 
     // Static backdrop (sky, grass, crowd, orange track, lane lines).
     this.bg = this.add.graphics().setDepth(0);
@@ -186,7 +203,7 @@ export class RaceScene extends Phaser.Scene {
       .setDepth(10);
 
     this.toastText = this.add
-      .text(width / 2, height * 0.4, "", {
+      .text(this.scale.width / 2, this.scale.height * 0.4, "", {
         fontFamily: this.fontDisplay,
         fontSize: "28px",
         color: "#ffffff",
@@ -209,7 +226,63 @@ export class RaceScene extends Phaser.Scene {
       Phaser.Input.Keyboard.Key
     >;
 
+    // Touch input (mobile has no keys): tap the left/right third to change lane,
+    // hold the centre to sprint, tap anywhere to restart once finished.
+    this.input.on("pointerdown", this.onPointerDown, this);
+    this.input.on("pointerup", this.onPointerUp, this);
+    this.input.on("pointerupoutside", this.onPointerUp, this);
+
+    // Responsive: the canvas follows its parent (Scale.RESIZE), so recompute the
+    // layout and redraw the static backdrop whenever the viewport changes.
+    this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);
+      this.input.off("pointerdown", this.onPointerDown, this);
+      this.input.off("pointerup", this.onPointerUp, this);
+      this.input.off("pointerupoutside", this.onPointerUp, this);
+    });
+
     this.resetRace();
+  }
+
+  private onPointerDown(pointer: Phaser.Input.Pointer) {
+    if (this.finished) {
+      this.resetRace();
+      return;
+    }
+    const w = this.scale.width;
+    if (pointer.x < w * 0.33) {
+      this.targetLane = Math.max(0, this.targetLane - 1);
+      Sound.lane();
+    } else if (pointer.x > w * 0.67) {
+      this.targetLane = Math.min(LANES - 1, this.targetLane + 1);
+      Sound.lane();
+    } else {
+      this.touchSprint = true; // centre zone → sprint while held
+    }
+  }
+
+  private onPointerUp() {
+    this.touchSprint = false;
+  }
+
+  /** (Re)compute viewport-dependent layout. Lane width is fixed (LANE_WIDTH),
+   *  clamped so the track never exceeds MAX_TRACK_FRAC of the width — so the
+   *  track stays a fixed-width, centered anchor and the side margins (signs)
+   *  absorb the responsive change. Dynamic objects reproject every frame;
+   *  only the static backdrop needs an explicit redraw (see onResize). */
+  private layout() {
+    const { width, height } = this.scale;
+    this.horizonY = height * 0.32;
+    this.bottomY = height; // track starts at the very bottom edge
+    this.laneSpacing = Math.min(LANE_WIDTH, (width * MAX_TRACK_FRAC) / LANES);
+  }
+
+  private onResize() {
+    if (!this.bg) return; // resize can fire before create() finishes
+    this.layout();
+    this.drawBackground();
+    this.toastText.setPosition(this.scale.width / 2, this.scale.height * 0.4);
   }
 
   private readFonts() {
@@ -221,12 +294,12 @@ export class RaceScene extends Phaser.Scene {
     if (display) this.fontDisplay = `${display}, "Nunito", sans-serif`;
   }
 
-  /** Lane-number labels (1..8), positioned every frame by updateStartArea. */
+  /** Lane-number labels (1..LANES), positioned every frame by updateStartArea. */
   private createStartMarkers() {
     for (let i = 0; i < LANES; i++) {
       const txt = this.add
         .text(0, 0, String(i + 1), {
-          fontFamily: this.fontDisplay,
+          fontFamily: this.fontBody,
           fontSize: "40px",
           color: "#ffffff",
           fontStyle: "bold",
@@ -263,8 +336,8 @@ export class RaceScene extends Phaser.Scene {
 
   private resetRace() {
     this.playerDistance = 0;
-    this.playerLane = (LANES - 1) / 2;
-    this.targetLane = Math.round((LANES - 1) / 2);
+    this.playerLane = this.startLane;
+    this.targetLane = this.startLane;
     this.energy = ENERGY.start;
     this.poison = 0;
     this.points = 0;
@@ -272,6 +345,7 @@ export class RaceScene extends Phaser.Scene {
     this.finished = false;
     this.startHold = START_HOLD;
     this.drunkTimer = 0;
+    this.touchSprint = false;
     this.toastText.setText("");
     this.toastTimer = 0;
     // Forget which foods were eaten/passed so the bubbles render again
@@ -354,7 +428,8 @@ export class RaceScene extends Phaser.Scene {
     this.playerLane +=
       (this.targetLane - this.playerLane) * Math.min(1, dt * LANE_TWEEN_SPEED);
 
-    const accelerating = this.cursors.up.isDown || this.keys.W.isDown;
+    const accelerating =
+      this.cursors.up.isDown || this.keys.W.isDown || this.touchSprint;
     const braking = this.cursors.down.isDown || this.keys.S.isDown;
 
     let speed = SPEED.base;
@@ -533,6 +608,21 @@ export class RaceScene extends Phaser.Scene {
   /** Crowd signs as billboards beside the track, scrolling toward the player. */
   private updateSigns() {
     const g = this.world;
+    // The side margin between the track edge and the screen edge is the signs'
+    // home. The track keeps its width; the margin (and the signs in it) flex.
+    const fullMarginLanes = this.scale.width / 2 / this.laneSpacing - LANES / 2;
+    const marginPx = fullMarginLanes * this.laneSpacing; // one side, in px
+
+    // Narrow portrait (mobile): no room for a readable billboard beside the
+    // track, so hide the signs entirely rather than cram huge ones over it.
+    if (marginPx < SIGN_MIN_MARGIN) {
+      for (const t of this.signPool) t.setVisible(false);
+      return;
+    }
+
+    const signOffset = fullMarginLanes / 2; // sit in the middle of the margin
+    const maxScale = marginPx / 90; // cap so a typical word fits the margin
+
     const visible = SIGNS.map((sg) => ({ sg, d: sg.at - this.playerDistance }))
       .filter((x) => x.d >= 0 && x.d <= VIEW_DISTANCE)
       .sort((a, b) => b.d - a.d); // far first
@@ -540,22 +630,30 @@ export class RaceScene extends Phaser.Scene {
     let slot = 0;
     for (const { sg, d } of visible) {
       if (slot >= this.signPool.length) break;
-      const lane = sg.side === -1 ? -2.4 : LANES - 1 + 2.4;
+      const lane =
+        sg.side === -1 ? -0.5 - signOffset : LANES - 0.5 + signOffset;
       const p = this.project(d, lane);
-      const scale = Math.min(1.5, Math.max(0.4, p.s * 2));
+      // Skip far signs: projected near the horizon they'd shrink onto the
+      // vanishing point, crowding the path and the centered food toast. Fade
+      // them in as they come down to the roadside instead.
+      if (p.s < SIGN_MIN_SCALE) continue;
+      const alpha = Math.min(1, (p.s - SIGN_MIN_SCALE) / SIGN_FADE);
+      const scale = Math.min(1.3, maxScale, Math.max(0.4, p.s * 2));
       const postH = 70 * scale;
       const signY = p.y - postH;
       // Post.
-      g.lineStyle(Math.max(1.5, 4 * scale), 0x6b4f2a, 1);
+      g.lineStyle(Math.max(1.5, 4 * scale), 0x6b4f2a, alpha);
       g.lineBetween(p.x, p.y, p.x, signY);
-      // Billboard.
+      // Billboard — wrap to the available margin (rendered width ≈ marginPx).
       const txt = this.signPool[slot++];
       const text =
         this.strings.signs[sg.text % this.strings.signs.length] ?? "";
       txt
         .setText(text)
+        .setWordWrapWidth(Math.max(60, marginPx / scale))
         .setPosition(p.x, signY)
         .setScale(scale)
+        .setAlpha(alpha)
         .setVisible(true);
     }
     for (let i = slot; i < this.signPool.length; i++) {
@@ -780,6 +878,8 @@ export type SpriteChoice = {
   sheet: string;
   frameWidth: number;
   frameHeight: number;
+  /** Lane this character starts in (0-indexed). Defaults to centre if absent. */
+  startLane?: number;
 };
 
 export const createGameConfig = (
@@ -794,7 +894,10 @@ export const createGameConfig = (
   height: VIEW.height,
   backgroundColor: "#cdeaf8",
   scale: {
-    mode: Phaser.Scale.FIT,
+    // RESIZE: the canvas tracks its parent element's size (responsive), and the
+    // scene recomputes its layout on every resize (see RaceScene.layout). The
+    // parent's CSS box decides the aspect — taller on portrait/mobile.
+    mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   callbacks: {

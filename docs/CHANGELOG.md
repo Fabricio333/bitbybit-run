@@ -6,6 +6,21 @@ Dates use `YYYY-MM-DD`.
 
 ## [Unreleased]
 
+### Changed (design)
+
+- **Track reduced from 8 lanes / 8 players to 4 lanes / 4 players.** Two reasons:
+  (1) **Mobile-friendly by design** — in the 2.5D behind-runner view the track
+  narrows toward the horizon, and 8 lanes are unreadable/untappable in a portrait
+  viewport; 4 lanes keep each lane wide enough to see and touch. (2) **Lighter
+  realtime layer** — runner-state fan-out over public Nostr relays grows ~N², so
+  4 players cut received traffic from ~35 to ~15 events/s per client (~¼ of the
+  relay load) and downgrade the "relays rate-limit at scale" risk from Medium to
+  Low. Also fewer characters/tints to design and a far more realistic playtest
+  target (4 real people vs 8) before the pitch. Updated across `GAME-DESIGN.md`
+  (lanes, player count, `lane 0..3`, auto-start 4/4), `ARCHITECTURE.md`
+  (`TRACK.lanes: 4`, `max: 4`, `lane:0..3`), `ROADMAP.md` (milestones, playtest,
+  risk register) and `CHARACTERS.md`.
+
 ### Fixed
 
 - **Sign-out** left a valid session cookie (a bare `cookies().delete()` doesn't

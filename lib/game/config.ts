@@ -3,9 +3,23 @@
  * Keep all "feel" numbers here so they're easy to balance.
  */
 
-export const LANES = 8;
+export const LANES = 4;
 
-/** Logical render resolution (scaled to fit the screen). */
+/**
+ * Fixed per-lane width in logical px — the original 8-lane feel. The track is
+ * `LANES × LANE_WIDTH` wide wherever there's room (roomy screens keep wide side
+ * margins for the crowd signs); narrower viewports clamp the lanes down (see
+ * `MAX_TRACK_FRAC`) so the track stays fully visible and it's the side signs
+ * that lose width. Keeping lane width fixed is what makes the game responsive:
+ * the track is the anchor, the margins flex.
+ */
+export const LANE_WIDTH = 112;
+
+/** The track never exceeds this fraction of the viewport width (mobile clamp). */
+export const MAX_TRACK_FRAC = 0.92;
+
+/** Logical render resolution (the RESIZE scale base; real size follows the
+ *  parent element so the canvas is responsive). */
 export const VIEW = {
   width: 960,
   height: 540,

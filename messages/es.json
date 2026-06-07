@@ -33,7 +33,10 @@
       "changeLane": "cambiar carril",
       "sprint": "acelerar",
       "brake": "frenar",
-      "restart": "reiniciar"
+      "restart": "reiniciar",
+      "touchLanes": "tocá los costados para cambiar carril",
+      "touchSprint": "mantené el centro para acelerar",
+      "touchRestart": "tocá para reiniciar"
     }
   },
   "demo": {
