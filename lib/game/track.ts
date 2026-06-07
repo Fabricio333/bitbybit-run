@@ -16,6 +16,13 @@ export type FoodItem = {
   type: string; // key into FOODS
 };
 
+export type PowerUpItem = {
+  id: string;
+  lane: number; // 0..LANES-1
+  at: number;
+  type: "shield";
+};
+
 export type Sign = {
   at: number; // distance along the track
   side: -1 | 1; // -1 = left of the track, 1 = right
@@ -28,6 +35,7 @@ export type Track = {
   length: number; // distance to the finish line, in track-units
   goodFood: FoodItem[]; // hydration stations -> energy
   junkFood: FoodItem[]; // obstacles -> poison
+  powerUps: PowerUpItem[]; // collectible power-up charges
 };
 
 const LENGTH = 7500;
@@ -44,9 +52,25 @@ function buildFood(
   let i = 0;
   for (let at = startAt; at < LENGTH - 120; at += step) {
     // Deterministic zig-zag across lanes, cycling through the food types.
-    const lane = (laneSeed + i * 3) % LANES;
+    const lane = (laneSeed + i * 2) % LANES;
     const type = typeIds[(i + laneSeed) % typeIds.length];
     items.push({ id: `${prefix}-${i}`, lane, at, type });
+    i++;
+  }
+  return items;
+}
+
+/** Deterministically place occasional power-ups between food clusters. */
+function buildPowerUps(): PowerUpItem[] {
+  const items: PowerUpItem[] = [];
+  let i = 0;
+  for (let at = 520; at < LENGTH - 180; at += 680) {
+    items.push({
+      id: `power-${i}`,
+      lane: (1 + i * 2) % LANES,
+      at,
+      type: "shield",
+    });
     i++;
   }
   return items;
@@ -59,6 +83,7 @@ export const TRACK: Track = {
   // Foods placed a bit closer together so energy is easier to sustain.
   goodFood: buildFood("good", 140, 150, 2, GOOD_IDS),
   junkFood: buildFood("junk", 230, 210, 5, BAD_IDS),
+  powerUps: buildPowerUps(),
 };
 
 /** Crowd signs lining the track, alternating sides. `text` cycles through the

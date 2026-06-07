@@ -3,7 +3,7 @@
  * Keep all "feel" numbers here so they're easy to balance.
  */
 
-export const LANES = 8;
+export const LANES = 3;
 
 /** Logical render resolution (scaled to fit the screen). */
 export const VIEW = {
@@ -21,8 +21,10 @@ export const TRACK_DRAW_DISTANCE = 4500;
 /** Forward movement speeds, in track-units per second. */
 export const SPEED = {
   base: 180, // automatic cruising speed
-  sprint: 370, // while accelerating WITH energy
-  brake: 120, // while braking
+  boost: 410, // short burst triggered by touch/keyboard boost
+  sprint: 370, // legacy alias for old balancing references
+  duck: 130, // while crouching
+  brake: 120, // legacy alias for old balancing references
   exhausted: 150, // cap when energy is empty (slower than base, but not crawling)
 };
 
@@ -99,4 +101,5 @@ export const GAME_COLORS = {
 export const FOOD_ICONS = {
   good: "⚡",
   junk: "🍔",
+  power: "🛡️",
 };

@@ -1,8 +1,8 @@
 {
   "metadata": {
     "siteName": "Bit by Bit Run",
-    "siteTitle": "Bit by Bit Run — race, eat, sprint, win sats",
-    "description": "A free, lightweight, web-based multiplayer runner race. Grab the good food to sprint, dodge the junk, and be first to the finish line.",
+    "siteTitle": "Bit by Bit Run — race, boost, win sats",
+    "description": "A free, lightweight, web-based runner race. Grab energy, use boosts and power-ups, dodge junk, and be first to the finish line.",
     "skipToContent": "Skip to content"
   },
   "nav": {
@@ -17,7 +17,7 @@
   },
   "landing": {
     "title": "Bit by Bit Run",
-    "subtitle": "Race down the track. Grab the good food to sprint, dodge the junk or you'll be sent back to the start. First to the finish wins.",
+    "subtitle": "Race down the track. Grab energy, boost, use power-ups, and dodge the junk or you'll be sent back to the start. First to the finish wins.",
     "tagline": "Run, Eat, Win 🏃💨\nCardio never paid this well.",
     "play": "Play",
     "howToPlay": "How to play"
@@ -31,8 +31,10 @@
     "soundOff": "Mute",
     "controls": {
       "changeLane": "change lane",
-      "sprint": "sprint",
-      "brake": "brake",
+      "jump": "jump",
+      "duck": "duck",
+      "boost": "boost",
+      "power": "power",
       "restart": "restart"
     }
   },
@@ -132,18 +134,20 @@
   },
   "howToPlay": {
     "title": "How to play",
-    "intro": "Race down the 8-lane athletics track and be the first to cross the finish line.",
+    "intro": "Race down the 3-lane athletics track and be the first to cross the finish line.",
     "goalTitle": "🎯 Goal",
     "goalText": "Reach the finish line before everyone else. Crossing first locks in the top spot.",
     "energyTitle": "🔋 Energy",
-    "energyText": "Grab good food to fill your energy bar, then spend it to sprint. The better the food, the more energy and points:",
+    "energyText": "Grab good food to fill your energy bar, then spend it on boosts. The better the food, the more energy and points:",
     "poisonTitle": "🍔 Junk food",
     "poisonText": "Dodge junk food: it fills your poison bar and, if it fills up, you run to the bathroom 🚽 and start over. The worse it is, the more it costs you:",
     "controlsTitle": "🎮 Controls",
     "controlsLanes": "move between lanes",
-    "controlsSprint": "sprint (spends energy)",
-    "controlsBrake": "brake",
+    "controlsSprint": "jump",
+    "controlsBrake": "duck / crouch",
     "controlsRestart": "restart",
+    "controlsBoost": "boost button / Space / B",
+    "controlsPower": "power button / E",
     "zapTitle": "⚡️ Zap the winner",
     "zapText": "When the race ends, you can send sat zaps to the winner. Running fast pays out in Bitcoin.",
     "rankingTitle": "🏆 Ranking",

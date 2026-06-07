@@ -1,10 +1,72 @@
 @use "@/styles/spacing" as *;
+@use "@/styles/colors" as *;
+
+.shell {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  touch-action: none;
+}
 
 .canvas {
   width: 100%;
-  max-width: 960px;
   aspect-ratio: 16 / 9;
-  margin: 0 auto;
   border-radius: $border-radius-md;
   overflow: hidden;
+}
+
+.touchButton {
+  position: absolute;
+  z-index: 4;
+  bottom: clamp(12px, 4vw, 28px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-8;
+  min-width: 112px;
+  min-height: 64px;
+  padding: $spacing-12 $spacing-16;
+  border: 2px solid $arcade-edge;
+  border-radius: $border-radius-sm;
+  background: alpha($color-surface, 92%);
+  box-shadow: 3px 3px 0 0 $arcade-edge;
+  color: $color-text-primary;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 0 $arcade-edge;
+  }
+}
+
+.powerButton {
+  left: clamp(12px, 4vw, 28px);
+}
+
+.boostButton {
+  right: clamp(12px, 4vw, 28px);
+  background: color-mix(in srgb, $game-energy 28%, $color-surface);
+}
+
+@media (max-width: 640px) {
+  .shell {
+    width: calc(100vw - #{$spacing-16});
+  }
+
+  .canvas {
+    border-radius: $border-radius-sm;
+  }
+
+  .touchButton {
+    min-width: 96px;
+    min-height: 58px;
+    padding: $spacing-8 $spacing-12;
+    font-size: 0.86rem;
+  }
 }

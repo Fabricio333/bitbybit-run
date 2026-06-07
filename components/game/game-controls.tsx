@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowIcon } from "@/components/icons/arrow-icon";
+import { BadgeIcon, BoltIcon } from "@/components/icons";
 import styles from "./game-controls.module.scss";
 
 function Cap({ children }: { children: ReactNode }) {
@@ -39,7 +40,7 @@ export function GameControls() {
           <span className={styles.or}>/</span>
           <Cap>W</Cap>
         </span>
-        <span className={styles.label}>{t("sprint")}</span>
+        <span className={styles.label}>{t("jump")}</span>
       </div>
 
       <div className={styles.item}>
@@ -50,7 +51,31 @@ export function GameControls() {
           <span className={styles.or}>/</span>
           <Cap>S</Cap>
         </span>
-        <span className={styles.label}>{t("brake")}</span>
+        <span className={styles.label}>{t("duck")}</span>
+      </div>
+
+      <div className={styles.item}>
+        <span className={styles.keys}>
+          <Cap>
+            <BoltIcon size={16} />
+          </Cap>
+          <span className={styles.or}>/</span>
+          <Cap>Space</Cap>
+          <span className={styles.or}>/</span>
+          <Cap>B</Cap>
+        </span>
+        <span className={styles.label}>{t("boost")}</span>
+      </div>
+
+      <div className={styles.item}>
+        <span className={styles.keys}>
+          <Cap>
+            <BadgeIcon size={16} />
+          </Cap>
+          <span className={styles.or}>/</span>
+          <Cap>E</Cap>
+        </span>
+        <span className={styles.label}>{t("power")}</span>
       </div>
 
       <div className={styles.item}>

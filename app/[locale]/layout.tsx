@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import {
@@ -13,6 +13,7 @@ import { Navbar } from "@/components/layout/navbar/navbar";
 import { SiteFooter } from "@/components/layout/footer/site-footer";
 import { FakeAds } from "@/components/layout/fake-ads/fake-ads";
 import { SignerProviderClient } from "@/components/auth/signer-provider-client";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { getSession } from "@/lib/auth";
 import { getUserByPubkey } from "@/lib/creator/users";
 import type { SessionUser } from "@/lib/contexts/signer-context";
@@ -70,6 +71,14 @@ const nunitoSans = Nunito_Sans({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+  themeColor: "#dd7a3c",
+};
+
 export async function generateMetadata({
   params,
 }: {
@@ -83,6 +92,13 @@ export async function generateMetadata({
       template: `%s · ${t("siteName")}`,
     },
     description: t("description"),
+    applicationName: t("siteName"),
+    manifest: "/manifest.webmanifest",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: t("siteName"),
+    },
   };
 }
 
@@ -115,6 +131,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
             <SignerProviderClient initialSession={initialSession}>
+              <ServiceWorkerRegister />
               <a href="#main" className="skip-link">
                 {t("skipToContent")}
               </a>

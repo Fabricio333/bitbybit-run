@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button/button";
 import { ArrowIcon } from "@/components/icons/arrow-icon";
+import { BadgeIcon, BoltIcon } from "@/components/icons";
 import { FOODS, GOOD_IDS, BAD_IDS } from "@/lib/game/foods";
 import styles from "./how-to-play-content.module.scss";
 
@@ -78,6 +79,22 @@ function Controls() {
           <Key>R</Key>
         </span>
         {t("controlsRestart")}
+      </li>
+      <li>
+        <span className={styles.keys}>
+          <Key label="Boost">
+            <BoltIcon size={18} />
+          </Key>
+        </span>
+        {t("controlsBoost")}
+      </li>
+      <li>
+        <span className={styles.keys}>
+          <Key label="Power">
+            <BadgeIcon size={18} />
+          </Key>
+        </span>
+        {t("controlsPower")}
       </li>
     </ul>
   );

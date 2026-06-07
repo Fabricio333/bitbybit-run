@@ -3,7 +3,17 @@
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { DEFAULT_CHARACTER, type Character } from "@/lib/game/characters";
+import type { RunnerAction } from "@/lib/game/player-state";
+import { BadgeIcon, BoltIcon } from "@/components/icons";
 import styles from "./game-canvas.module.scss";
+
+const SWIPE_THRESHOLD = 32;
+
+function dispatchAction(action: RunnerAction) {
+  window.dispatchEvent(
+    new CustomEvent<RunnerAction>("bitbybit-run:action", { detail: action })
+  );
+}
 
 /**
  * Mounts the Phaser game into a div, client-side only.
@@ -23,9 +33,11 @@ export function GameCanvas({
   onFinish?: (result: { time: number; points: number }) => void;
 }) {
   const t = useTranslations("game");
+  const tControls = useTranslations("play.controls");
   const locale = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
   // Keep the latest callback without re-running the game-creation effect.
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
@@ -76,5 +88,58 @@ export function GameCanvas({
     // Re-create the game when the locale or chosen character changes.
   }, [locale, t, character]);
 
-  return <div ref={containerRef} className={styles.canvas} />;
+  return (
+    <div
+      className={styles.shell}
+      onPointerDown={(event) => {
+        pointerStartRef.current = { x: event.clientX, y: event.clientY };
+      }}
+      onPointerUp={(event) => {
+        const start = pointerStartRef.current;
+        pointerStartRef.current = null;
+        if (!start) return;
+
+        const dx = event.clientX - start.x;
+        const dy = event.clientY - start.y;
+        if (
+          Math.abs(dx) < SWIPE_THRESHOLD &&
+          Math.abs(dy) < SWIPE_THRESHOLD
+        ) {
+          return;
+        }
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+          dispatchAction(dx > 0 ? "right" : "left");
+          return;
+        }
+
+        dispatchAction(dy > 0 ? "duck" : "jump");
+      }}
+      onPointerCancel={() => {
+        pointerStartRef.current = null;
+      }}
+    >
+      <div ref={containerRef} className={styles.canvas} />
+      <button
+        type="button"
+        className={`${styles.touchButton} ${styles.powerButton}`}
+        aria-label={tControls("power")}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => dispatchAction("power")}
+      >
+        <BadgeIcon size={32} />
+        <span>{tControls("power")}</span>
+      </button>
+      <button
+        type="button"
+        className={`${styles.touchButton} ${styles.boostButton}`}
+        aria-label={tControls("boost")}
+        onPointerDown={(event) => event.stopPropagation()}
+        onClick={() => dispatchAction("boost")}
+      >
+        <BoltIcon size={34} />
+        <span>{tControls("boost")}</span>
+      </button>
+    </div>
+  );
 }

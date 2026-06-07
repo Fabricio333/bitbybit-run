@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192" role="img" aria-label="Bit by Bit Run">
+  <rect width="192" height="192" rx="42" fill="#cdeaf8"/>
+  <path d="M24 128h144l-22 42H46z" fill="#dd7a3c"/>
+  <path d="M57 128l-8 42M96 128v42M135 128l8 42" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="96" cy="70" r="18" fill="#ffd166" stroke="#0b1020" stroke-width="5"/>
+  <path d="M79 94c13 9 25 9 38 0l14 33H65z" fill="#16a34a" stroke="#0b1020" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M70 80l-18 18M122 80l18 18M84 126l-14 28M108 126l14 28" stroke="#0b1020" stroke-width="8" stroke-linecap="round"/>
+  <path d="M110 24L72 78h31l-7 38 38-54h-31z" fill="#facc15" stroke="#0b1020" stroke-width="4" stroke-linejoin="round"/>
+</svg>
