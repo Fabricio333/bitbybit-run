@@ -1,7 +1,7 @@
 import { config } from "dotenv";
-import { neon } from "@neondatabase/serverless";
-import { drizzle, type NeonHttpDatabase } from "drizzle-orm/neon-http";
-import { migrate } from "drizzle-orm/neon-http/migrator";
+import { Pool } from "pg";
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { readMigrationFiles } from "drizzle-orm/migrator";
 import { sql } from "drizzle-orm";
 
@@ -24,12 +24,16 @@ async function main() {
     throw new Error("DATABASE_URL is not set");
   }
   assertMonotonicMigrationTimestamps();
-  const client = neon(databaseUrl);
-  const db = drizzle(client);
-  await baselineIfNeeded(db);
-  await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
-  await assertJournalIsComplete(db);
-  console.log("Migrations applied");
+  const pool = new Pool({ connectionString: databaseUrl });
+  const db = drizzle(pool);
+  try {
+    await baselineIfNeeded(db);
+    await migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
+    await assertJournalIsComplete(db);
+    console.log("Migrations applied");
+  } finally {
+    await pool.end();
+  }
 }
 
 // Drizzle's migrator only applies migrations whose folderMillis is
@@ -66,7 +70,7 @@ function assertMonotonicMigrationTimestamps(): void {
 // skips from any cause (watermark drift, manual journal edits,
 // cross-DB URL mismatches). Without this, a misconfigured run can
 // exit 0 with the schema out of sync.
-async function assertJournalIsComplete(db: NeonHttpDatabase): Promise<void> {
+async function assertJournalIsComplete(db: NodePgDatabase): Promise<void> {
   const migrations = readMigrationFiles({
     migrationsFolder: MIGRATIONS_FOLDER,
   });
@@ -95,7 +99,7 @@ async function assertJournalIsComplete(db: NeonHttpDatabase): Promise<void> {
 // This ONLY runs on the very first migrate call against a
 // pre-existing schema. Once the journal has any rows, we trust
 // drizzle's migrator to apply any new migration files.
-async function baselineIfNeeded(db: NeonHttpDatabase): Promise<void> {
+async function baselineIfNeeded(db: NodePgDatabase): Promise<void> {
   const schemaExists = await hasUsersTable(db);
   if (!schemaExists) {
     console.log("Baseline: no existing schema, skipping");
@@ -149,7 +153,7 @@ async function baselineIfNeeded(db: NeonHttpDatabase): Promise<void> {
   );
 }
 
-async function hasUsersTable(db: NeonHttpDatabase): Promise<boolean> {
+async function hasUsersTable(db: NodePgDatabase): Promise<boolean> {
   const { rows } = await db.execute<{ exists: boolean }>(sql`
     SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
