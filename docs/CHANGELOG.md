@@ -18,7 +18,10 @@ Dates use `YYYY-MM-DD`.
   (client-authoritative — an MVP tradeoff). The leaderboard's `getLeaderboard()`
   now has real rows to aggregate. New `lib/schemas/match.ts#PersistMatchSchema`;
   `store.ts` gained `upsertMatch` + `persistMatchResult` (replacing the unused
-  `createMatch`/`finishMatch`). Needs `DATABASE_URL` to run.
+  `createMatch`/`finishMatch`). Needs `DATABASE_URL` to run; covered by
+  integration tests against the Neon test branch (`tests/integration/`,
+  skipped when no DB is configured) that verify persistence, leaderboard
+  aggregation, and `nostr_id` idempotency.
 - **Real multiplayer — join via invite link.** Two browsers can now race in the
   same match. The roster model moved from host-authoritative to **self-presence
   aggregation**: each peer publishes its own seat (kind 30078, replaceable per
