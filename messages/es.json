@@ -27,6 +27,15 @@
     "choose": "Elegí tu corredor",
     "start": "Empezar",
     "change": "Cambiar corredor",
+    "lobby": {
+      "players": "{count}/4 corredores",
+      "you": "Vos",
+      "waiting": "Carril libre",
+      "claimHint": "Elegí un corredor para ocupar un carril",
+      "ready": "Estoy listo",
+      "cancelReady": "No estoy listo",
+      "startRace": "Empezar carrera"
+    },
     "soundOn": "Activar sonido",
     "soundOff": "Silenciar",
     "controls": {

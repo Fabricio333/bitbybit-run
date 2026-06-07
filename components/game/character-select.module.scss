@@ -11,6 +11,13 @@
   padding: $spacing-24 0;
 }
 
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-8;
+}
+
 .heading {
   margin: 0;
   font-family: $font-family-display;
@@ -19,14 +26,32 @@
   color: $color-text-primary;
 }
 
+.counter {
+  font-family: $font-family-display;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $color-text-secondary;
+  padding: $spacing-2 $spacing-12;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-full;
+}
+
 .cards {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: $spacing-16;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cell {
+  display: flex;
 }
 
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -34,17 +59,21 @@
   width: 150px;
   padding: $spacing-16 $spacing-12 $spacing-12;
   background: $color-surface;
+  // The lane accent shows as a top stripe; per-card color comes from --lane-color.
   border: 2px solid $color-border;
+  border-top: 4px solid var(--lane-color, #{$color-border});
   border-radius: $border-radius-lg;
   cursor: pointer;
   transition:
     transform 0.15s ease,
     border-color 0.15s ease,
-    box-shadow 0.15s ease;
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     transform: translateY(-3px);
-    border-color: $color-primary;
+    border-color: var(--lane-color, #{$color-primary});
+    box-shadow: 0 10px 24px alpha(var(--lane-color, #{$color-primary}), 28%);
   }
 
   @include mobile {
@@ -52,9 +81,65 @@
   }
 }
 
-.active {
-  border-color: $color-primary;
-  box-shadow: 0 8px 24px alpha($color-primary, 30%);
+// Current player's claimed lane — solid accent glow.
+.mine {
+  border-color: var(--lane-color, #{$color-primary});
+  box-shadow: 0 8px 24px alpha(var(--lane-color, #{$color-primary}), 38%);
+}
+
+// Lane held by another player — not selectable.
+.taken {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+// Open lane, no one in it yet — dimmed, waiting.
+.free {
+  .sprite {
+    opacity: 0.5;
+    filter: grayscale(0.35);
+    transition: opacity 0.15s ease, filter 0.15s ease;
+  }
+
+  &:hover .sprite {
+    opacity: 0.95;
+    filter: none;
+  }
+}
+
+// Lane number, top-left, tinted with the lane accent.
+.laneBadge {
+  position: absolute;
+  top: $spacing-8;
+  left: $spacing-8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-family: $font-family-display;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-extrabold;
+  color: $static-white;
+  background: var(--lane-color, #{$color-primary});
+  border-radius: $border-radius-full;
+}
+
+// "Ready" check, top-right.
+.readyTick {
+  position: absolute;
+  top: $spacing-8;
+  right: $spacing-8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $static-white;
+  background: $color-success;
+  border-radius: $border-radius-full;
 }
 
 // Fixed-height stage so the (scaled, bottom-anchored) sprite sits neatly inside
@@ -66,9 +151,112 @@
   height: 150px;
 }
 
-.name {
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+// — Unclaimed: character name + waiting hint —
+.charBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-2;
+}
+
+.charName {
   font-family: $font-family-display;
   font-weight: $font-weight-bold;
   font-size: $font-size-md;
   color: $color-text-primary;
+}
+
+.waiting {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+// — Claimed: animated player chip (name swaps in for the character name) —
+.playerChip {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+  max-width: 100%;
+  animation: name-pop 0.32s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+.avatar,
+.avatarFallback {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: $border-radius-full;
+  border: 2px solid var(--lane-color, #{$color-border});
+  object-fit: cover;
+}
+
+.avatarFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: $font-family-display;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  color: $static-white;
+  background: var(--lane-color, #{$color-primary});
+}
+
+.playerName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: $font-family-display;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.youBadge {
+  flex-shrink: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-extrabold;
+  color: $static-white;
+  background: var(--lane-color, #{$color-primary});
+  padding: $spacing-2 $spacing-8;
+  border-radius: $border-radius-full;
+  text-transform: uppercase;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $spacing-12;
+  min-height: 48px;
+}
+
+.hint {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+@keyframes name-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playerChip {
+    animation: none;
+  }
 }

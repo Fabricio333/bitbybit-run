@@ -27,6 +27,15 @@
     "choose": "Choose your runner",
     "start": "Start",
     "change": "Change runner",
+    "lobby": {
+      "players": "{count}/4 runners",
+      "you": "You",
+      "waiting": "Open lane",
+      "claimHint": "Pick a runner to take a lane",
+      "ready": "I'm ready",
+      "cancelReady": "Not ready",
+      "startRace": "Start race"
+    },
     "soundOn": "Turn sound on",
     "soundOff": "Mute",
     "controls": {
