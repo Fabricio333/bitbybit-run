@@ -65,8 +65,8 @@ Everything runs on free tiers — Vercel (hosting), public Nostr relays
 
 ## 👯 Sister projects
 
-- **[`bitbybit-cursats`](https://github.com/bitbybit-ar)** — sibling project in
-  the same family.
+- **[`bitbybit-cursats`](https://github.com/bitbybit-ar/bitbybit-cursats)** —
+  sibling project in the same family.
 
 ## 📄 License
 
