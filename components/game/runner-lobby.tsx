@@ -3,10 +3,9 @@
 /**
  * Lobby container — wires the presentational <CharacterSelect> to the live
  * match held by <MatchProvider> (so the same client survives into the race).
- * The signed-in player is the host of their own match: claiming a runner
- * writes a seat into the host-authoritative roster (lane = the character's
- * `startLane`) and re-announces the lobby; "Ready → Start" sends the synced
- * start signal.
+ * Claiming a runner announces this peer's own seat (kind 30078, lane = the
+ * character's `startLane`); every client aggregates the presences into the
+ * roster. The host shares an invite link and presses Start; joiners wait.
  *
  * When the match context is "dead" (no live signer: nsec / NIP-46 reload, or
  * the session still loading) it falls back to a local-only lobby so play still
@@ -32,8 +31,9 @@ interface RunnerLobbyProps {
   currentUser: CurrentUser;
   /** Reports the claimed character up so the race mounts the right runner. */
   onClaim: (id: CharacterId) => void;
-  /** Begin the race. */
-  onStart: () => void;
+  /** Begin a *local* (single-player) race. In a live match the start flows
+   *  through the match status instead, so this is only used by the fallback. */
+  onStart?: () => void;
 }
 
 /** Short, readable label for a remote pubkey we have no name for. */
@@ -77,11 +77,10 @@ export function RunnerLobby(props: RunnerLobbyProps) {
 function WiredLobby({
   currentUser,
   onClaim,
-  onStart,
   match,
   pubkey,
 }: RunnerLobbyProps & { match: MatchContextValue; pubkey: string }) {
-  const { announceLobby, start, setRoster } = match;
+  const { announceSelf, start, isHost } = match;
   const snapshot = match.snapshot;
   const [ready, setReady] = useState(false);
 
@@ -92,35 +91,36 @@ function WiredLobby({
     [players, pubkey, currentUser, ready]
   );
 
+  // Shareable invite for the host — same /play URL with the match + host in the
+  // query, so opening it joins this match instead of hosting a new one.
+  const inviteUrl = useMemo(() => {
+    if (!isHost || !match.matchId || typeof window === "undefined")
+      return undefined;
+    const { origin, pathname } = window.location;
+    return `${origin}${pathname}?m=${encodeURIComponent(match.matchId)}&h=${pubkey}`;
+  }, [isHost, match.matchId, pubkey]);
+
   const claim = useCallback(
     (id: CharacterId) => {
       const char = getCharacter(id);
-      const others = players.filter((p) => p.pubkey !== pubkey);
-      const next: MatchPlayer[] = [
-        ...others,
-        { pubkey, lane: char.startLane, name: currentUser.name },
-      ];
-      setRoster(next);
       setReady(false);
       onClaim(id);
-      // Best-effort: a relay hiccup must not block the optimistic local update.
-      announceLobby(currentUser.name).catch(() => {});
+      // Announce our seat (optimistic local upsert happens inside); a relay
+      // hiccup must not block the UI.
+      announceSelf({ lane: char.startLane, name: currentUser.name }).catch(
+        () => {}
+      );
     },
-    [players, pubkey, currentUser, setRoster, announceLobby, onClaim]
+    [currentUser.name, announceSelf, onClaim]
   );
 
-  const toggleReady = useCallback(
-    (next: boolean) => {
-      setReady(next);
-      if (next) announceLobby(currentUser.name).catch(() => {});
-    },
-    [announceLobby, currentUser.name]
-  );
+  const toggleReady = useCallback((next: boolean) => setReady(next), []);
 
+  // Host only — sending the start signal flips everyone into the race (the
+  // parent watches match status, so no local started flag is needed).
   const startRace = useCallback(() => {
     start(0).catch(() => {});
-    onStart();
-  }, [start, onStart]);
+  }, [start]);
 
   return (
     <CharacterSelect
@@ -130,6 +130,8 @@ function WiredLobby({
       onToggleReady={toggleReady}
       onStart={startRace}
       canStart
+      isHost={isHost}
+      inviteUrl={inviteUrl}
     />
   );
 }
@@ -168,7 +170,7 @@ function LocalLobby({ currentUser, onClaim, onStart }: RunnerLobbyProps) {
       playerCount={claimedId ? 1 : 0}
       onClaim={claim}
       onToggleReady={setReady}
-      onStart={onStart}
+      onStart={() => onStart?.()}
       canStart
     />
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { GameCanvas } from "./game-canvas";
 import { GameControls } from "./game-controls";
@@ -9,6 +10,8 @@ import { MatchProvider, useMatchContext } from "./match-provider";
 import { InterstitialAd } from "./interstitial-ad";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button/button";
+import { useSignerContext } from "@/lib/contexts/signer-context";
+import type { SignerHandle } from "@/lib/nostr/signers";
 import { getCharacter, type CharacterId } from "@/lib/game/characters";
 import styles from "./play-stage.module.scss";
 
@@ -29,18 +32,95 @@ export function PlayStage({
   currentUser?: CurrentUser;
 }) {
   if (demo) return <DemoStage />;
-  // The competitive flow keeps a single live match across lobby → race.
+  return <CompetitiveStage currentUser={currentUser ?? { name: "Player" }} />;
+}
+
+/**
+ * Competitive flow. With a live signer we host (or join, via an invite link)
+ * a real match; without one (nsec / NIP-46 reload) we fall back to a local
+ * single-player lobby so play still works.
+ */
+function CompetitiveStage({ currentUser }: { currentUser: CurrentUser }) {
+  const { signer, session } = useSignerContext();
+  if (signer && session?.pubkey) {
+    return (
+      <SignedInStage
+        currentUser={currentUser}
+        signer={signer}
+        pubkey={session.pubkey}
+      />
+    );
+  }
+  return <LocalStage currentUser={currentUser} />;
+}
+
+type Target = { matchId: string; isHost: boolean; host: string };
+
+/** Resolve the match target once: join the one in the invite link, or host a
+ *  fresh one. Stable for the session so the client isn't re-created. */
+function SignedInStage({
+  currentUser,
+  signer,
+  pubkey,
+}: {
+  currentUser: CurrentUser;
+  signer: SignerHandle;
+  pubkey: string;
+}) {
+  const params = useSearchParams();
+  const joinId = params.get("m");
+  const joinHost = params.get("h");
+  const [target] = useState<Target>(() =>
+    joinId
+      ? { matchId: joinId, isHost: false, host: joinHost ?? "" }
+      : {
+          matchId: `bbr-${pubkey.slice(0, 8)}-${Date.now()}`,
+          isHost: true,
+          host: pubkey,
+        }
+  );
+
   return (
-    <MatchProvider>
-      <CompetitiveStage currentUser={currentUser ?? { name: "Player" }} />
+    <MatchProvider
+      signer={signer}
+      pubkey={pubkey}
+      matchId={target.matchId}
+      isHost={target.isHost}
+      host={target.host}
+    >
+      <LobbyAndRace currentUser={currentUser} />
     </MatchProvider>
   );
 }
 
-/** Competitive flow: pick a runner in the lobby, then race. The match lives
- *  in <MatchProvider> above, so the lobby's client carries into the race. */
-function CompetitiveStage({ currentUser }: { currentUser: CurrentUser }) {
+/** Inside a live match: show the lobby until the host starts (status leaves
+ *  "waiting"), then the race. The same client drives both. */
+function LobbyAndRace({ currentUser }: { currentUser: CurrentUser }) {
   const match = useMatchContext();
+  const [selectedId, setSelectedId] = useState<CharacterId>("default");
+
+  const status = match.snapshot?.status ?? "waiting";
+  if (status === "waiting") {
+    return <RunnerLobby currentUser={currentUser} onClaim={setSelectedId} />;
+  }
+
+  // Only hand the scene a live net when there's company on the track —
+  // otherwise a solo host would get MP behavior (lonely minimap, no restart).
+  const multiplayer = (match.snapshot?.players.length ?? 0) > 1;
+  return (
+    <div className={styles.wrap}>
+      <GameCanvas
+        key={selectedId}
+        character={getCharacter(selectedId)}
+        raceNet={multiplayer ? (match.raceNet ?? undefined) : undefined}
+      />
+      <GameControls />
+    </div>
+  );
+}
+
+/** No live signer: a local single-player lobby + race (no match). */
+function LocalStage({ currentUser }: { currentUser: CurrentUser }) {
   const [selectedId, setSelectedId] = useState<CharacterId>("default");
   const [started, setStarted] = useState(false);
 
@@ -53,18 +133,9 @@ function CompetitiveStage({ currentUser }: { currentUser: CurrentUser }) {
       />
     );
   }
-
-  // Only hand the scene a live net when there's company on the track —
-  // otherwise a solo host would get MP behavior (lonely minimap, no restart).
-  const multiplayer = match.live && (match.snapshot?.players.length ?? 0) > 1;
-
   return (
     <div className={styles.wrap}>
-      <GameCanvas
-        key={selectedId}
-        character={getCharacter(selectedId)}
-        raceNet={multiplayer ? (match.raceNet ?? undefined) : undefined}
-      />
+      <GameCanvas key={selectedId} character={getCharacter(selectedId)} />
       <GameControls />
     </div>
   );

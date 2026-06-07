@@ -43,9 +43,13 @@ feel-tuning pending.
       `matches`/`results` tables + leaderboard queries. Unit-tested (two clients
       converge over the in-memory transport); no UI yet — the items below build
       on it.
-- [ ] Lobby: publish/discover matches via kind `30078` (`t = bitbybit-run`)
-- [ ] Create match / join match; host start button + auto-start at 4/4
-- [ ] Synced countdown via `startAt` (kind `21001`)
+- [~] Lobby/discovery via kind `30078`: each peer publishes its own seat
+      (self-presence) and clients aggregate the roster. Joining works via an
+      **invite link**; a browse-all-matches screen is still pending.
+- [x] Create match / join match (invite link); host start button. (Auto-start
+      at 4/4 still pending.)
+- [x] Synced start via `startAt` (kind `21001`) — host's start flips everyone
+      into the race through match status.
 - [x] Broadcast own runner state at ~5 Hz (kind `21000`); interpolate others
       — `RaceScene` ⇄ `RaceNet` seam, dead-reckoned ghosts (`lib/game/remote-runners.ts`)
 - [x] Minimap showing all runners' positions
@@ -56,9 +60,9 @@ feel-tuning pending.
       the competitive flow (lobby + race), so the lobby's client carries into the
       race; `PlayStage` hands the scene a `RaceNet` (only when ≥2 players, so solo
       hosts keep the plain single-player race).
-- [ ] **Join flow**: discover open matches (kind `30078`) and join a host's
-      match instead of each player hosting their own — the last piece before two
-      real browsers see each other on the track.
+- [x] **Join flow**: self-presence aggregation + invite-link join — two real
+      browsers race in the same match. Verified end-to-end over public Nostr
+      relays. (A browse-all-matches lobby screen is the remaining nicety.)
 - [ ] Neon + Drizzle: persist `Match` / `Result`
 - [x] Global leaderboard page (`/leaderboard`) — reads `getLeaderboard()`
 

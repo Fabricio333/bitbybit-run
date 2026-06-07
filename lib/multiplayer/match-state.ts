@@ -5,7 +5,8 @@
  * no I/O, no clock, no Phaser. This is the heart of the multiplayer
  * contract and the easiest piece to test exhaustively. The orchestrator
  * (`match-client.ts`) owns timers and transport; this file owns the rules:
- *   - roster comes from discovery (host-authoritative)
+ *   - the roster aggregates each peer's self-presence (no server to own it):
+ *     every discovery event upserts that author's seat, keyed by pubkey
  *   - runner frames merge newest-wins (stale frames are dropped)
  *   - the winner is the *earliest* finishTime, recomputed locally — we
  *     never trust a remote event's claimed `position` (see ARCHITECTURE §4.4)
@@ -88,11 +89,22 @@ export function applyEvent(
     case "discovery": {
       // Ignore discovery for a different match sharing our channel.
       if (event.data.matchId !== state.matchId) return state;
+      // Upsert this peer's seat (keyed by pubkey) and re-sort by lane. The
+      // roster is the union of everyone's self-presence.
+      const seat = {
+        pubkey: event.data.pubkey,
+        lane: event.data.lane,
+        name: event.data.name,
+      };
+      const players = [
+        ...state.players.filter((p) => p.pubkey !== seat.pubkey),
+        seat,
+      ].sort((a, b) => a.lane - b.lane);
       return {
         ...state,
-        host: event.data.host,
+        host: state.host || event.data.host,
         trackId: event.data.trackId,
-        players: event.data.players,
+        players,
       };
     }
 

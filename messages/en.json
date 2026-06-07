@@ -45,7 +45,11 @@
       "claimHint": "Pick a runner to take a lane",
       "ready": "I'm ready",
       "cancelReady": "Not ready",
-      "startRace": "Start race"
+      "startRace": "Start race",
+      "waitingHost": "Waiting for the host to start…",
+      "invite": "Invite your rivals",
+      "copy": "Copy link",
+      "copied": "Copied!"
     },
     "soundOn": "Turn sound on",
     "soundOff": "Mute",

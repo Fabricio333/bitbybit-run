@@ -98,7 +98,9 @@
   .sprite {
     opacity: 0.5;
     filter: grayscale(0.35);
-    transition: opacity 0.15s ease, filter 0.15s ease;
+    transition:
+      opacity 0.15s ease,
+      filter 0.15s ease;
   }
 
   &:hover .sprite {
@@ -242,6 +244,35 @@
   margin: 0;
   font-size: $font-size-sm;
   color: $color-text-secondary;
+}
+
+.invite {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-12;
+  padding: $spacing-8 $spacing-16;
+  background: $color-surface;
+  border: 2px solid $color-border;
+  border-radius: $spacing-8;
+  cursor: pointer;
+  font-family: $font-family-base;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+}
+
+.inviteLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.inviteAction {
+  font-family: $font-family-display;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-extrabold;
+  color: $color-primary;
+  text-transform: uppercase;
 }
 
 @keyframes name-pop {

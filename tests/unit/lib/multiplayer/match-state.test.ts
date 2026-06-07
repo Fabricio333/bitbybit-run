@@ -50,37 +50,48 @@ describe("match-state createMatchState", () => {
   });
 });
 
-describe("match-state discovery", () => {
-  it("updates roster, host and track from a matching discovery", () => {
-    const event: ParsedEvent = {
-      type: "discovery",
-      data: {
-        matchId: "m1",
-        host: A,
-        trackId: "classic-v2",
-        players: [{ pubkey: A, lane: 0 }],
-        createdAt: 1,
-      },
-    };
-    const s = applyEvent(base(), event);
+function presence(
+  pubkey: string,
+  lane: number,
+  over: Partial<{ matchId: string; host: string; name: string }> = {}
+): ParsedEvent {
+  return {
+    type: "discovery",
+    data: {
+      matchId: over.matchId ?? "m1",
+      host: over.host ?? A,
+      trackId: "classic-v1",
+      pubkey,
+      lane,
+      name: over.name,
+      createdAt: 1,
+    },
+  };
+}
+
+describe("match-state discovery (self-presence aggregation)", () => {
+  it("aggregates each peer's seat into the roster, sorted by lane", () => {
+    let s = createMatchState({ matchId: "m1", trackId: "classic-v1" });
+    s = applyEvent(s, presence(B, 1, { name: "Bea" }));
+    s = applyEvent(s, presence(A, 0, { name: "Ann" }));
+    expect(s.players.map((p) => p.pubkey)).toEqual([A, B]); // lane order
+    expect(s.players[0]).toMatchObject({ pubkey: A, lane: 0, name: "Ann" });
     expect(s.host).toBe(A);
-    expect(s.trackId).toBe("classic-v2");
+  });
+
+  it("upserts a peer's own seat (re-claim updates, doesn't duplicate)", () => {
+    let s = createMatchState({ matchId: "m1", trackId: "classic-v1" });
+    s = applyEvent(s, presence(A, 0));
+    s = applyEvent(s, presence(A, 3)); // A moves lanes
     expect(s.players).toHaveLength(1);
+    expect(s.players[0].lane).toBe(3);
   });
 
   it("ignores discovery for a different match", () => {
     const before = base();
-    const event: ParsedEvent = {
-      type: "discovery",
-      data: {
-        matchId: "other",
-        host: A,
-        trackId: "x",
-        players: [],
-        createdAt: 1,
-      },
-    };
-    expect(applyEvent(before, event)).toBe(before);
+    expect(applyEvent(before, presence(A, 0, { matchId: "other" }))).toBe(
+      before
+    );
   });
 });
 
@@ -88,7 +99,12 @@ describe("match-state control + countdown", () => {
   it("moves waiting → countdown and records startAt", () => {
     const event: ParsedEvent = {
       type: "control",
-      data: { type: "start", matchId: "m1", trackId: "classic-v1", startAt: 999 },
+      data: {
+        type: "start",
+        matchId: "m1",
+        trackId: "classic-v1",
+        startAt: 999,
+      },
     };
     const s = applyEvent(base(), event);
     expect(s.status).toBe("countdown");
@@ -106,7 +122,10 @@ describe("match-state control + countdown", () => {
 describe("match-state runner merge", () => {
   it("keeps the newest frame per pubkey and drops stale ones", () => {
     let s = base();
-    s = applyEvent(s, { type: "runner", data: runner(A, { t: 10, progress: 0.2 }) });
+    s = applyEvent(s, {
+      type: "runner",
+      data: runner(A, { t: 10, progress: 0.2 }),
+    });
     expect(s.runners[A].progress).toBeCloseTo(0.2);
 
     // stale (older t) → ignored, returns same reference
@@ -117,7 +136,10 @@ describe("match-state runner merge", () => {
     expect(same).toBe(s);
 
     // newer t → applied
-    s = applyEvent(s, { type: "runner", data: runner(A, { t: 20, progress: 0.6 }) });
+    s = applyEvent(s, {
+      type: "runner",
+      data: runner(A, { t: 20, progress: 0.6 }),
+    });
     expect(s.runners[A].progress).toBeCloseTo(0.6);
   });
 });
@@ -161,8 +183,14 @@ describe("match-state finish + standings", () => {
 describe("match-state resolveStandings", () => {
   it("orders unfinished players by points behind finishers", () => {
     let s = base();
-    s = applyEvent(s, { type: "runner", data: runner(A, { t: 1, points: 40 }) });
-    s = applyEvent(s, { type: "runner", data: runner(B, { t: 1, points: 90 }) });
+    s = applyEvent(s, {
+      type: "runner",
+      data: runner(A, { t: 1, points: 40 }),
+    });
+    s = applyEvent(s, {
+      type: "runner",
+      data: runner(B, { t: 1, points: 90 }),
+    });
     const standings = resolveStandings(s);
     // No finishers → higher points first.
     expect(standings[0].pubkey).toBe(B);

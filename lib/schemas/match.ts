@@ -22,7 +22,11 @@ export type RunnerStatus = z.infer<typeof RunnerStatusSchema>;
 const UnitSchema = z.number().min(0).max(1);
 
 /** Lane index on the shared track — `0..LANES-1`. */
-const LaneSchema = z.number().int().min(0).max(LANES - 1);
+const LaneSchema = z
+  .number()
+  .int()
+  .min(0)
+  .max(LANES - 1);
 
 /** Free-form ids kept short so payloads stay tiny on the wire. */
 const ShortIdSchema = z.string().min(1).max(64);
@@ -35,12 +39,21 @@ export const MatchPlayerSchema = z.object({
 });
 export type MatchPlayer = z.infer<typeof MatchPlayerSchema>;
 
-/** kind 30078 content — the host-owned lobby roster. */
+/**
+ * kind 30078 content — a single peer's *self-presence* in a match.
+ *
+ * There's no game server to own a roster, so each player announces their own
+ * seat (replaceable, keyed by author+matchId) and every client aggregates the
+ * presences into the roster. `host` is the match creator's pubkey (so the UI
+ * knows who may start); `pubkey`/`lane`/`name` are this peer's own seat.
+ */
 export const MatchDiscoverySchema = z.object({
   matchId: ShortIdSchema,
-  host: NostrPubkeySchema,
   trackId: ShortIdSchema,
-  players: z.array(MatchPlayerSchema).max(LANES),
+  host: NostrPubkeySchema,
+  pubkey: NostrPubkeySchema,
+  lane: LaneSchema,
+  name: z.string().max(80).optional(),
   createdAt: z.number().int().nonnegative(),
 });
 export type MatchDiscovery = z.infer<typeof MatchDiscoverySchema>;

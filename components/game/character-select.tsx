@@ -27,6 +27,11 @@ interface CharacterSelectProps {
   onStart: () => void;
   /** Whether the local player is allowed to start the race (host + ready). */
   canStart?: boolean;
+  /** Host only — when false, a ready joiner waits for the host instead of
+   *  seeing a Start button. Defaults to true (solo/local lobby). */
+  isHost?: boolean;
+  /** Host only — a shareable link that drops others into this match. */
+  inviteUrl?: string;
 }
 
 export function CharacterSelect({
@@ -36,12 +41,22 @@ export function CharacterSelect({
   onToggleReady,
   onStart,
   canStart = true,
+  isHost = true,
+  inviteUrl,
 }: CharacterSelectProps) {
   const t = useTranslations("play");
   const [hoveredId, setHoveredId] = useState<CharacterId | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  const me =
-    Object.values(occupants).find((o) => o?.isCurrentUser) ?? null;
+  const copyInvite = () => {
+    if (!inviteUrl) return;
+    navigator.clipboard?.writeText(inviteUrl).then(
+      () => setCopied(true),
+      () => {}
+    );
+  };
+
+  const me = Object.values(occupants).find((o) => o?.isCurrentUser) ?? null;
   const hasClaimed = !!me;
   const ready = me?.ready ?? false;
 
@@ -53,6 +68,20 @@ export function CharacterSelect({
           {t("lobby.players", { count: playerCount })}
         </span>
       </div>
+
+      {inviteUrl && (
+        <button
+          type="button"
+          className={styles.invite}
+          onClick={copyInvite}
+          aria-label={t("lobby.invite")}
+        >
+          <span className={styles.inviteLabel}>{t("lobby.invite")}</span>
+          <span className={styles.inviteAction}>
+            {copied ? t("lobby.copied") : t("lobby.copy")}
+          </span>
+        </button>
+      )}
 
       <ul className={styles.cards}>
         {CHARACTERS.map((c) => {
@@ -73,12 +102,14 @@ export function CharacterSelect({
                 }
                 disabled={taken}
                 aria-pressed={mine}
-                aria-label={occupant ? `${c.label} — ${occupant.name}` : c.label}
+                aria-label={
+                  occupant ? `${c.label} — ${occupant.name}` : c.label
+                }
                 className={cn(
                   styles.card,
                   mine && styles.mine,
                   taken && styles.taken,
-                  !occupant && styles.free,
+                  !occupant && styles.free
                 )}
                 style={{ "--lane-color": c.laneColor } as CSSProperties}
               >
@@ -109,17 +140,26 @@ export function CharacterSelect({
                           loading="lazy"
                         />
                       ) : (
-                        <span className={styles.avatarFallback} aria-hidden="true">
+                        <span
+                          className={styles.avatarFallback}
+                          aria-hidden="true"
+                        >
                           {occupant.name.charAt(0).toUpperCase()}
                         </span>
                       )}
                       <span className={styles.playerName}>{occupant.name}</span>
-                      {mine && <span className={styles.youBadge}>{t("lobby.you")}</span>}
+                      {mine && (
+                        <span className={styles.youBadge}>
+                          {t("lobby.you")}
+                        </span>
+                      )}
                     </span>
                   ) : (
                     <span key="char" className={styles.charBlock}>
                       <span className={styles.charName}>{c.label}</span>
-                      <span className={styles.waiting}>{t("lobby.waiting")}</span>
+                      <span className={styles.waiting}>
+                        {t("lobby.waiting")}
+                      </span>
                     </span>
                   )}
                 </span>
@@ -138,10 +178,18 @@ export function CharacterSelect({
           </Button>
         ) : (
           <>
-            <Button size="lg" onClick={onStart} disabled={!canStart}>
-              {t("lobby.startRace")} ▶
-            </Button>
-            <Button variant="outline" size="lg" onClick={() => onToggleReady(false)}>
+            {isHost ? (
+              <Button size="lg" onClick={onStart} disabled={!canStart}>
+                {t("lobby.startRace")} ▶
+              </Button>
+            ) : (
+              <p className={styles.hint}>{t("lobby.waitingHost")}</p>
+            )}
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => onToggleReady(false)}
+            >
               {t("lobby.cancelReady")}
             </Button>
           </>

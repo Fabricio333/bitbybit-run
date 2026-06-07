@@ -68,27 +68,29 @@ describe("schemas/match RunnerStateSchema", () => {
   });
 });
 
-describe("schemas/match MatchDiscoverySchema", () => {
+describe("schemas/match MatchDiscoverySchema (self-presence)", () => {
   const base = {
     matchId: "m1",
-    host: PK,
     trackId: "classic-v1",
-    players: [{ pubkey: PK, lane: 0 }],
+    host: PK,
+    pubkey: PK,
+    lane: 0,
+    name: "Ann",
     createdAt: 1700000000,
   };
 
-  it("accepts a roster within the player cap", () => {
+  it("accepts a well-formed presence", () => {
     expect(MatchDiscoverySchema.safeParse(base).success).toBe(true);
   });
 
-  it("rejects a roster larger than the lane count", () => {
-    const players = Array.from({ length: LANES + 1 }, (_, i) => ({
-      pubkey: PK,
-      lane: 0,
-      name: `p${i}`,
-    }));
+  it("accepts a presence without a name", () => {
+    const { name: _name, ...noName } = base;
+    expect(MatchDiscoverySchema.safeParse(noName).success).toBe(true);
+  });
+
+  it("rejects a lane outside the track", () => {
     expect(
-      MatchDiscoverySchema.safeParse({ ...base, players }).success
+      MatchDiscoverySchema.safeParse({ ...base, lane: LANES }).success
     ).toBe(false);
   });
 });
@@ -102,17 +104,17 @@ describe("schemas/match control + finish", () => {
       startAt: 1700000000000,
     };
     expect(MatchControlSchema.safeParse(ok).success).toBe(true);
-    expect(
-      MatchControlSchema.safeParse({ ...ok, type: "stop" }).success
-    ).toBe(false);
+    expect(MatchControlSchema.safeParse({ ...ok, type: "stop" }).success).toBe(
+      false
+    );
   });
 
   it("finish requires a positive position", () => {
     const ok = { pubkey: PK, finishTime: 1, position: 1, points: 500 };
     expect(MatchFinishSchema.safeParse(ok).success).toBe(true);
-    expect(
-      MatchFinishSchema.safeParse({ ...ok, position: 0 }).success
-    ).toBe(false);
+    expect(MatchFinishSchema.safeParse({ ...ok, position: 0 }).success).toBe(
+      false
+    );
   });
 });
 
@@ -166,7 +168,12 @@ describe("multiplayer/events filters", () => {
 
   it("match filter targets the realtime kinds scoped to the match id", () => {
     const f = matchFilter("m1", 123);
-    expect(f.kinds).toEqual([KIND.CONTROL, KIND.RUNNER, KIND.FINISH]);
+    expect(f.kinds).toEqual([
+      KIND.DISCOVERY,
+      KIND.CONTROL,
+      KIND.RUNNER,
+      KIND.FINISH,
+    ]);
     expect(f["#d"]).toEqual(["m1"]);
     expect(f.since).toBe(123);
   });
