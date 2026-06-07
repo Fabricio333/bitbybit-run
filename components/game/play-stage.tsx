@@ -18,7 +18,15 @@ type FinishResult = { time: number; points: number };
  * picker (Sprinter only) and, on crossing the finish line, invite the player to
  * sign in to compete for zaps.
  */
-export function PlayStage({ demo = false }: { demo?: boolean }) {
+type CurrentUser = { name: string; avatarUrl?: string | null };
+
+export function PlayStage({
+  demo = false,
+  currentUser,
+}: {
+  demo?: boolean;
+  currentUser?: CurrentUser;
+}) {
   const tDemo = useTranslations("demo");
   const [selectedId, setSelectedId] = useState<CharacterId>("default");
   const [started, setStarted] = useState(demo);
@@ -94,6 +102,7 @@ export function PlayStage({ demo = false }: { demo?: boolean }) {
         value={selectedId}
         onSelect={setSelectedId}
         onStart={() => setStarted(true)}
+        currentUser={currentUser ?? { name: "Player" }}
       />
     );
   }

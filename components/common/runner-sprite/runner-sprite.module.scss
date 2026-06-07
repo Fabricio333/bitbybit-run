@@ -1,6 +1,6 @@
-// South-facing run cycle: an 8-frame horizontal strip, scrolled with steps(8).
-// The sheet, frame size and full width come in via CSS variables set by the
-// <RunnerSprite> component (each character has its own frame size).
+// Run cycle: an 8-frame horizontal strip, scrolled with steps(8). The sheet
+// (front or back), frame size and full width come in via CSS variables set by
+// the <RunnerSprite> component (each character has its own frame size).
 
 .runner {
   width: var(--rs-frame, 116px);
@@ -12,6 +12,12 @@
   transform: scale(1.25);
   transform-origin: center bottom;
   animation: runner-run 0.62s steps(8) infinite;
+}
+
+// Frozen on the first frame — an unclaimed lane standing at the blocks.
+.idle {
+  animation: none;
+  background-position: 0 0;
 }
 
 @keyframes runner-run {

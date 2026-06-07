@@ -8,6 +8,15 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **Runner-select lobby UI.** The character picker now reads as a 4-lane starting
+  grid (UI only — no realtime sync yet; wired to local/mock state, ready for the
+  Nostr lobby layer): numbered, color-accented lanes; hovering a runner flips it
+  to its **back-facing** sprite (lined up at the blocks); claiming a lane swaps
+  the character name for the player's **display name** (animated chip with Nostr
+  avatar + "You" badge); open lanes show a dimmed/idle sprite; a `x/4` runner
+  counter and a **Claim → Ready → Start** action flow. `RunnerSprite` gained a
+  `facing` ("front" | "back") and `idle` prop; each `Character` gained a
+  `laneColor`. `/play` passes the signed-in user's `display_name`/`avatar_url`.
 - **Multiplayer foundation (Phase 2 groundwork).** The serverless realtime
   layer from `ARCHITECTURE.md §4` now exists in code — no UI yet, fully
   unit-tested. New `lib/multiplayer/`:
