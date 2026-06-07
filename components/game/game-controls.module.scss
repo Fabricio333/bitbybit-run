@@ -55,3 +55,9 @@
   color: $color-text-secondary;
   font-size: $font-size-sm;
 }
+
+@media (max-width: 760px) {
+  .controls {
+    display: none;
+  }
+}

@@ -15,6 +15,28 @@
   font-family: $font-display;
   color: $color-text-secondary;
   font-size: $font-size-sm;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .bar {
+    gap: $spacing-8;
+    padding: $spacing-8;
+  }
+
+  .backKey {
+    width: 32px;
+    height: 32px;
+    border-width: 2px;
+    box-shadow: 2px 2px 0 0 $arcade-edge;
+  }
+
+  .phase {
+    font-size: $font-size-xs;
+  }
 }
 
 // Pixel "back key" — arcade keycap that presses down on click.

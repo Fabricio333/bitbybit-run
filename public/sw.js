@@ -1,4 +1,4 @@
-const CACHE_NAME = "bitbybit-run-pwa-v1";
+const CACHE_NAME = "bitbybit-run-pwa-v3";
 const APP_SHELL = [
   "/",
   "/demo",
@@ -11,6 +11,7 @@ function shouldBypassCache(request) {
   const url = new URL(request.url);
   return (
     request.method !== "GET" ||
+    url.pathname.startsWith("/_next/") ||
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/api/auth/") ||
     url.pathname.startsWith("/sign-in") ||
