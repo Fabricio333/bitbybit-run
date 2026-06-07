@@ -14,15 +14,16 @@ describe("mobile game UI layout", () => {
 
     const canvasStyles = read("components/game/game-canvas.module.scss");
     expect(canvasStyles).toContain("aspect-ratio: 9 / 16");
-    expect(canvasStyles).toContain("height: min(100dvh");
+    expect(canvasStyles).toContain("height: 100%");
   });
 
-  it("keeps mobile page scrolling available while the game handles swipes", () => {
+  it("locks game routes to a no-scroll fullscreen canvas", () => {
     const canvasStyles = read("components/game/game-canvas.module.scss");
     expect(canvasStyles).toContain("touch-action: manipulation");
 
     const pageStyles = read("app/[locale]/play/page.module.scss");
-    expect(pageStyles).toContain("overflow-y: auto");
+    expect(pageStyles).toContain("height: 100dvh");
+    expect(pageStyles).toContain("overflow: hidden");
     expect(pageStyles).toContain("padding: 0");
   });
 
@@ -32,17 +33,40 @@ describe("mobile game UI layout", () => {
     expect(controlsStyles).toContain("display: none");
   });
 
-  it("renders compact transparent bubble controls over the game instead of blocky panels", () => {
+  it("uses swipe-only mobile input with no visible touch buttons over the track", () => {
     const canvas = read("components/game/game-canvas.tsx");
-    for (const action of ["left", "right", "jump", "duck", "power", "boost"]) {
-      expect(canvas).toContain(`dispatchAction(\"${action}\")`);
-    }
+    expect(canvas).toContain('dispatchAction(dx > 0 ? "right" : "left")');
+    expect(canvas).toContain('dispatchAction(dy > 0 ? "duck" : "jump")');
+    expect(canvas).not.toContain("styles.touchButton");
+    expect(canvas).not.toContain("<button");
 
     const canvasStyles = read("components/game/game-canvas.module.scss");
-    expect(canvasStyles).toContain("border-radius: 999px");
-    expect(canvasStyles).toContain("backdrop-filter: blur(10px)");
-    expect(canvasStyles).toContain("background: rgba");
-    expect(canvasStyles).toContain("width: clamp(42px");
+    expect(canvasStyles).not.toContain(".touchButton");
+  });
+
+  it("hides site chrome and in-page game headers on game routes", () => {
+    const siteNavbar = read("components/layout/navbar/site-navbar.tsx");
+    expect(siteNavbar).toContain('pathname.startsWith("/play")');
+    expect(siteNavbar).toContain('pathname.startsWith("/demo")');
+
+    const layout = read("app/[locale]/layout.tsx");
+    expect(layout).toContain("<SiteNavbar />");
+
+    const siteFooter = read("components/layout/footer/site-footer.tsx");
+    expect(siteFooter).toContain('pathname.startsWith("/play")');
+    expect(siteFooter).toContain('pathname.startsWith("/demo")');
+
+    const play = read("app/[locale]/play/page.tsx");
+    const demo = read("app/[locale]/demo/page.tsx");
+    expect(play).not.toContain("GameHeader");
+    expect(demo).not.toContain("GameHeader");
+  });
+
+  it("renders the track closer to the runner", () => {
+    const scene = read("lib/game/scenes/race-scene.ts");
+    expect(scene).toContain("const NEAR = 320");
+    expect(scene).toContain("this.horizonY = height * 0.24");
+    expect(scene).toContain("this.laneSpacing = width * 0.16");
   });
 
   it("shows compact pre-match settings with language controls before starting", () => {

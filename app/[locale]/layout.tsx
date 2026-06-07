@@ -9,7 +9,7 @@ import {
 import { Pixelify_Sans, Nunito_Sans } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { ThemeProvider } from "@/lib/contexts/theme-context";
-import { Navbar } from "@/components/layout/navbar/navbar";
+import { SiteNavbar } from "@/components/layout/navbar/site-navbar";
 import { SiteFooter } from "@/components/layout/footer/site-footer";
 import { SiteFakeAds } from "@/components/layout/fake-ads/site-fake-ads";
 import { SignerProviderClient } from "@/components/auth/signer-provider-client";
@@ -135,7 +135,7 @@ export default async function LocaleLayout({
               <a href="#main" className="skip-link">
                 {t("skipToContent")}
               </a>
-              <Navbar />
+              <SiteNavbar />
               <main id="main">{children}</main>
               <SiteFakeAds />
               <SiteFooter />
