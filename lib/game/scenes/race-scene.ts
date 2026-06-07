@@ -827,6 +827,7 @@ export class RaceScene extends Phaser.Scene {
     g.clear();
 
     const me = this.project(0, this.playerLane);
+    const runnerBaseY = Math.min(me.y, this.scale.height - 18);
     const sway = this.drunkTimer > 0 ? Math.sin(this.now * 0.008) * 8 : 0;
     const jumpLift =
       this.runnerState.jumpTimer > 0
@@ -841,10 +842,14 @@ export class RaceScene extends Phaser.Scene {
       const moving = this.startHold <= 0 && !this.finished;
       if (moving && !spr.anims.isPlaying) spr.play("run");
       else if (!moving && spr.anims.isPlaying) spr.anims.pause();
+      const spriteBaseY = Math.min(
+        me.y + RUNNER_SPRITE.offsetY,
+        this.scale.height - 18
+      );
       spr
         .setPosition(
           me.x + sway,
-          me.y + RUNNER_SPRITE.offsetY - jumpLift + duckDrop
+          spriteBaseY - jumpLift + duckDrop
         )
         .setScale(
           RUNNER_SPRITE.scale,
@@ -860,7 +865,7 @@ export class RaceScene extends Phaser.Scene {
     const phase = this.playerDistance * 0.05;
     const bob = Math.sin(phase * 2) * 2.5;
     const cx = me.x + sway;
-    const gy = me.y - jumpLift + duckDrop;
+    const gy = runnerBaseY - jumpLift + duckDrop;
 
     const jersey = GAME_COLORS.runner; // gold
     const legCol = 0x1a2b4a;
@@ -868,7 +873,7 @@ export class RaceScene extends Phaser.Scene {
 
     // Shadow.
     g.fillStyle(GAME_COLORS.runnerShadow, 0.22);
-    g.fillEllipse(me.x, gy - 2, 46, 12);
+    g.fillEllipse(me.x, runnerBaseY - 2, 46, 12);
 
     const hipY = gy - 26 + bob;
     const shoulderY = gy - 50 + bob;

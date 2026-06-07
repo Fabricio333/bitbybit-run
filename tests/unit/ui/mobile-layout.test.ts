@@ -97,6 +97,13 @@ describe("mobile game UI layout", () => {
     expect(scene).toContain("this.laneSpacing = width * 0.24");
   });
 
+  it("keeps the runner visible when the zoomed track projects below the viewport", () => {
+    const scene = read("lib/game/scenes/race-scene.ts");
+    expect(scene).toContain("const runnerBaseY = Math.min(me.y, this.scale.height - 18)");
+    expect(scene).toContain("const spriteBaseY = Math.min(");
+    expect(scene).toContain("this.scale.height - 18");
+  });
+
   it("does not ask mobile players for the R key after finishing", () => {
     const en = read("messages/en.json");
     const es = read("messages/es.json");
