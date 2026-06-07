@@ -44,10 +44,11 @@ feel-tuning pending.
       converge over the in-memory transport); no UI yet — the items below build
       on it.
 - [x] Lobby/discovery via kind `30078`: each peer publishes its own seat
-      (self-presence) and clients aggregate the roster. Join via an **invite
-      link** or the **lobby browser** that lists open matches off the relays.
-- [x] Create match / join match (invite link); host start button. (Auto-start
-      at 4/4 still pending.)
+      (self-presence, incl. lobby `status`) and clients aggregate the roster.
+      Join via an **invite link** or the **lobby browser** that lists open
+      matches off the relays (already-started ones filtered out).
+- [x] Create match / join match (invite link or lobby browser); host start
+      button + **auto-start at 4/4**.
 - [x] Synced start via `startAt` (kind `21001`) — host's start flips everyone
       into the race through match status.
 - [x] Broadcast own runner state at ~5 Hz (kind `21000`); interpolate others

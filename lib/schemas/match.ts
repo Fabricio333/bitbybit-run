@@ -39,13 +39,23 @@ export const MatchPlayerSchema = z.object({
 });
 export type MatchPlayer = z.infer<typeof MatchPlayerSchema>;
 
+/** Lobby lifecycle of a match, as advertised in presence/discovery. */
+export const MatchLobbyStatusSchema = z.enum([
+  "waiting",
+  "countdown",
+  "playing",
+  "finished",
+]);
+export type MatchLobbyStatus = z.infer<typeof MatchLobbyStatusSchema>;
+
 /**
  * kind 30078 content — a single peer's *self-presence* in a match.
  *
  * There's no game server to own a roster, so each player announces their own
  * seat (replaceable, keyed by author+matchId) and every client aggregates the
  * presences into the roster. `host` is the match creator's pubkey (so the UI
- * knows who may start); `pubkey`/`lane`/`name` are this peer's own seat.
+ * knows who may start); `pubkey`/`lane`/`name` are this peer's own seat;
+ * `status` lets the lobby browser drop matches that have already started.
  */
 export const MatchDiscoverySchema = z.object({
   matchId: ShortIdSchema,
@@ -54,6 +64,7 @@ export const MatchDiscoverySchema = z.object({
   pubkey: NostrPubkeySchema,
   lane: LaneSchema,
   name: z.string().max(80).optional(),
+  status: MatchLobbyStatusSchema.default("waiting"),
   createdAt: z.number().int().nonnegative(),
 });
 export type MatchDiscovery = z.infer<typeof MatchDiscoverySchema>;

@@ -63,6 +63,8 @@ export class MatchClient {
   private sub: Subscription | null = null;
   private countdownTimer: ReturnType<typeof setTimeout> | null = null;
   private lastBroadcast = 0;
+  /** This peer's claimed seat, so we can re-announce when status changes. */
+  private lastSeat: { lane: number; name?: string } | null = null;
   private readonly listeners = new Set<SnapshotListener>();
 
   constructor(opts: MatchClientOptions) {
@@ -107,6 +109,7 @@ export class MatchClient {
    * local state is updated optimistically so the UI doesn't wait for the echo.
    */
   async announceSelf(seat: { lane: number; name?: string }): Promise<void> {
+    this.lastSeat = seat;
     const payload: MatchDiscovery = {
       matchId: this.matchId,
       trackId: this.trackId,
@@ -114,6 +117,7 @@ export class MatchClient {
       pubkey: this.signer.pubkey,
       lane: seat.lane,
       name: seat.name,
+      status: this.state.status,
       createdAt: Date.now(),
     };
     // Optimistic local upsert (same path as an inbound presence).
@@ -200,12 +204,23 @@ export class MatchClient {
     const parsed = parseEvent(raw);
     if (!parsed) return;
 
+    const prevStatus = this.state.status;
     let next = applyEvent(this.state, parsed);
     if (parsed.type === "control") next = this.armCountdown(next);
     if (next === this.state) return; // no-op (stale / unrelated) → no emit
 
     this.state = next;
     this.emit();
+
+    // When the match leaves "waiting" (e.g. the host started), re-announce our
+    // presence so the lobby browser can drop this now-started match.
+    if (
+      next.status !== prevStatus &&
+      next.status !== "waiting" &&
+      this.lastSeat
+    ) {
+      void this.announceSelf(this.lastSeat).catch(() => {});
+    }
   }
 
   /** Schedule the countdown→playing flip; flips now if `startAt` has passed. */

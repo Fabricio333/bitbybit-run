@@ -21,6 +21,7 @@ function presence(over: Partial<MatchDiscovery> = {}): MatchDiscovery {
     pubkey: A,
     lane: 0,
     name: "Ann",
+    status: "waiting",
     createdAt: NOW,
     ...over,
   };
@@ -66,6 +67,14 @@ describe("discovery selectOpenMatches", () => {
       presence({ pubkey: String(i).repeat(64), host: A, lane: i })
     );
     expect(selectOpenMatches(build(...seats), NOW)).toHaveLength(0);
+  });
+
+  it("hides matches that already started (any seat not waiting)", () => {
+    const s = build(
+      presence({ pubkey: A, host: A, status: "playing" }),
+      presence({ pubkey: B, host: A, status: "waiting" })
+    );
+    expect(selectOpenMatches(s, NOW + 1000)).toHaveLength(0);
   });
 
   it("hides stale matches past the freshness window", () => {

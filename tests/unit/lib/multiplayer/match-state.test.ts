@@ -64,6 +64,7 @@ function presence(
       pubkey,
       lane,
       name: over.name,
+      status: "waiting",
       createdAt: 1,
     },
   };
