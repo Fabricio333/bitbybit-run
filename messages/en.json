@@ -13,7 +13,8 @@
     "signOut": "Sign out",
     "account": "Account",
     "syncProfile": "Sync profile from Nostr",
-    "syncing": "Syncing…"
+    "syncing": "Syncing…",
+    "leaderboard": "Leaderboard"
   },
   "landing": {
     "title": "Bit by Bit Run",
@@ -22,11 +23,67 @@
     "play": "Play",
     "howToPlay": "How to play"
   },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "subtitle": "Every race counts. Win lanes, bank points, climb the board.",
+    "rank": "#",
+    "player": "Player",
+    "wins": "Wins",
+    "points": "Points",
+    "races": "Races",
+    "empty": "No races yet — be the first to top the board."
+  },
   "play": {
     "phase": "Phase 1 · single-player prototype",
     "choose": "Choose your runner",
     "start": "Start",
     "change": "Change runner",
+    "browser": {
+      "title": "Races",
+      "subtitle": "Create a race and invite your rivals, or join an open one.",
+      "host": "➕ Create race",
+      "openMatches": "Open races",
+      "players": "{count}/{max} runners",
+      "join": "Join",
+      "loading": "Looking for races…",
+      "empty": "No open races. Start one!"
+    },
+    "lobby": {
+      "players": "{count}/4 runners",
+      "you": "You",
+      "waiting": "Open lane",
+      "claimHint": "Pick a runner to take a lane",
+      "ready": "I'm ready",
+      "cancelReady": "Not ready",
+      "startRace": "Start race",
+      "waitingHost": "Waiting for the host to start…",
+      "invite": "Invite your rivals",
+      "copy": "Copy link",
+      "copied": "Copied!"
+    },
+    "results": {
+      "title": "Results",
+      "youWon": "🏆 You won!",
+      "winner": "🏁 {name} wins",
+      "rank": "#",
+      "player": "Player",
+      "time": "Time",
+      "points": "Points",
+      "dnf": "DNF",
+      "toLeaderboard": "View leaderboard",
+      "playAgain": "Play again",
+      "zapWinner": "⚡️ Zap the winner",
+      "zapTitle": "Zap {name}",
+      "zapAmountLabel": "Amount (sats)",
+      "zapMessageLabel": "Message (optional)",
+      "zapMessagePlaceholder": "Leave a message…",
+      "zapMessages": ["GG! 🏆", "Great race! 🏃", "Respect ⚡️", "WAGMI 🚀"],
+      "zapSend": "Send {sats} sats",
+      "zapping": "Zapping…",
+      "zapSent": "⚡️ Zapped {name}!",
+      "zapFailed": "Couldn't zap. Try again.",
+      "zapNoWebln": "You need a Lightning wallet (e.g. Alby) to zap."
+    },
     "soundOn": "Turn sound on",
     "soundOff": "Mute",
     "settings": {
@@ -40,7 +97,10 @@
       "duck": "duck",
       "boost": "boost",
       "power": "power",
-      "restart": "restart"
+      "restart": "restart",
+      "touchLanes": "tap the sides to change lane",
+      "touchJumpDuck": "swipe up/down to jump or duck",
+      "touchRestart": "tap to restart"
     }
   },
   "demo": {
@@ -139,7 +199,7 @@
   },
   "howToPlay": {
     "title": "How to play",
-    "intro": "Race down the 3-lane athletics track and be the first to cross the finish line.",
+    "intro": "Race down the 4-lane athletics track and be the first to cross the finish line.",
     "goalTitle": "🎯 Goal",
     "goalText": "Reach the finish line before everyone else. Crossing first locks in the top spot.",
     "energyTitle": "🔋 Energy",

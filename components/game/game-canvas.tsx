@@ -6,6 +6,8 @@ import { DEFAULT_CHARACTER, type Character } from "@/lib/game/characters";
 import type { RunnerAction } from "@/lib/game/player-state";
 import { ArrowIcon } from "@/components/icons/arrow-icon";
 import { BadgeIcon, BoltIcon } from "@/components/icons";
+import type { RaceNet } from "@/lib/game/race-net";
+import { LANES } from "@/lib/game/config";
 import styles from "./game-canvas.module.scss";
 
 const SWIPE_THRESHOLD = 32;
@@ -29,9 +31,15 @@ function dispatchAction(action: RunnerAction) {
 export function GameCanvas({
   character = DEFAULT_CHARACTER,
   onFinish,
+  raceNet,
+  laneCount = LANES,
 }: {
   character?: Character;
   onFinish?: (result: { time: number; points: number }) => void;
+  /** Multiplayer port (from the lobby). Absent → the canvas is single-player. */
+  raceNet?: RaceNet;
+  /** Demo/local keeps fork 3 lanes; multiplayer can opt into 4 seats. */
+  laneCount?: number;
 }) {
   const t = useTranslations("game");
   const tControls = useTranslations("play.controls");
@@ -42,6 +50,9 @@ export function GameCanvas({
   // Keep the latest callback without re-running the game-creation effect.
   const onFinishRef = useRef(onFinish);
   onFinishRef.current = onFinish;
+  // The match is fixed for this canvas's life; read at boot, don't re-create.
+  const raceNetRef = useRef(raceNet);
+  raceNetRef.current = raceNet;
 
   useEffect(() => {
     // Guard against React StrictMode double-invoke in dev.
@@ -65,6 +76,7 @@ export function GameCanvas({
       sheet: character.sheet,
       frameWidth: character.frameWidth,
       frameHeight: character.frameHeight,
+      startLane: character.startLane,
     };
 
     (async () => {
@@ -75,8 +87,13 @@ export function GameCanvas({
       if (document.fonts?.ready) await document.fonts.ready;
       if (cancelled || !containerRef.current) return;
       game = new Phaser.Game(
-        createGameConfig(containerRef.current, strings, sprite, (result) =>
-          onFinishRef.current?.(result)
+        createGameConfig(
+          containerRef.current,
+          strings,
+          sprite,
+          (result) => onFinishRef.current?.(result),
+          raceNetRef.current,
+          laneCount
         )
       );
     })();
@@ -87,7 +104,7 @@ export function GameCanvas({
       startedRef.current = false;
     };
     // Re-create the game when the locale or chosen character changes.
-  }, [locale, t, character]);
+  }, [locale, t, character, laneCount]);
 
   return (
     <div

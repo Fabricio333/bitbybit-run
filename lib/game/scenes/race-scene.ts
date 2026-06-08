@@ -1,6 +1,8 @@
 import * as Phaser from "phaser";
 import {
   LANES,
+  LANE_WIDTH,
+  MAX_TRACK_FRAC,
   VIEW,
   SPEED,
   ENERGY,
@@ -23,6 +25,9 @@ import {
   type RunnerAction,
   type RunnerState,
 } from "../player-state";
+import { laneColor, type RemoteRunnerView } from "../remote-runners";
+import type { RaceNet } from "../race-net";
+import type { RunnerStatus } from "@/lib/multiplayer/types";
 
 /**
  * RaceScene — Phase 1, single-player.
@@ -41,6 +46,16 @@ const HIT_LANE_TOLERANCE = 0.5; // how close to a lane center counts as "in it"
 const FOOD_POOL_SIZE = 20; // reusable emoji slots for visible food
 const POWER_POOL_SIZE = 6; // reusable power-up slots for visible pickups
 const SIGN_POOL_SIZE = 6; // reusable billboards for visible signs
+// Signs only render once their perspective scale passes SIGN_MIN_SCALE, i.e.
+// when they're down at the roadside (lower, wider screen). Farther than that
+// they'd shrink onto the vanishing point near the horizon — crowding the path
+// and the centered food toast — so we hold them back and fade them in.
+const SIGN_MIN_SCALE = 0.46;
+const SIGN_FADE = 0.14; // scale range over which a sign fades from 0→1 alpha
+// Minimum side-margin (px) needed to fit a readable billboard. Below this — i.e.
+// narrow portrait phones, where the track fills the screen — signs are hidden so
+// they never crowd the track. They return on wider (landscape/desktop) layouts.
+const SIGN_MIN_MARGIN = 64;
 const START_LINE_WORLD = 0; // start line at the very start of the race
 const NUMBERS_WORLD = 22; // lane numbers painted just past the start line
 const START_HOLD = 1.2; // seconds the runner waits at the start ("on your marks")
@@ -73,6 +88,8 @@ const DEFAULT_STRINGS: GameStrings = {
 export class RaceScene extends Phaser.Scene {
   private bg!: Phaser.GameObjects.Graphics; // static backdrop (drawn once)
   private world!: Phaser.GameObjects.Graphics; // food bubbles, signs, finish
+  private remoteG?: Phaser.GameObjects.Graphics; // other players' ghosts (MP only)
+  private minimapG?: Phaser.GameObjects.Graphics; // all-runner minimap (MP only)
   private runnerG!: Phaser.GameObjects.Graphics; // runner shadow + vector fallback
   private runnerSprite?: Phaser.GameObjects.Sprite; // used when a sheet is present
   private useSprite = false;
@@ -99,8 +116,10 @@ export class RaceScene extends Phaser.Scene {
   // Player state.
   private now = 0; // last frame timestamp (ms)
   private playerDistance = 0; // 0..TRACK.length
-  private playerLane = (LANES - 1) / 2; // fractional, tweened
-  private targetLane = Math.round((LANES - 1) / 2);
+  private laneCount = LANES;
+  private playerLane = (this.laneCount - 1) / 2; // fractional, tweened
+  private targetLane = Math.round((this.laneCount - 1) / 2);
+  private startLane = Math.round((this.laneCount - 1) / 2); // set from the chosen character
   private runnerState: RunnerState = createRunnerState();
   private energy = ENERGY.start;
   private poison = 0;
@@ -109,6 +128,14 @@ export class RaceScene extends Phaser.Scene {
   private finished = false;
   private startHold = START_HOLD; // "on your marks" pause before the runner moves
   private drunkTimer = 0; // >0 while wobbling after a beer
+  private currentSpeed = SPEED.base; // last frame's forward speed (broadcast in MP)
+
+  // Multiplayer (absent in single-player). When a RaceNet is in the registry
+  // we broadcast our own runner and render everyone else's.
+  private net?: RaceNet;
+  private status: RunnerStatus = "running"; // own coarse state, broadcast in MP
+  private remotes: RemoteRunnerView[] = []; // smoothed remote runners this frame
+  private finishReported = false; // guard so finish is announced once
 
   // Per-food "already resolved" flags (consumed or passed).
   private resolved = new Set<string>();
@@ -141,18 +168,23 @@ export class RaceScene extends Phaser.Scene {
   }
 
   create() {
-    const { width, height } = this.scale;
-    const isMobileGameViewport = window.matchMedia("(max-width: 760px)").matches;
-    this.near = isMobileGameViewport ? MOBILE_NEAR : DESKTOP_NEAR;
-    this.horizonY = isMobileGameViewport ? height * 0.12 : height * 0.32;
-    this.bottomY = isMobileGameViewport
-      ? height * 1.08 // push the near track below the screen for zoom-in
-      : height;
-    this.laneSpacing = isMobileGameViewport ? width * 0.24 : width * 0.118;
+    const configuredLaneCount = this.registry.get("laneCount") as number | undefined;
+    this.laneCount = configuredLaneCount ?? LANES;
+    this.playerLane = (this.laneCount - 1) / 2;
+    this.targetLane = Math.round((this.laneCount - 1) / 2);
+    this.startLane = Math.round((this.laneCount - 1) / 2);
+
+    this.layout();
 
     this.readFonts();
     const s = this.registry.get("strings") as GameStrings | undefined;
     if (s) this.strings = s;
+
+    // Each character owns a starting lane (Sprinter 1 … Bitcoin 4).
+    const ch = this.registry.get("character") as SpriteChoice | undefined;
+    if (ch?.startLane != null) {
+      this.startLane = Phaser.Math.Clamp(ch.startLane, 0, this.laneCount - 1);
+    }
 
     // Static backdrop (sky, grass, crowd, orange track, lane lines).
     this.bg = this.add.graphics().setDepth(0);
@@ -161,6 +193,17 @@ export class RaceScene extends Phaser.Scene {
     this.createSignMarkers();
 
     this.world = this.add.graphics().setDepth(1);
+
+    // Multiplayer: optional realtime port (set by the lobby). Absent in
+    // single-player, in which case none of the broadcast/ghost code runs.
+    this.net = this.registry.get("raceNet") as RaceNet | undefined;
+    if (this.net) {
+      // Ghosts sit just under the local runner (depth 3); minimap is HUD-level.
+      this.remoteG = this.add.graphics().setDepth(2);
+      this.minimapG = this.add.graphics().setDepth(9);
+      // The RaceNet lifecycle is owned by React (MatchProvider) — it outlives
+      // this scene (lobby → race), so we don't dispose it on shutdown.
+    }
 
     // Reusable emoji slots for food.
     for (let i = 0; i < FOOD_POOL_SIZE; i++) {
@@ -213,7 +256,7 @@ export class RaceScene extends Phaser.Scene {
       .setDepth(10);
 
     this.toastText = this.add
-      .text(width / 2, height * 0.4, "", {
+      .text(this.scale.width / 2, this.scale.height * 0.4, "", {
         fontFamily: this.fontDisplay,
         fontSize: "28px",
         color: "#ffffff",
@@ -242,15 +285,46 @@ export class RaceScene extends Phaser.Scene {
       "bitbybit-run:action",
       this.externalInputHandler
     );
+
+    // Responsive: the canvas follows its parent (Scale.RESIZE), so recompute the
+    // layout and redraw the static backdrop whenever the viewport changes.
+    this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      if (!this.externalInputHandler) return;
-      window.removeEventListener(
-        "bitbybit-run:action",
-        this.externalInputHandler
-      );
+      if (this.externalInputHandler) {
+        window.removeEventListener(
+          "bitbybit-run:action",
+          this.externalInputHandler
+        );
+      }
+      this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);
     });
 
     this.resetRace();
+  }
+
+  /** (Re)compute viewport-dependent layout. Lane width is fixed (LANE_WIDTH),
+   *  clamped so the track never exceeds MAX_TRACK_FRAC of the width — so the
+   *  track stays a fixed-width, centered anchor and the side margins (signs)
+   *  absorb the responsive change. Dynamic objects reproject every frame;
+   *  only the static backdrop needs an explicit redraw (see onResize). */
+  private layout() {
+    const { width, height } = this.scale;
+    const isMobileGameViewport = window.matchMedia("(max-width: 760px)").matches;
+    this.near = isMobileGameViewport ? MOBILE_NEAR : DESKTOP_NEAR;
+    this.horizonY = isMobileGameViewport ? height * 0.12 : height * 0.32;
+    this.bottomY = isMobileGameViewport
+      ? height * 1.08
+      : height;
+    this.laneSpacing = isMobileGameViewport
+      ? Math.min(width * 0.24, (width * MAX_TRACK_FRAC) / this.laneCount)
+      : Math.min(width * 0.118, LANE_WIDTH, (width * MAX_TRACK_FRAC) / this.laneCount);
+  }
+
+  private onResize() {
+    if (!this.bg) return; // resize can fire before create() finishes
+    this.layout();
+    this.drawBackground();
+    this.toastText.setPosition(this.scale.width / 2, this.scale.height * 0.4);
   }
 
   private readFonts() {
@@ -262,12 +336,12 @@ export class RaceScene extends Phaser.Scene {
     if (display) this.fontDisplay = `${display}, "Nunito", sans-serif`;
   }
 
-  /** Lane-number labels (1..8), positioned every frame by updateStartArea. */
+  /** Lane-number labels (1..this.laneCount), positioned every frame by updateStartArea. */
   private createStartMarkers() {
-    for (let i = 0; i < LANES; i++) {
+    for (let i = 0; i < this.laneCount; i++) {
       const txt = this.add
         .text(0, 0, String(i + 1), {
-          fontFamily: this.fontDisplay,
+          fontFamily: this.fontBody,
           fontSize: "40px",
           color: "#ffffff",
           fontStyle: "bold",
@@ -304,9 +378,12 @@ export class RaceScene extends Phaser.Scene {
 
   private resetRace() {
     this.playerDistance = 0;
-    this.playerLane = (LANES - 1) / 2;
-    this.runnerState = createRunnerState();
-    this.targetLane = this.runnerState.targetLane;
+    this.playerLane = this.startLane;
+    this.runnerState = createRunnerState({
+      targetLane: this.startLane,
+      energy: ENERGY.start,
+    });
+    this.targetLane = this.startLane;
     this.energy = ENERGY.start;
     this.poison = 0;
     this.points = 0;
@@ -314,6 +391,9 @@ export class RaceScene extends Phaser.Scene {
     this.finished = false;
     this.startHold = START_HOLD;
     this.drunkTimer = 0;
+    this.currentSpeed = SPEED.base;
+    this.status = "running";
+    this.finishReported = false;
     this.toastText.setText("");
     this.toastTimer = 0;
     // Forget which foods were eaten/passed so the bubbles render again
@@ -332,7 +412,7 @@ export class RaceScene extends Phaser.Scene {
     const s = this.near / (this.near + Math.max(0, d));
     const y = this.horizonY + (this.bottomY - this.horizonY) * s;
     const x =
-      this.scale.width / 2 + (lane - (LANES - 1) / 2) * this.laneSpacing * s;
+      this.scale.width / 2 + (lane - (this.laneCount - 1) / 2) * this.laneSpacing * s;
     return { x, y, s };
   }
 
@@ -366,36 +446,33 @@ export class RaceScene extends Phaser.Scene {
       if (this.toastTimer <= 0) this.toastText.setText("");
     }
 
+    // Multiplayer: broadcast our own state (throttled in the client) and pull
+    // the smoothed remote runners to draw this frame.
+    if (this.net) {
+      if (!this.finished) this.publishSelf();
+      this.remotes = this.net.frame(time);
+    }
+
     this.drawWorld();
     this.updateSigns();
     this.updateStartArea();
+    if (this.net) this.drawRemotes();
     this.drawRunner();
+    if (this.net) this.drawMinimap();
     this.drawHud();
   }
 
-  private applyAction(action: RunnerAction) {
-    if (action === "restart") {
-      if (this.finished) this.resetRace();
-      return;
-    }
-
-    if (this.finished || this.startHold > 0) return;
-
-    const before = this.runnerState;
-    this.runnerState = applyRunnerAction(this.runnerState, action);
-    this.targetLane = this.runnerState.targetLane;
-    this.energy = this.runnerState.energy;
-
-    if (this.targetLane !== before.targetLane) Sound.lane();
-    if (action === "boost" && this.runnerState.boostTimer > before.boostTimer) {
-      this.showToast("BOOST!", 0.8);
-      Sound.eatGood();
-    }
-    if (action === "power" && this.runnerState.shieldTimer > before.shieldTimer) {
-      this.poison = 0;
-      this.showToast(`${FOOD_ICONS.power} shield on`, 1.5);
-      Sound.eatGood();
-    }
+  /** Broadcast the local runner over the match (no-op without a RaceNet). */
+  private publishSelf() {
+    this.net?.publishSelf({
+      progress: Math.min(1, this.playerDistance / TRACK.length),
+      lane: Phaser.Math.Clamp(Math.round(this.playerLane), 0, this.laneCount - 1),
+      speed: this.currentSpeed,
+      energy: this.energy,
+      poison: this.poison,
+      status: this.status,
+      points: this.points,
+    });
   }
 
   private handleInput() {
@@ -433,11 +510,40 @@ export class RaceScene extends Phaser.Scene {
       this.applyAction("power");
     }
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.R)) this.resetRace();
+    if (Phaser.Input.Keyboard.JustDown(this.keys.R) && !this.net) {
+      this.resetRace();
+    }
   }
 
   private handleRestartInput() {
-    if (Phaser.Input.Keyboard.JustDown(this.keys.R)) this.resetRace();
+    if (!this.net && Phaser.Input.Keyboard.JustDown(this.keys.R)) {
+      this.resetRace();
+    }
+  }
+
+  private applyAction(action: RunnerAction) {
+    if (action === "restart") {
+      if (this.finished && !this.net) this.resetRace();
+      return;
+    }
+
+    if (this.finished || this.startHold > 0) return;
+
+    const before = this.runnerState;
+    this.runnerState = applyRunnerAction(this.runnerState, action, this.laneCount);
+    this.targetLane = this.runnerState.targetLane;
+    this.energy = this.runnerState.energy;
+
+    if (this.targetLane !== before.targetLane) Sound.lane();
+    if (action === "boost" && this.runnerState.boostTimer > before.boostTimer) {
+      this.showToast("BOOST!", 0.8);
+      Sound.eatGood();
+    }
+    if (action === "power" && this.runnerState.shieldTimer > before.shieldTimer) {
+      this.poison = 0;
+      this.showToast(`${FOOD_ICONS.power} shield on`, 1.5);
+      Sound.eatGood();
+    }
   }
 
   private updateMovement(dt: number) {
@@ -459,6 +565,8 @@ export class RaceScene extends Phaser.Scene {
       speed = SPEED.exhausted;
     }
 
+    this.currentSpeed = speed;
+    this.status = "running";
     this.playerDistance += speed * dt;
   }
 
@@ -513,9 +621,9 @@ export class RaceScene extends Phaser.Scene {
 
     for (const f of TRACK.powerUps) {
       if (this.resolvedPowerUps.has(f.id)) continue;
-      if (f.at > this.playerDistance) continue; // not reached yet
+      if (f.at > this.playerDistance) continue;
       this.resolvedPowerUps.add(f.id);
-      if (!inLane(f)) continue; // missed (wrong lane)
+      if (!inLane(f)) continue;
       this.runnerState = collectPowerUp(this.runnerState, f.type);
       this.showToast(`${FOOD_ICONS.power} power ready`, 1.8);
       Sound.eatGood();
@@ -539,6 +647,7 @@ export class RaceScene extends Phaser.Scene {
       this.resolved.clear();
       this.resolvedPowerUps.clear();
       this.startHold = 1.7;
+      this.status = "bathroom";
       this.showToast(this.pick(this.strings.bathrooms), 1.7);
       Sound.bathroom();
       return;
@@ -549,10 +658,13 @@ export class RaceScene extends Phaser.Scene {
   private checkFinish() {
     if (this.playerDistance >= TRACK.length) {
       this.finished = true;
+      this.status = "finished";
       this.points += POINTS.finishBonus;
       Sound.finish();
+      // In a match, "press R to race again" doesn't apply — the result stands.
+      const tail = this.net ? "" : `\n${this.strings.again}`;
       this.showToast(
-        `${this.strings.finish}\n${this.elapsed.toFixed(1)}s   ${this.points} pts\n${this.strings.again}`,
+        `${this.strings.finish}\n${this.elapsed.toFixed(1)}s   ${this.points} pts${tail}`,
         9999
       );
       // Surface the finish to React (e.g. the demo's login-invite modal).
@@ -560,6 +672,22 @@ export class RaceScene extends Phaser.Scene {
         | ((result: { time: number; points: number }) => void)
         | undefined;
       onFinish?.({ time: this.elapsed, points: this.points });
+
+      // Announce the finish to the match (winner resolved by the foundation
+      // reducer). Guard so it fires exactly once.
+      if (this.net && !this.finishReported) {
+        this.finishReported = true;
+        this.net.publishSelf({
+          progress: 1,
+          lane: Phaser.Math.Clamp(Math.round(this.playerLane), 0, this.laneCount - 1),
+          speed: 0,
+          energy: this.energy,
+          poison: this.poison,
+          status: "finished",
+          points: this.points,
+        });
+        this.net.finish({ points: this.points, finishTime: Date.now() });
+      }
     }
   }
 
@@ -619,19 +747,19 @@ export class RaceScene extends Phaser.Scene {
       segs.push({ s, y, cx: width / 2 + xOff });
     }
     const edgeX = (seg: Seg, lane: number) =>
-      seg.cx + (lane - (LANES - 1) / 2) * this.laneSpacing * seg.s;
+      seg.cx + (lane - (this.laneCount - 1) / 2) * this.laneSpacing * seg.s;
 
     const leftEdge = segs.map((seg) => ({ x: edgeX(seg, -0.5), y: seg.y }));
     const rightEdge = segs.map((seg) => ({
-      x: edgeX(seg, LANES - 0.5),
+      x: edgeX(seg, this.laneCount - 0.5),
       y: seg.y,
     }));
     g.fillStyle(GAME_COLORS.track, 1);
     g.fillPoints([...leftEdge, ...rightEdge.slice().reverse()], true);
 
     // Lane lines — per-segment so width and opacity taper toward the horizon.
-    for (let b = -0.5; b <= LANES - 0.5; b += 1) {
-      const edge = b === -0.5 || b === LANES - 0.5;
+    for (let b = -0.5; b <= this.laneCount - 0.5; b += 1) {
+      const edge = b === -0.5 || b === this.laneCount - 0.5;
       for (let i = 0; i < segs.length - 1; i++) {
         const a = segs[i];
         const c = segs[i + 1];
@@ -648,13 +776,28 @@ export class RaceScene extends Phaser.Scene {
     const s = this.near / (this.near + d);
     const y = this.horizonY + (this.bottomY - this.horizonY) * s;
     const x =
-      this.scale.width / 2 + (lane - (LANES - 1) / 2) * this.laneSpacing * s;
+      this.scale.width / 2 + (lane - (this.laneCount - 1) / 2) * this.laneSpacing * s;
     return { x, y, s };
   }
 
   /** Crowd signs as billboards beside the track, scrolling toward the player. */
   private updateSigns() {
     const g = this.world;
+    // The side margin between the track edge and the screen edge is the signs'
+    // home. The track keeps its width; the margin (and the signs in it) flex.
+    const fullMarginLanes = this.scale.width / 2 / this.laneSpacing - this.laneCount / 2;
+    const marginPx = fullMarginLanes * this.laneSpacing; // one side, in px
+
+    // Narrow portrait (mobile): no room for a readable billboard beside the
+    // track, so hide the signs entirely rather than cram huge ones over it.
+    if (marginPx < SIGN_MIN_MARGIN) {
+      for (const t of this.signPool) t.setVisible(false);
+      return;
+    }
+
+    const signOffset = fullMarginLanes / 2; // sit in the middle of the margin
+    const maxScale = marginPx / 90; // cap so a typical word fits the margin
+
     const visible = SIGNS.map((sg) => ({ sg, d: sg.at - this.playerDistance }))
       .filter((x) => x.d >= 0 && x.d <= VIEW_DISTANCE)
       .sort((a, b) => b.d - a.d); // far first
@@ -662,22 +805,30 @@ export class RaceScene extends Phaser.Scene {
     let slot = 0;
     for (const { sg, d } of visible) {
       if (slot >= this.signPool.length) break;
-      const lane = sg.side === -1 ? -2.4 : LANES - 1 + 2.4;
+      const lane =
+        sg.side === -1 ? -0.5 - signOffset : this.laneCount - 0.5 + signOffset;
       const p = this.project(d, lane);
-      const scale = Math.min(1.5, Math.max(0.4, p.s * 2));
+      // Skip far signs: projected near the horizon they'd shrink onto the
+      // vanishing point, crowding the path and the centered food toast. Fade
+      // them in as they come down to the roadside instead.
+      if (p.s < SIGN_MIN_SCALE) continue;
+      const alpha = Math.min(1, (p.s - SIGN_MIN_SCALE) / SIGN_FADE);
+      const scale = Math.min(1.3, maxScale, Math.max(0.4, p.s * 2));
       const postH = 70 * scale;
       const signY = p.y - postH;
       // Post.
-      g.lineStyle(Math.max(1.5, 4 * scale), 0x6b4f2a, 1);
+      g.lineStyle(Math.max(1.5, 4 * scale), 0x6b4f2a, alpha);
       g.lineBetween(p.x, p.y, p.x, signY);
-      // Billboard.
+      // Billboard — wrap to the available margin (rendered width ≈ marginPx).
       const txt = this.signPool[slot++];
       const text =
         this.strings.signs[sg.text % this.strings.signs.length] ?? "";
       txt
         .setText(text)
+        .setWordWrapWidth(Math.max(60, marginPx / scale))
         .setPosition(p.x, signY)
         .setScale(scale)
+        .setAlpha(alpha)
         .setVisible(true);
     }
     for (let i = slot; i < this.signPool.length; i++) {
@@ -693,14 +844,14 @@ export class RaceScene extends Phaser.Scene {
     const lineD = START_LINE_WORLD - this.playerDistance;
     if (lineD > -40 && this.near + lineD > 1) {
       const sl = this.projectRaw(lineD, -0.5);
-      const sr = this.projectRaw(lineD, LANES - 0.5);
+      const sr = this.projectRaw(lineD, this.laneCount - 0.5);
       g.lineStyle(Math.max(4, 12 * Math.min(1.2, sl.s)), 0xffffff, 1);
       g.lineBetween(sl.x, sl.y, sr.x, sr.y);
     }
 
     const d = NUMBERS_WORLD - this.playerDistance;
     const show = d > -26 && this.near + d > 1;
-    for (let i = 0; i < LANES; i++) {
+    for (let i = 0; i < this.laneCount; i++) {
       const txt = this.startNumbers[i];
       if (!show) {
         txt.setVisible(false);
@@ -722,7 +873,7 @@ export class RaceScene extends Phaser.Scene {
     const finishD = TRACK.length - this.playerDistance;
     if (finishD >= 0 && finishD <= VIEW_DISTANCE) {
       const l = this.project(finishD, -0.5);
-      const r = this.project(finishD, LANES - 0.5);
+      const r = this.project(finishD, this.laneCount - 0.5);
       const thick = Math.max(3, 11 * l.s);
       g.lineStyle(thick, GAME_COLORS.finish, 1);
       g.lineBetween(l.x, l.y, r.x, r.y);
@@ -853,10 +1004,7 @@ export class RaceScene extends Phaser.Scene {
         this.scale.height - 18
       );
       spr
-        .setPosition(
-          me.x + sway,
-          spriteBaseY - jumpLift + duckDrop
-        )
+        .setPosition(me.x + sway, spriteBaseY - jumpLift + duckDrop)
         .setScale(
           RUNNER_SPRITE.scale,
           this.runnerState.duckTimer > 0
@@ -914,6 +1062,78 @@ export class RaceScene extends Phaser.Scene {
     }
   }
 
+  /** Other players' runners as translucent colored ghosts on the track. Only
+   *  those ahead of us and within view are drawable; the rest live on the
+   *  minimap. Far-to-near so nearer ghosts paint on top. */
+  private drawRemotes() {
+    const g = this.remoteG;
+    if (!g) return;
+    g.clear();
+
+    const visible = this.remotes
+      .map((r) => ({ r, d: r.progress * TRACK.length - this.playerDistance }))
+      .filter(({ d }) => d >= 0 && d <= VIEW_DISTANCE)
+      .sort((a, b) => b.d - a.d);
+
+    for (const { r, d } of visible) {
+      const p = this.project(d, r.lane);
+      const alpha = r.status === "finished" ? 0.35 : 0.62;
+      const h = Math.max(10, 46 * p.s);
+      const w = Math.max(5, 16 * p.s);
+
+      // Shadow.
+      g.fillStyle(0x000000, 0.18);
+      g.fillEllipse(p.x, p.y - 2, w * 2, 8 * p.s);
+      // Body + head.
+      g.fillStyle(r.color, alpha);
+      g.fillRoundedRect(p.x - w / 2, p.y - h, w, h * 0.72, Math.max(2, 6 * p.s));
+      g.fillCircle(p.x, p.y - h, w * 0.5);
+      g.lineStyle(Math.max(1, 1.5 * p.s), 0xffffff, alpha * 0.7);
+      g.strokeCircle(p.x, p.y - h, w * 0.5);
+    }
+  }
+
+  /** A compact vertical track showing every runner's progress (self + remotes)
+   *  regardless of who's on screen — your at-a-glance race position. */
+  private drawMinimap() {
+    const g = this.minimapG;
+    if (!g) return;
+    g.clear();
+
+    const { width } = this.scale;
+    const h = Math.min(180, this.scale.height * 0.4);
+    const x = width - 34; // track centerline
+    const top = 30;
+    const bottom = top + h;
+
+    // Panel + track line (start at the bottom, finish at the top).
+    g.fillStyle(GAME_COLORS.hudPanel, 0.4);
+    g.fillRoundedRect(x - 22, top - 14, 44, h + 28, 8);
+    g.lineStyle(3, 0xffffff, 0.45);
+    g.lineBetween(x, top, x, bottom);
+    g.fillStyle(0xffffff, 0.9);
+    g.fillCircle(x, top, 3); // finish marker
+
+    const plot = (progress: number, lane: number, color: number, self: boolean) => {
+      const py = bottom - Phaser.Math.Clamp(progress, 0, 1) * h;
+      const px = x + (lane - (this.laneCount - 1) / 2) * 7;
+      g.fillStyle(color, 1);
+      g.fillCircle(px, py, self ? 5 : 4);
+      if (self) {
+        g.lineStyle(2, 0xffffff, 1);
+        g.strokeCircle(px, py, 6);
+      }
+    };
+
+    for (const r of this.remotes) plot(r.progress, r.lane, r.color, false);
+    plot(
+      Math.min(1, this.playerDistance / TRACK.length),
+      this.playerLane,
+      laneColor(this.startLane),
+      true
+    );
+  }
+
   private drawHud() {
     const g = this.hud;
     g.clear();
@@ -956,13 +1176,17 @@ export type SpriteChoice = {
   sheet: string;
   frameWidth: number;
   frameHeight: number;
+  /** Lane this character starts in (0-indexed). Defaults to centre if absent. */
+  startLane?: number;
 };
 
 export const createGameConfig = (
   parent: HTMLElement,
   strings?: GameStrings,
   character?: SpriteChoice,
-  onFinish?: (result: { time: number; points: number }) => void
+  onFinish?: (result: { time: number; points: number }) => void,
+  raceNet?: RaceNet,
+  laneCount = LANES
 ): Phaser.Types.Core.GameConfig => ({
   type: Phaser.AUTO,
   parent,
@@ -970,7 +1194,10 @@ export const createGameConfig = (
   height: VIEW.height,
   backgroundColor: "#cdeaf8",
   scale: {
-    mode: Phaser.Scale.FIT,
+    // RESIZE: the canvas tracks its parent element's size (responsive), and the
+    // scene recomputes its layout on every resize (see RaceScene.layout). The
+    // parent's CSS box decides the aspect — taller on portrait/mobile.
+    mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   callbacks: {
@@ -978,6 +1205,8 @@ export const createGameConfig = (
       game.registry.set("strings", strings ?? DEFAULT_STRINGS);
       if (character) game.registry.set("character", character);
       if (onFinish) game.registry.set("onFinish", onFinish);
+      if (raceNet) game.registry.set("raceNet", raceNet);
+      game.registry.set("laneCount", laneCount);
     },
   },
   scene: [RaceScene],

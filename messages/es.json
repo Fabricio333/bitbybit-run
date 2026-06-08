@@ -13,7 +13,8 @@
     "signOut": "Cerrar sesión",
     "account": "Cuenta",
     "syncProfile": "Sincronizar perfil de Nostr",
-    "syncing": "Sincronizando…"
+    "syncing": "Sincronizando…",
+    "leaderboard": "Ranking"
   },
   "landing": {
     "title": "Bit by Bit Run",
@@ -22,11 +23,67 @@
     "play": "Jugar",
     "howToPlay": "Cómo jugar"
   },
+  "leaderboard": {
+    "title": "Ranking",
+    "subtitle": "Cada carrera cuenta. Ganá carriles, sumá puntos y escalá la tabla.",
+    "rank": "#",
+    "player": "Jugador",
+    "wins": "Victorias",
+    "points": "Puntos",
+    "races": "Carreras",
+    "empty": "Todavía no hay carreras — sé el primero en liderar la tabla."
+  },
   "play": {
     "phase": "Fase 1 · prototipo de un jugador",
     "choose": "Elegí tu corredor",
     "start": "Empezar",
     "change": "Cambiar corredor",
+    "browser": {
+      "title": "Carreras",
+      "subtitle": "Creá una carrera e invitá a tus rivales, o unite a una abierta.",
+      "host": "➕ Crear carrera",
+      "openMatches": "Carreras abiertas",
+      "players": "{count}/{max} corredores",
+      "join": "Unirme",
+      "loading": "Buscando carreras…",
+      "empty": "No hay carreras abiertas. ¡Creá una!"
+    },
+    "lobby": {
+      "players": "{count}/4 corredores",
+      "you": "Vos",
+      "waiting": "Carril libre",
+      "claimHint": "Elegí un corredor para ocupar un carril",
+      "ready": "Estoy listo",
+      "cancelReady": "No estoy listo",
+      "startRace": "Empezar carrera",
+      "waitingHost": "Esperando que el anfitrión arranque…",
+      "invite": "Invitá a tus rivales",
+      "copy": "Copiar link",
+      "copied": "¡Copiado!"
+    },
+    "results": {
+      "title": "Resultados",
+      "youWon": "🏆 ¡Ganaste!",
+      "winner": "🏁 Ganó {name}",
+      "rank": "#",
+      "player": "Jugador",
+      "time": "Tiempo",
+      "points": "Puntos",
+      "dnf": "No terminó",
+      "toLeaderboard": "Ver ranking",
+      "playAgain": "Jugar de nuevo",
+      "zapWinner": "⚡️ Zapear al ganador",
+      "zapTitle": "Zapear a {name}",
+      "zapAmountLabel": "Cantidad (sats)",
+      "zapMessageLabel": "Mensaje (opcional)",
+      "zapMessagePlaceholder": "Dejá un mensaje…",
+      "zapMessages": ["¡GG! 🏆", "¡Qué carrera! 🏃", "Respeto ⚡️", "WAGMI 🚀"],
+      "zapSend": "Enviar {sats} sats",
+      "zapping": "Zapeando…",
+      "zapSent": "⚡️ ¡Le zapeaste a {name}!",
+      "zapFailed": "No se pudo zapear. Probá de nuevo.",
+      "zapNoWebln": "Necesitás una billetera Lightning (ej. Alby) para zapear."
+    },
     "soundOn": "Activar sonido",
     "soundOff": "Silenciar",
     "settings": {
@@ -40,7 +97,10 @@
       "duck": "agacharse",
       "boost": "boost",
       "power": "poder",
-      "restart": "reiniciar"
+      "restart": "reiniciar",
+      "touchLanes": "tocá los costados para cambiar carril",
+      "touchJumpDuck": "deslizá arriba/abajo para saltar o agacharte",
+      "touchRestart": "tocá para reiniciar"
     }
   },
   "demo": {
@@ -139,7 +199,7 @@
   },
   "howToPlay": {
     "title": "Cómo jugar",
-    "intro": "Corré por la pista de atletismo de 3 carriles y sé el primero en cruzar la meta.",
+    "intro": "Corré por la pista de atletismo de 4 carriles y sé el primero en cruzar la meta.",
     "goalTitle": "🎯 Objetivo",
     "goalText": "Llegá a la meta antes que los demás. Cruzar primero te asegura el mejor puesto.",
     "energyTitle": "🔋 Energía",

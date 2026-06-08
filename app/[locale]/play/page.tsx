@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/routing";
 import { getSession } from "@/lib/auth";
+import { getUserByPubkey } from "@/lib/creator/users";
 import { GameHeader } from "@/components/game/game-header/game-header";
 import { PlayStage } from "@/components/game/play-stage";
 import { GameRouteShell } from "@/components/game/game-route-shell";
@@ -19,16 +20,23 @@ export default async function PlayPage({ params }: Props) {
   const session = await getSession();
   if (!session) {
     redirect({ href: { pathname: "/sign-in", query: { next: "/play" } }, locale });
+    return null;
   }
 
   const t = await getTranslations("play");
+
+  const user = await getUserByPubkey(session.pubkey);
+  const currentUser = {
+    name: user?.display_name ?? "Player",
+    avatarUrl: user?.avatar_url ?? null,
+  };
 
   return (
     <GameRouteShell>
       <div className={styles.mobileHidden}>
         <GameHeader phase={t("phase")} />
       </div>
-      <PlayStage />
+      <PlayStage currentUser={currentUser} />
     </GameRouteShell>
   );
 }

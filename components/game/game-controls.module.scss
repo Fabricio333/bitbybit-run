@@ -4,10 +4,51 @@
 
 .controls {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.keyboard,
+.touch {
+  display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: $spacing-12 $spacing-24;
+}
+
+// Default to the keyboard legend; swap to tap/hold hints on touch devices.
+.touch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .keyboard {
+    display: none;
+  }
+
+  .touch {
+    display: flex;
+  }
+}
+
+.touchHint {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-8;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+.touchGlyph {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: $color-text-primary;
+
+  svg {
+    display: block;
+  }
 }
 
 .item {

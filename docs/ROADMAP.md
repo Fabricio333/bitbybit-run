@@ -36,24 +36,51 @@ feel-tuning pending.
 - [x] Nostr login — full sign-in ported from cursats (NIP-07 extension, NIP-46
       bunker/QR/Amber, nsec, create-identity) + JWT session + Neon `users` table.
       See [AUTH.md](AUTH.md). (Needs `DATABASE_URL` + `AUTH_SECRET` to run.)
-- [ ] Lobby: publish/discover matches via kind `30078` (`t = bitbybit-run`)
-- [ ] Create match / join match; host start button + auto-start at 8/8
-- [ ] Synced countdown via `startAt` (kind `21001`)
-- [ ] Broadcast own runner state at ~5 Hz (kind `21000`); interpolate others
-- [ ] Minimap showing all runners' positions
-- [ ] Finish events (kind `21002`); resolve winner + final standings
-- [ ] Neon + Prisma: persist `Match` / `Result`; global leaderboard page
+- [x] **Multiplayer foundation** (`lib/multiplayer/`): swappable `Transport`
+      (Nostr relays + in-memory test bus), Zod schemas + build/parse for the
+      four event kinds, pure match state machine (roster, runner merge, winner
+      resolution), `MatchClient` orchestrator + `useMatch` hook, and the
+      `matches`/`results` tables + leaderboard queries. Unit-tested (two clients
+      converge over the in-memory transport); no UI yet — the items below build
+      on it.
+- [x] Lobby/discovery via kind `30078`: each peer publishes its own seat
+      (self-presence, incl. lobby `status`) and clients aggregate the roster.
+      Join via an **invite link** or the **lobby browser** that lists open
+      matches off the relays (already-started ones filtered out).
+- [x] Create match / join match (invite link or lobby browser); host start
+      button + **auto-start at 4/4**.
+- [x] Synced start via `startAt` (kind `21001`) — host's start flips everyone
+      into the race through match status.
+- [x] Broadcast own runner state at ~5 Hz (kind `21000`); interpolate others
+      — `RaceScene` ⇄ `RaceNet` seam, dead-reckoned ghosts (`lib/game/remote-runners.ts`)
+- [x] Minimap showing all runners' positions
+- [x] Finish events (kind `21002`): the scene announces its finish, the reducer
+      resolves the winner, and an end-of-match **results screen** shows the final
+      standings (reusing the leaderboard's `RankingTable`).
+- [x] **Connect lobby → race**: the match now lives in `<MatchProvider>` above
+      the competitive flow (lobby + race), so the lobby's client carries into the
+      race; `PlayStage` hands the scene a `RaceNet` (only when ≥2 players, so solo
+      hosts keep the plain single-player race).
+- [x] **Join flow**: self-presence aggregation + invite-link join + a lobby
+      browser of open matches — two real browsers race in the same match.
+      Verified end-to-end over public Nostr relays.
+- [x] Neon + Drizzle: persist `Match` / `Result` — host POSTs final standings to
+      `POST /api/matches` on finish (idempotent by `nostr_id`); feeds the
+      leaderboard.
+- [x] Global leaderboard page (`/leaderboard`) — reads `getLeaderboard()`
 
-**Milestone (≈ Jun 18): 2–8 players can race and the leaderboard updates.**
+**Milestone (≈ Jun 18): 2–4 players can race and the leaderboard updates.**
 
 ## Phase 3 — Lightning + polish ⚡ _differentiators_
 
 **Goal:** the "zaps" theme + a demo-ready feel.
 
-- [ ] Results screen: show winner `lud16` + **⚡ Zap winner** (WebLN)
+- [x] Results screen: **⚡️ Zap winner** — manual LNURL-pay tip to the winner's
+      `lud16` via WebLN, with a Nostr-style amount + message picker
+      (`lib/lightning/zap.ts`, `GET /api/lud16`).
 - [ ] Landing page (100vh) + Rules & demo page
 - [ ] Visual/audio polish, tiny sprites, juice (tweens, particles)
-- [ ] Test with 8 real players; tune relay throttling & interpolation
+- [ ] Test with 4 real players; tune relay throttling & interpolation
 - [ ] Record the pitch demo
 
 **Milestone (≈ Jun 22): demo-ready for the Jun 23 pitch.**
@@ -71,7 +98,7 @@ feel-tuning pending.
 
 | Risk                                        | Likelihood | Mitigation                                                                    |
 | ------------------------------------------- | ---------- | ----------------------------------------------------------------------------- |
-| Public relays rate-limit / lag at 8 players | Medium     | Throttle to ~5 Hz, tiny payloads, multi-relay, interpolate; minimap-only sync |
+| Public relays rate-limit / lag at 4 players | Low        | 4-player cap keeps fan-out low (~15 ev/s/client); throttle ~5 Hz, tiny payloads, multi-relay, interpolate |
 | 2.5D rendering eats too much time           | Medium     | Fall back to clean top-down 2D; the loop matters more than the look           |
 | Multiplayer netcode slips                   | Medium     | Phase 1 is fun solo; multiplayer is additive, not blocking                    |
 | Lightning/WebLN flakiness in demo           | Low        | It's manual & optional; pre-test wallets; have a fallback screenshot          |

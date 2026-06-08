@@ -75,10 +75,23 @@ describe("mobile game UI layout", () => {
     expect(canvasStyles).toContain("bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px))");
   });
 
-  it("keeps desktop on three lanes with keyboard controls instead of touch overlays", () => {
+  it("keeps demo on the fork's three-lane runner while multiplayer can use four lanes", () => {
     const config = read("lib/game/config.ts");
     expect(config).toContain("export const LANES = 3");
+    expect(config).toContain("export const MULTIPLAYER_LANES = 4");
 
+    const stage = read("components/game/play-stage.tsx");
+    const demoStage = stage.slice(stage.indexOf("function DemoStage"));
+    expect(demoStage).toContain("<GameCanvas");
+    expect(demoStage).toContain("laneCount={LANES}");
+    expect(demoStage).not.toContain("<MatchProvider");
+    expect(stage).toContain("laneCount={multiplayer ? MULTIPLAYER_LANES : LANES}");
+
+    const multiplayer = read("lib/multiplayer/types.ts");
+    expect(multiplayer).toContain("export const MAX_PLAYERS = MULTIPLAYER_LANES");
+  });
+
+  it("keeps desktop keyboard controls instead of touch overlays", () => {
     const controls = read("components/game/game-controls.tsx");
     expect(controls).toContain('<ArrowIcon dir="left" />');
     expect(controls).toContain('<ArrowIcon dir="right" />');
@@ -159,7 +172,7 @@ describe("mobile game UI layout", () => {
 
     const scene = read("lib/game/scenes/race-scene.ts");
     const canvas = read("components/game/game-canvas.tsx");
-    expect(scene).toContain('if (this.finished) this.resetRace();');
+    expect(scene).toContain('if (this.finished && !this.net) this.resetRace();');
     expect(scene).toContain('again: "tap to race again"');
     expect(canvas).toContain('dispatchAction("restart")');
   });

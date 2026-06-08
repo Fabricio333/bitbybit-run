@@ -93,5 +93,5 @@ banana, which looked horizontal from behind). Frame size **112 × 112**.
 
 PixelLab's free tier renews **5 generations/day**. Each character (+ its run
 animation) costs a few; spreading generations across days avoids paying. For the
-8 multiplayer lanes you don't need 8 unique designs — a few characters plus
+4 multiplayer lanes you don't need 4 unique designs — a few characters plus
 per-lane **color tints** (`sprite.setTint`) is plenty.

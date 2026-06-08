@@ -19,6 +19,12 @@ export type Character = {
   frameWidth: number;
   frameHeight: number;
   frames: number;
+  /** Lane this character starts in (0-indexed; painted as `startLane + 1`).
+   *  Each character owns a lane: Sprinter 1, Barbie 2, T-Rex 3, Bitcoin 4. */
+  startLane: number;
+  /** Accent color for this character's lane in the selection lobby (decorative,
+   *  theme-independent). Drives the lane badge + claimed-card highlight. */
+  laneColor: string;
 };
 
 export const CHARACTERS: Character[] = [
@@ -30,6 +36,8 @@ export const CHARACTERS: Character[] = [
     frameWidth: 116,
     frameHeight: 116,
     frames: 8,
+    startLane: 0, // lane 1
+    laneColor: "#f5a524", // amber
   },
   {
     id: "female",
@@ -39,6 +47,8 @@ export const CHARACTERS: Character[] = [
     frameWidth: 124,
     frameHeight: 124,
     frames: 8,
+    startLane: 1, // lane 2
+    laneColor: "#ff5fa2", // pink
   },
   {
     id: "trex",
@@ -48,6 +58,8 @@ export const CHARACTERS: Character[] = [
     frameWidth: 120,
     frameHeight: 120,
     frames: 8,
+    startLane: 2, // lane 3
+    laneColor: "#3fb950", // green
   },
   {
     id: "coin",
@@ -57,6 +69,8 @@ export const CHARACTERS: Character[] = [
     frameWidth: 112,
     frameHeight: 112,
     frames: 8,
+    startLane: 3, // lane 4
+    laneColor: "#f7931a", // bitcoin orange
   },
 ];
 

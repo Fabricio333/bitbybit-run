@@ -73,13 +73,14 @@ export function collectPowerUp(
 
 export function applyRunnerAction(
   state: RunnerState,
-  action: RunnerAction
+  action: RunnerAction,
+  laneCount = LANES
 ): RunnerState {
   switch (action) {
     case "left":
       return { ...state, targetLane: Math.max(0, state.targetLane - 1) };
     case "right":
-      return { ...state, targetLane: Math.min(LANES - 1, state.targetLane + 1) };
+      return { ...state, targetLane: Math.min(laneCount - 1, state.targetLane + 1) };
     case "jump":
       return {
         ...state,

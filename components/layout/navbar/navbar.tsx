@@ -17,6 +17,9 @@ export function Navbar() {
       <div className={styles.inner}>
         <Logo />
         <div className={styles.right}>
+          <Button href="/leaderboard" variant="ghost" size="sm">
+            {t("leaderboard")}
+          </Button>
           <LocaleThemeToggle />
           {session === null ? (
             <Button href="/sign-in" variant="primary" size="sm">

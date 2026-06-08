@@ -6,6 +6,165 @@ Dates use `YYYY-MM-DD`.
 
 ## [Unreleased]
 
+### Added
+
+- **Auto-start at 4/4 + the lobby browser hides started matches.** When the grid
+  fills (4/4) the host now auto-sends the start signal (the manual Start button
+  stays). Self-presence (kind 30078) gained a lobby `status`, and clients
+  re-announce it when the match leaves "waiting", so the discovery browser drops
+  matches that already started (only truly open ones remain joinable). New
+  `MatchLobbyStatus` schema; `discovery.selectOpenMatches` filters non-waiting
+  matches (unit-tested).
+
+- **Lobby browser — discover & join open matches.** Signed-in players now land
+  on a lobby home that lists open races off the relays (kind 30078 self-presence,
+  aggregated by `matchId`) with each host's name and player count, plus a
+  **Create race** button — instead of everyone silently hosting their own match.
+  New `lib/multiplayer/discovery.ts` (pure aggregation: newest seat per pubkey,
+  drops full/stale matches, unit-tested), `useMatchDiscovery` hook (its own relay
+  subscription), and `components/game/match-browser.tsx`. Invite links still jump
+  straight into a match. New `play.browser.*` strings (es/en).
+- **⚡️ Zap the winner.** The results screen offers a manual Lightning tip to the
+  winner (never shown to the winner themselves). The button opens a Nostr-style
+  dialog to pick the **amount** (preset chips 21/100/1000/5000 + a custom field)
+  and an optional **message** (suggested chips + a custom field). It resolves the
+  winner's `lud16` via a new public `GET /api/lud16?pubkey=` (from the users
+  table), runs the LNURL-pay flow — sending the message as the `comment` param
+  when the recipient supports it — and pays the invoice with the viewer's WebLN
+  wallet (`lib/lightning/zap.ts`). No custody, no backend secrets (ARCHITECTURE
+  §7). Shows zapping / sent / friendly-error states (incl. a "need a Lightning
+  wallet" hint). New `components/game/zap-winner.tsx`; `play.results.zap*`
+  strings (es/en); the pure LNURL helpers are unit-tested.
+
+- **End-of-match results screen.** When every runner finishes, the race swaps to
+  a standings screen: a winner banner (🏆 You won! / 🏁 {name} wins), the final
+  table — rank · player · time · points, with the local player's row
+  highlighted — and **View leaderboard** / **Play again** actions. To match the
+  global leaderboard exactly, its table was extracted into a shared presentational
+  `components/leaderboard/ranking-table.tsx` (podium badges, player chip,
+  configurable numeric columns) now used by both `LeaderboardTable` and the new
+  `components/game/match-results.tsx`. `shortPubkey` moved to `lib/utils`. New
+  `play.results.*` strings (es/en).
+
+- **Match persistence → real leaderboard data.** When a real (≥2-player) match
+  finishes, the host's client POSTs the final standings to a new
+  `POST /api/matches` route, which writes a `matches` row + one `results` row
+  per player via `persistMatchResult`. Idempotent: `matches` gained a unique
+  `nostr_id` (the client match id, migration `0003`), so a retry upserts instead
+  of duplicating, and `results` already dedupes on `(match_id, pubkey)`. The
+  route is session-gated and only accepts a submission from the match's host
+  (client-authoritative — an MVP tradeoff). The leaderboard's `getLeaderboard()`
+  now has real rows to aggregate. New `lib/schemas/match.ts#PersistMatchSchema`;
+  `store.ts` gained `upsertMatch` + `persistMatchResult` (replacing the unused
+  `createMatch`/`finishMatch`). Needs `DATABASE_URL` to run; covered by
+  integration tests against the Neon test branch (`tests/integration/`,
+  skipped when no DB is configured) that verify persistence, leaderboard
+  aggregation, and `nostr_id` idempotency.
+- **Real multiplayer — join via invite link.** Two browsers can now race in the
+  same match. The roster model moved from host-authoritative to **self-presence
+  aggregation**: each peer publishes its own seat (kind 30078, replaceable per
+  author) on the match channel and every client aggregates the presences into
+  the roster — no server to own it. Joining is an invite link: the host's lobby
+  shows a copyable `/play?m=<matchId>&h=<host>` URL; opening it joins that match
+  instead of hosting a new one. `MatchClient.announceLobby`/`setRoster` were
+  replaced by `announceSelf({lane,name})` (any peer); `matchFilter` now carries
+  discovery so presence rides the same channel; `match-state` upserts seats by
+  pubkey. The lobby reads `isHost` (joiners wait, host starts), and the host's
+  start signal flips everyone into the race via match status. Verified end-to-end
+  over **public Nostr relays** (two independent clients: roster converges, start
+  propagates, runner state crosses, both resolve the same winner) plus a
+  two-client unit test. Still pending: a browse-all-matches lobby screen (invite
+  links cover joining for now).
+- **Global leaderboard page.** New `/leaderboard` route (server component,
+  `force-dynamic`) that renders the existing `getLeaderboard()` aggregation as a
+  ranked table: rank · player (Nostr avatar + display name, falling back to a
+  shortened pubkey and an initial badge) · wins · points · races, with a podium
+  accent on the top three and the `races` column collapsing on phones. Reachable
+  from a new **Leaderboard / Ranking** link in the navbar. Until match
+  persistence is wired the query returns no rows, so the page shows a friendly
+  empty state (and degrades to it if the DB is absent). New
+  `components/leaderboard/leaderboard-table.tsx`; `leaderboard` + `nav.leaderboard`
+  message keys added in both locales.
+- **Lobby → race handoff.** The match now lives in a new `<MatchProvider>` above
+  the whole competitive flow, so the lobby's `MatchClient` carries straight into
+  the race instead of being thrown away on start. `useMatch` exposes the live
+  `client`; the provider builds one `RaceNet` from it (and owns its lifecycle —
+  the scene no longer disposes it), the lobby reads roster/start/announce from
+  context, and `PlayStage` hands the race a `RaceNet` so the Phaser scene
+  broadcasts + renders runners. The net is passed **only when ≥2 players are in
+  the roster**, so a solo host keeps the plain single-player race (no lonely
+  minimap, restart still works). `RunnerLobby` now consumes the context (its
+  local-only fallback is unchanged). Last missing piece for a real race is the
+  **join** flow (discover + join a host's match via kind 30078) — until then
+  each player still hosts their own one-seat match.
+- **Runner-select lobby, wired to the live match layer.** The character picker
+  now reads as a 4-lane starting grid: numbered, color-accented lanes; hovering a
+  runner flips it to its **back-facing** sprite (lined up at the blocks); claiming
+  a lane swaps the character name for the player's **display name** (animated chip
+  with Nostr avatar + "You" badge); open lanes show a dimmed/idle sprite; a `x/4`
+  runner counter and a **Claim → Ready → Start** action flow. `RunnerSprite`
+  gained a `facing` ("front" | "back") and `idle` prop; each `Character` gained a
+  `laneColor`. The presentational `CharacterSelect` is now driven by a new
+  `RunnerLobby` container that wires `useMatch`: the signed-in player hosts their
+  own match, claiming a runner writes a seat into the host-authoritative roster
+  (`lane = character.startLane`) and re-announces the lobby, and **Start** sends
+  the synced start signal. Falls back to a local-only lobby when no live signer
+  is available (nsec/NIP-46 reload). `/play` passes the signed-in user's
+  `display_name`/`avatar_url`.
+- **In-race multiplayer sync.** Wires the Phaser race to the multiplayer
+  foundation through a small `RaceNet` seam (`lib/game/race-net.ts`) — the scene
+  stays single-player by default (no `RaceNet` in the registry → none of it
+  runs) and the lobby drops a live match in without touching the game loop:
+  - `RaceScene` broadcasts the local runner each frame (throttled to ~5 Hz by
+    the client), renders other players as translucent colored **ghosts** on the
+    track, draws a **minimap** of everyone's progress, and announces its finish
+    (kind 21002) once.
+  - `lib/game/remote-runners.ts` — pure interpolation for remote runners
+    (dead-reckoning from local receive time + easing) so ~5 Hz updates render
+    smoothly at 60 Hz; lane-based color palette. Unit-tested.
+  - `GameCanvas` gains an optional `raceNet` prop (forwarded via the game
+    registry); `createGameConfig` takes it as a new optional arg.
+  - Tests: the interpolator and `RaceNet` over two real `MatchClient`s on the
+    in-memory transport (remote surfaced, self excluded, local broadcast seen
+    by the peer).
+- **Multiplayer foundation (Phase 2 groundwork).** The serverless realtime
+  layer from `ARCHITECTURE.md §4` now exists in code — no UI yet, fully
+  unit-tested. New `lib/multiplayer/`:
+  - `transport.ts` — a thin `Transport` interface (publish/subscribe) with two
+    implementations: `nostr-transport.ts` (public relays via `SimplePool`,
+    dedupes by event id) and `memory-transport.ts` (in-process bus, makes the
+    realtime contract testable with zero network).
+  - `events.ts` + `lib/schemas/match.ts` — Zod-validated payloads and
+    build/parse for the four event kinds (30078 discovery, 21001 control,
+    21000 runner state, 21002 finish). Every inbound relay event is validated
+    before it reaches state.
+  - `match-state.ts` — a pure reducer: roster from discovery, newest-wins
+    runner merge, winner resolved by earliest finish time (claimed positions
+    are never trusted).
+  - `match-client.ts` — orchestrator tying transport + reducer + a
+    `SignerHandle`, with ~5 Hz broadcast throttling and a synced countdown;
+    plus a `useMatch` React hook (`lib/hooks/use-match.ts`).
+  - DB: `matches` + `results` tables (`lib/db/schema.ts`, migration
+    `drizzle/0002`) reusing the existing `users.pubkey` identity, and
+    server-only persistence/leaderboard queries in `lib/multiplayer/store.ts`.
+  - Tests cover the schemas, the reducer, and two `MatchClient`s converging
+    over the in-memory transport (same play state, runners and winner).
+
+### Changed (design)
+
+- **Track reduced from 8 lanes / 8 players to 4 lanes / 4 players.** Two reasons:
+  (1) **Mobile-friendly by design** — in the 2.5D behind-runner view the track
+  narrows toward the horizon, and 8 lanes are unreadable/untappable in a portrait
+  viewport; 4 lanes keep each lane wide enough to see and touch. (2) **Lighter
+  realtime layer** — runner-state fan-out over public Nostr relays grows ~N², so
+  4 players cut received traffic from ~35 to ~15 events/s per client (~¼ of the
+  relay load) and downgrade the "relays rate-limit at scale" risk from Medium to
+  Low. Also fewer characters/tints to design and a far more realistic playtest
+  target (4 real people vs 8) before the pitch. Updated across `GAME-DESIGN.md`
+  (lanes, player count, `lane 0..3`, auto-start 4/4), `ARCHITECTURE.md`
+  (`TRACK.lanes: 4`, `max: 4`, `lane:0..3`), `ROADMAP.md` (milestones, playtest,
+  risk register) and `CHARACTERS.md`.
+
 ### Fixed
 
 - **Sign-out** left a valid session cookie (a bare `cookies().delete()` doesn't

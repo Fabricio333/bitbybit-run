@@ -1,0 +1,110 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.browser {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-24;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: $spacing-24 $spacing-16 $spacing-32;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-8;
+}
+
+.title {
+  margin: 0;
+  text-align: center;
+  font-family: $font-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  text-shadow: 3px 3px 0 $pixel-shadow;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 440px;
+  text-align: center;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-12;
+  width: 100%;
+}
+
+.listTitle {
+  margin: 0;
+  font-family: $font-display;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $color-text-secondary;
+  text-transform: uppercase;
+}
+
+.note {
+  margin: 0;
+  padding: $spacing-24;
+  text-align: center;
+  background: $color-surface;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-lg;
+  box-shadow: 4px 4px 0 0 $arcade-edge;
+  color: $color-text-secondary;
+}
+
+.matches {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.match {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-12;
+  padding: $spacing-12 $spacing-16;
+  background: $color-surface;
+  border: 2px solid $color-border;
+  border-radius: $border-radius-lg;
+  box-shadow: 4px 4px 0 0 $arcade-edge;
+}
+
+.matchInfo {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  overflow: hidden;
+}
+
+.hostName {
+  font-family: $font-display;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

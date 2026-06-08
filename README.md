@@ -2,7 +2,7 @@
 
 > A free, lightweight, web-based multiplayer **runner race**.
 
-Up to **8 runners** line up on an athletics track and sprint for the finish
+Up to **4 runners** line up on an athletics track and sprint for the finish
 line. Fuel up at the stations along the way to keep your pace — but choose
 wisely, because not everything on the track is good for you. First across the
 line wins, and the winner can get **zapped** ⚡ in sats.
