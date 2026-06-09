@@ -34,7 +34,7 @@
     "empty": "No races yet — be the first to top the board."
   },
   "play": {
-    "phase": "Phase 1 · single-player prototype",
+    "phase": "Multiplayer race",
     "choose": "Choose your runner",
     "start": "Start",
     "change": "Change runner",

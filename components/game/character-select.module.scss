@@ -56,7 +56,7 @@
   flex-direction: column;
   align-items: center;
   gap: $spacing-8;
-  width: 150px;
+  width: 170px;
   padding: $spacing-16 $spacing-12 $spacing-12;
   background: $color-surface;
   // The lane accent shows as a top stripe; per-card color comes from --lane-color.
@@ -77,7 +77,7 @@
   }
 
   @include mobile {
-    width: 120px;
+    width: 140px;
   }
 }
 
@@ -109,7 +109,8 @@
   }
 }
 
-// Lane number, top-left, tinted with the lane accent.
+// Lane number, top-left, tinted with the lane accent. Uses the body font (not
+// the pixel display font) so the single digit stays legible at this size.
 .laneBadge {
   position: absolute;
   top: $spacing-8;
@@ -117,11 +118,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  font-family: $font-family-display;
-  font-size: $font-size-xs;
+  width: 28px;
+  height: 28px;
+  font-family: $font-family-base;
+  font-size: $font-size-md;
   font-weight: $font-weight-extrabold;
+  line-height: 1;
   color: $static-white;
   background: var(--lane-color, #{$color-primary});
   border-radius: $border-radius-full;
@@ -157,6 +159,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   min-height: 44px;
 }
 
@@ -186,6 +189,7 @@
   align-items: center;
   gap: $spacing-8;
   max-width: 100%;
+  min-width: 0;
   animation: name-pop 0.32s cubic-bezier(0.22, 1.2, 0.36, 1) both;
 }
 
@@ -211,6 +215,7 @@
 }
 
 .playerName {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

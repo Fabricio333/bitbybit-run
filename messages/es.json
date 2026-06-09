@@ -34,7 +34,7 @@
     "empty": "Todavía no hay carreras — sé el primero en liderar la tabla."
   },
   "play": {
-    "phase": "Fase 1 · prototipo de un jugador",
+    "phase": "Carrera multijugador",
     "choose": "Elegí tu corredor",
     "start": "Empezar",
     "change": "Cambiar corredor",
