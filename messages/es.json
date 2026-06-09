@@ -34,7 +34,7 @@
     "empty": "Todavía no hay carreras — sé el primero en liderar la tabla."
   },
   "play": {
-    "phase": "Fase 1 · prototipo de un jugador",
+    "phase": "Carrera multijugador",
     "choose": "Elegí tu corredor",
     "start": "Empezar",
     "change": "Cambiar corredor",
@@ -53,13 +53,18 @@
       "you": "Vos",
       "waiting": "Carril libre",
       "claimHint": "Elegí un corredor para ocupar un carril",
-      "ready": "Estoy listo",
-      "cancelReady": "No estoy listo",
-      "startRace": "Empezar carrera",
-      "waitingHost": "Esperando que el anfitrión arranque…",
+      "createRace": "Crear carrera",
+      "startRace": "Comenzar carrera",
+      "back": "Volver",
+      "taken": "Ese corredor ya fue tomado, elegí otro",
+      "waitingHost": "Esperando al anfitrión…",
       "invite": "Invitá a tus rivales",
       "copy": "Copiar link",
       "copied": "¡Copiado!"
+    },
+    "notFound": {
+      "title": "Esta carrera no existe o ya terminó",
+      "cta": "Ver carreras abiertas"
     },
     "results": {
       "title": "Resultados",

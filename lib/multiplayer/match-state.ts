@@ -81,6 +81,15 @@ export function beginPlaying(state: MatchSnapshot): MatchSnapshot {
   return { ...state, status: "playing" };
 }
 
+/** Shallow roster equality — same seats (pubkey/lane/name) in the same order. */
+function sameRoster(a: MatchSnapshot["players"], b: MatchSnapshot["players"]) {
+  if (a.length !== b.length) return false;
+  return a.every((p, i) => {
+    const q = b[i];
+    return p.pubkey === q.pubkey && p.lane === q.lane && p.name === q.name;
+  });
+}
+
 export function applyEvent(
   state: MatchSnapshot,
   event: ParsedEvent
@@ -89,17 +98,33 @@ export function applyEvent(
     case "discovery": {
       // Ignore discovery for a different match sharing our channel.
       if (event.data.matchId !== state.matchId) return state;
-      // Upsert this peer's seat (keyed by pubkey) and re-sort by lane. The
-      // roster is the union of everyone's self-presence.
-      const seat = {
-        pubkey: event.data.pubkey,
-        lane: event.data.lane,
-        name: event.data.name,
-      };
-      const players = [
-        ...state.players.filter((p) => p.pubkey !== seat.pubkey),
-        seat,
-      ].sort((a, b) => a.lane - b.lane);
+      const { pubkey, lane, name, createdAt } = event.data;
+
+      // Drop this author's previous seat first (re-announce / lane change).
+      let players = state.players.filter((p) => p.pubkey !== pubkey);
+
+      // One runner per lane. If another peer already holds this lane, the
+      // *earlier* claim wins (tie-break: lexicographically smaller pubkey) so
+      // every client converges on the same winner without a server. The loser
+      // simply keeps no seat and re-picks. This is what stops two players from
+      // ending up on the same character when they claim before seeing each
+      // other (the brief presence-propagation gap).
+      const rival = players.find((p) => p.lane === lane);
+      const rivalAt = rival?.claimedAt ?? 0;
+      const iWin =
+        !rival ||
+        createdAt < rivalAt ||
+        (createdAt === rivalAt && pubkey < rival.pubkey);
+
+      if (iWin) {
+        if (rival) players = players.filter((p) => p.pubkey !== rival.pubkey);
+        players = [...players, { pubkey, lane, name, claimedAt: createdAt }];
+      }
+
+      players = players.sort((a, b) => a.lane - b.lane);
+      // No-op echo (e.g. our own heartbeat coming back) → keep the same ref so
+      // the orchestrator doesn't emit a needless snapshot.
+      if (sameRoster(players, state.players)) return state;
       return {
         ...state,
         host: state.host || event.data.host,

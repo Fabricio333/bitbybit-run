@@ -77,13 +77,38 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
+  const title = t("siteTitle");
+  const description = t("description");
   return {
+    metadataBase: new URL(siteUrl()),
     title: {
-      default: t("siteTitle"),
+      default: title,
       template: `%s · ${t("siteName")}`,
     },
-    description: t("description"),
+    description,
+    // The og/twitter images come from the opengraph-image.tsx / twitter-image.tsx
+    // file conventions; here we set the accompanying text + card type.
+    openGraph: {
+      type: "website",
+      siteName: t("siteName"),
+      title,
+      description,
+      locale,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
+}
+
+/** Absolute site origin for resolving OG image URLs (prod domain, Vercel
+ *  preview, or local dev). */
+function siteUrl(): string {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000";
 }
 
 export function generateStaticParams() {
