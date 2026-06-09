@@ -5,7 +5,11 @@
  * match held by <MatchProvider> (so the same client survives into the race).
  * Claiming a runner announces this peer's own seat (kind 30078, lane = the
  * character's `startLane`); every client aggregates the presences into the
- * roster. The host shares an invite link and presses Start; joiners wait.
+ * roster.
+ *
+ * Host flow: pick a runner → "Crear carrera" (publishes + reveals the invite
+ * link) → "Comenzar carrera" (starts with whoever's in). Joiners pick a runner
+ * and wait for the host. "Volver" leaves the match back to the races browser.
  *
  * When the match context is "dead" (no live signer: nsec / NIP-46 reload, or
  * the session still loading) it falls back to a local-only lobby so play still
@@ -13,6 +17,8 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button/button";
 import {
   CHARACTERS,
   getCharacter,
@@ -21,6 +27,11 @@ import {
 import { MAX_PLAYERS, type MatchPlayer } from "@/lib/multiplayer/types";
 import { CharacterSelect, type LobbyOccupant } from "./character-select";
 import { useMatchContext, type MatchContextValue } from "./match-provider";
+import styles from "./runner-lobby.module.scss";
+
+/** A joiner waits this long for any presence before we treat the invite link
+ *  as dead (the match never existed, or already ended/cleared from relays). */
+const NOT_FOUND_TIMEOUT_MS = 7000;
 
 export interface CurrentUser {
   name: string;
@@ -31,6 +42,8 @@ interface RunnerLobbyProps {
   currentUser: CurrentUser;
   /** Reports the claimed character up so the race mounts the right runner. */
   onClaim: (id: CharacterId) => void;
+  /** Leave the match, back to the races browser (live match only). */
+  onLeave?: () => void;
   /** Begin a *local* (single-player) race. In a live match the start flows
    *  through the match status instead, so this is only used by the fallback. */
   onStart?: () => void;
@@ -45,8 +58,7 @@ function shortPubkey(pubkey: string): string {
 function rosterToOccupants(
   players: MatchPlayer[],
   pubkey: string,
-  currentUser: CurrentUser,
-  myReady: boolean
+  currentUser: CurrentUser
 ): Partial<Record<CharacterId, LobbyOccupant>> {
   const map: Partial<Record<CharacterId, LobbyOccupant>> = {};
   for (const p of players) {
@@ -56,9 +68,6 @@ function rosterToOccupants(
     map[char.id] = {
       name: isMe ? currentUser.name : p.name || shortPubkey(p.pubkey),
       avatarUrl: isMe ? currentUser.avatarUrl : null,
-      // The wire protocol has no "ready" flag, so we only know our own; remote
-      // seats are shown as present (their readiness isn't tracked yet).
-      ready: isMe ? myReady : true,
       isCurrentUser: isMe,
     };
   }
@@ -77,33 +86,36 @@ export function RunnerLobby(props: RunnerLobbyProps) {
 function WiredLobby({
   currentUser,
   onClaim,
+  onLeave,
   match,
   pubkey,
 }: RunnerLobbyProps & { match: MatchContextValue; pubkey: string }) {
   const { announceSelf, start, isHost } = match;
   const snapshot = match.snapshot;
-  const [ready, setReady] = useState(false);
+  // Host has pressed "Crear carrera": the match is published (others can be
+  // invited) and the Start button is available.
+  const [created, setCreated] = useState(false);
 
   const players = useMemo(() => snapshot?.players ?? [], [snapshot]);
 
   const occupants = useMemo(
-    () => rosterToOccupants(players, pubkey, currentUser, ready),
-    [players, pubkey, currentUser, ready]
+    () => rosterToOccupants(players, pubkey, currentUser),
+    [players, pubkey, currentUser]
   );
 
   // Shareable invite for the host — same /play URL with the match + host in the
-  // query, so opening it joins this match instead of hosting a new one.
+  // query, so opening it joins this match instead of hosting a new one. Only
+  // once the host has created the match, so a link is never shared too early.
   const inviteUrl = useMemo(() => {
-    if (!isHost || !match.matchId || typeof window === "undefined")
+    if (!isHost || !created || !match.matchId || typeof window === "undefined")
       return undefined;
     const { origin, pathname } = window.location;
     return `${origin}${pathname}?m=${encodeURIComponent(match.matchId)}&h=${pubkey}`;
-  }, [isHost, match.matchId, pubkey]);
+  }, [isHost, created, match.matchId, pubkey]);
 
   const claim = useCallback(
     (id: CharacterId) => {
       const char = getCharacter(id);
-      setReady(false);
       onClaim(id);
       // Announce our seat (optimistic local upsert happens inside); a relay
       // hiccup must not block the UI.
@@ -114,7 +126,7 @@ function WiredLobby({
     [currentUser.name, announceSelf, onClaim]
   );
 
-  const toggleReady = useCallback((next: boolean) => setReady(next), []);
+  const createRace = useCallback(() => setCreated(true), []);
 
   // Host only — sending the start signal flips everyone into the race (the
   // parent watches match status, so no local started flag is needed).
@@ -131,15 +143,32 @@ function WiredLobby({
     }
   }, [isHost, players.length, start]);
 
+  // A joiner who never sees any presence is on a dead invite link — surface a
+  // clear "not found" instead of an empty lobby that waits forever.
+  const [timedOut, setTimedOut] = useState(false);
+  useEffect(() => {
+    if (isHost || players.length > 0) {
+      setTimedOut(false);
+      return;
+    }
+    const timer = setTimeout(() => setTimedOut(true), NOT_FOUND_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [isHost, players.length]);
+
+  if (timedOut && players.length === 0) {
+    return <LobbyNotFound onBack={onLeave} />;
+  }
+
   return (
     <CharacterSelect
       occupants={occupants}
       playerCount={players.length}
       onClaim={claim}
-      onToggleReady={toggleReady}
+      onCreate={createRace}
       onStart={startRace}
-      canStart
+      onBack={onLeave}
       isHost={isHost}
+      created={created}
       inviteUrl={inviteUrl}
     />
   );
@@ -147,7 +176,6 @@ function WiredLobby({
 
 function LocalLobby({ currentUser, onClaim, onStart }: RunnerLobbyProps) {
   const [claimedId, setClaimedId] = useState<CharacterId | null>(null);
-  const [ready, setReady] = useState(false);
 
   const occupants = useMemo<Partial<Record<CharacterId, LobbyOccupant>>>(
     () =>
@@ -156,18 +184,16 @@ function LocalLobby({ currentUser, onClaim, onStart }: RunnerLobbyProps) {
             [claimedId]: {
               name: currentUser.name,
               avatarUrl: currentUser.avatarUrl,
-              ready,
               isCurrentUser: true,
             },
           }
         : {},
-    [claimedId, ready, currentUser]
+    [claimedId, currentUser]
   );
 
   const claim = useCallback(
     (id: CharacterId) => {
       setClaimedId(id);
-      setReady(false);
       onClaim(id);
     },
     [onClaim]
@@ -178,10 +204,26 @@ function LocalLobby({ currentUser, onClaim, onStart }: RunnerLobbyProps) {
       occupants={occupants}
       playerCount={claimedId ? 1 : 0}
       onClaim={claim}
-      onToggleReady={setReady}
       onStart={() => onStart?.()}
-      canStart
+      // The local fallback has no match to create — start the solo race directly.
+      created
     />
+  );
+}
+
+/** Dead invite link — the match never showed up. Offer a way back to the
+ *  races browser instead of waiting on an empty lobby forever. */
+function LobbyNotFound({ onBack }: { onBack?: () => void }) {
+  const t = useTranslations("play");
+  return (
+    <div className={styles.notFound}>
+      <p className={styles.notFoundTitle}>{t("notFound.title")}</p>
+      {onBack && (
+        <Button size="lg" onClick={onBack}>
+          {t("notFound.cta")}
+        </Button>
+      )}
+    </div>
   );
 }
 

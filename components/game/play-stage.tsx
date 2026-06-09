@@ -102,14 +102,20 @@ function SignedInStage({
       isHost={target.isHost}
       host={target.host}
     >
-      <LobbyAndRace currentUser={currentUser} />
+      <LobbyAndRace currentUser={currentUser} onLeave={() => setTarget(null)} />
     </MatchProvider>
   );
 }
 
 /** Inside a live match: show the lobby until the host starts (status leaves
  *  "waiting"), then the race. The same client drives both. */
-function LobbyAndRace({ currentUser }: { currentUser: CurrentUser }) {
+function LobbyAndRace({
+  currentUser,
+  onLeave,
+}: {
+  currentUser: CurrentUser;
+  onLeave?: () => void;
+}) {
   const match = useMatchContext();
   const [selectedId, setSelectedId] = useState<CharacterId>("default");
   usePersistOnFinish(match);
@@ -117,7 +123,13 @@ function LobbyAndRace({ currentUser }: { currentUser: CurrentUser }) {
   const snap = match.snapshot;
   const status = snap?.status ?? "waiting";
   if (status === "waiting") {
-    return <RunnerLobby currentUser={currentUser} onClaim={setSelectedId} />;
+    return (
+      <RunnerLobby
+        currentUser={currentUser}
+        onClaim={setSelectedId}
+        onLeave={onLeave}
+      />
+    );
   }
 
   // Only hand the scene a live net when there's company on the track —

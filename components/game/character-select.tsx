@@ -13,7 +13,6 @@ import styles from "./character-select.module.scss";
 export interface LobbyOccupant {
   name: string;
   avatarUrl?: string | null;
-  ready: boolean;
   isCurrentUser?: boolean;
 }
 
@@ -23,14 +22,20 @@ interface CharacterSelectProps {
   /** Filled lanes, for the `x/4` counter. */
   playerCount: number;
   onClaim: (id: CharacterId) => void;
-  onToggleReady: (next: boolean) => void;
+  /** Host only — publish the match (reveals the invite link + Start button). */
+  onCreate?: () => void;
+  /** Begin the race (host once created, or the local single-player fallback). */
   onStart: () => void;
-  /** Whether the local player is allowed to start the race (host + ready). */
+  /** Leave the lobby, back to the races browser. Absent in the local fallback. */
+  onBack?: () => void;
+  /** Whether the local player is allowed to start the race. */
   canStart?: boolean;
-  /** Host only — when false, a ready joiner waits for the host instead of
-   *  seeing a Start button. Defaults to true (solo/local lobby). */
+  /** Host only — when false, a joiner waits for the host instead of starting. */
   isHost?: boolean;
-  /** Host only — a shareable link that drops others into this match. */
+  /** Host only — the match has been created (link shareable, Start available). */
+  created?: boolean;
+  /** Host only — a shareable link that drops others into this match. Shown
+   *  once the match is created. */
   inviteUrl?: string;
 }
 
@@ -38,10 +43,12 @@ export function CharacterSelect({
   occupants,
   playerCount,
   onClaim,
-  onToggleReady,
+  onCreate,
   onStart,
+  onBack,
   canStart = true,
   isHost = true,
+  created = false,
   inviteUrl,
 }: CharacterSelectProps) {
   const t = useTranslations("play");
@@ -58,7 +65,6 @@ export function CharacterSelect({
 
   const me = Object.values(occupants).find((o) => o?.isCurrentUser) ?? null;
   const hasClaimed = !!me;
-  const ready = me?.ready ?? false;
 
   return (
     <div className={styles.select}>
@@ -114,11 +120,6 @@ export function CharacterSelect({
                 style={{ "--lane-color": c.laneColor } as CSSProperties}
               >
                 <span className={styles.laneBadge}>{laneNo}</span>
-                {occupant?.ready && (
-                  <span className={styles.readyTick} aria-hidden="true">
-                    ✓
-                  </span>
-                )}
 
                 <span className={styles.sprite}>
                   <RunnerSprite
@@ -172,26 +173,26 @@ export function CharacterSelect({
       <div className={styles.actions}>
         {!hasClaimed ? (
           <p className={styles.hint}>{t("lobby.claimHint")}</p>
-        ) : !ready ? (
-          <Button size="lg" onClick={() => onToggleReady(true)}>
-            {t("lobby.ready")}
-          </Button>
         ) : (
           <>
-            {isHost ? (
-              <Button size="lg" onClick={onStart} disabled={!canStart}>
-                {t("lobby.startRace")} ▶
+            {onBack && (
+              <Button variant="outline" size="lg" onClick={onBack}>
+                {t("lobby.back")}
               </Button>
+            )}
+            {isHost ? (
+              !created ? (
+                <Button size="lg" onClick={onCreate}>
+                  {t("lobby.createRace")}
+                </Button>
+              ) : (
+                <Button size="lg" onClick={onStart} disabled={!canStart}>
+                  {t("lobby.startRace")} ▶
+                </Button>
+              )
             ) : (
               <p className={styles.hint}>{t("lobby.waitingHost")}</p>
             )}
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => onToggleReady(false)}
-            >
-              {t("lobby.cancelReady")}
-            </Button>
           </>
         )}
       </div>
