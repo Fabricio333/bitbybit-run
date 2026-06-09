@@ -8,6 +8,26 @@ Dates use `YYYY-MM-DD`.
 
 ### Added
 
+- **🚀 Speed booster + "complicated zones" (playtest feedback).** A new third food
+  kind (`boost`, the 🚀 rocket) grants a temporary speed burst (`SPEED.boost`,
+  `BOOST.seconds`) that overrides sprint and spends **no energy**. Boosters are
+  hand-placed in `track.ts` (`BOOST_ZONES`): each sits in its own (clean) lane
+  with junk food filling some of the others — but the zone is **always
+  dodgeable**, leaving the booster lane plus a guaranteed junk-free escape lane
+  (max 2 of 4 lanes ever blocked at one distance). Grabbing the 🚀 is a precise
+  merge; skipping it safely is always possible. The 🚀 is its own neutral food
+  `kind`: the burst is forced on you (you can't brake out of it), so it can help
+  or hurt — hence a big **+50** reward and a **yellow** halo (distinct from green
+  good / purple junk). Its bubble is drawn **2× bigger** so it reads as a power-up,
+  not a snack. New `boostPhrases` (es/en), `Sound.boost()`, and a 🚀 card in **How
+  to play** (yellow chip).
+
+### Changed
+
+- **Longer race & tighter stamina (playtest feedback).** Track length 7500 → 11000
+  (`track.ts`) for a less abrupt race, and energy `drainPerSecond` 0.28 → 0.42
+  (`config.ts`) so sprinting is a resource to ration rather than held constantly.
+
 - **Auto-start at 4/4 + the lobby browser hides started matches.** When the grid
   fills (4/4) the host now auto-sends the start signal (the manual Start button
   stays). Self-presence (kind 30078) gained a lobby `status`, and clients

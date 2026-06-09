@@ -7,6 +7,7 @@ import {
   SPEED,
   ENERGY,
   POISON,
+  BOOST,
   POINTS,
   LANE_TWEEN_SPEED,
   GAME_COLORS,
@@ -61,6 +62,7 @@ export type GameStrings = {
   again: string;
   goodPhrases: string[];
   badPhrases: string[];
+  boostPhrases: string[];
   bathrooms: string[];
   signs: string[];
 };
@@ -71,6 +73,7 @@ const DEFAULT_STRINGS: GameStrings = {
   again: "press R to race again",
   goodPhrases: ["yum! 😋", "pure energy ⚡"],
   badPhrases: ["ugh, bad idea 🤢"],
+  boostPhrases: ["full speed! 🚀", "turbo on ⚡"],
   bathrooms: ["🚽 Bathroom break!"],
   signs: ["PROOF OF RUN"],
 };
@@ -115,6 +118,7 @@ export class RaceScene extends Phaser.Scene {
   private finished = false;
   private startHold = START_HOLD; // "on your marks" pause before the runner moves
   private drunkTimer = 0; // >0 while wobbling after a beer
+  private boostTimer = 0; // >0 while a 🚀 speed burst is active
   private touchSprint = false; // held while a finger is on the centre (sprint) zone
   private currentSpeed = SPEED.base; // last frame's forward speed (broadcast in MP)
 
@@ -370,6 +374,7 @@ export class RaceScene extends Phaser.Scene {
     this.finished = false;
     this.startHold = START_HOLD;
     this.drunkTimer = 0;
+    this.boostTimer = 0;
     this.touchSprint = false;
     this.currentSpeed = SPEED.base;
     this.status = "running";
@@ -418,6 +423,7 @@ export class RaceScene extends Phaser.Scene {
       this.resolveFood();
       this.updatePoison(dt);
       if (this.drunkTimer > 0) this.drunkTimer -= dt;
+      if (this.boostTimer > 0) this.boostTimer -= dt;
       this.checkFinish();
       this.elapsed += dt;
     }
@@ -486,7 +492,10 @@ export class RaceScene extends Phaser.Scene {
     const braking = this.cursors.down.isDown || this.keys.S.isDown;
 
     let speed = SPEED.base;
-    if (braking) {
+    if (this.boostTimer > 0) {
+      // 🚀 burst overrides everything and spends no energy.
+      speed = SPEED.boost;
+    } else if (braking) {
       speed = SPEED.brake;
     } else if (accelerating && this.energy > 0) {
       speed = SPEED.sprint;
@@ -506,7 +515,7 @@ export class RaceScene extends Phaser.Scene {
       Math.abs(f.lane - this.playerLane) <= HIT_LANE_TOLERANCE ||
       f.lane === lane;
 
-    for (const f of [...TRACK.goodFood, ...TRACK.junkFood]) {
+    for (const f of [...TRACK.goodFood, ...TRACK.junkFood, ...TRACK.boosters]) {
       if (this.resolved.has(f.id)) continue;
       if (f.at > this.playerDistance) continue; // not reached yet
       this.resolved.add(f.id);
@@ -514,7 +523,14 @@ export class RaceScene extends Phaser.Scene {
       const def = FOODS[f.type];
       if (!def) continue;
       this.points += def.points;
-      if (def.kind === "good") {
+      if (def.kind === "boost") {
+        this.boostTimer = BOOST.seconds;
+        this.showToast(
+          `${def.icon} ${this.pick(this.strings.boostPhrases)}`,
+          2.5
+        );
+        Sound.boost();
+      } else if (def.kind === "good") {
         this.energy = Math.min(ENERGY.max, this.energy + def.energy);
         this.showToast(
           `${def.icon} ${this.pick(this.strings.goodPhrases)}`,
@@ -543,6 +559,7 @@ export class RaceScene extends Phaser.Scene {
       // start line and lane numbers show again before the runner takes off.
       this.poison = 0;
       this.drunkTimer = 0;
+      this.boostTimer = 0;
       this.playerDistance = 0;
       this.energy = ENERGY.start;
       this.resolved.clear();
@@ -792,7 +809,7 @@ export class RaceScene extends Phaser.Scene {
     }
 
     // Food: a bubble with the food's emoji inside. Far-to-near.
-    const visible = [...TRACK.goodFood, ...TRACK.junkFood]
+    const visible = [...TRACK.goodFood, ...TRACK.junkFood, ...TRACK.boosters]
       .map((f) => ({ f, def: FOODS[f.type] }))
       .filter(({ f, def }) => {
         if (!def) return false;
@@ -807,11 +824,18 @@ export class RaceScene extends Phaser.Scene {
 
     let slot = 0;
     for (const { def, p } of visible) {
-      const r = Math.max(5, 22 * p.s);
+      // The 🚀 booster is drawn much bigger than the food bubbles so it clearly
+      // reads as a power-up, not just another snack.
+      const boost = def.kind === "boost";
+      const sizeMul = boost ? 2 : 1;
+      const r = Math.max(5, 22 * p.s) * sizeMul;
       const cx = p.x;
       const cy = p.y - r;
-      const color =
-        def.kind === "good" ? GAME_COLORS.goodFood : GAME_COLORS.junkFood;
+      const color = boost
+        ? GAME_COLORS.boostFood
+        : def.kind === "good"
+          ? GAME_COLORS.goodFood
+          : GAME_COLORS.junkFood;
       this.drawBubble(g, cx, cy, r, color);
 
       if (slot < this.foodPool.length) {
@@ -819,7 +843,7 @@ export class RaceScene extends Phaser.Scene {
         txt
           .setText(def.icon)
           .setPosition(cx, cy)
-          .setScale(Math.max(0.3, p.s))
+          .setScale(Math.max(0.3, p.s) * sizeMul)
           .setVisible(true);
       }
     }

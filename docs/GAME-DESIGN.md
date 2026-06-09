@@ -59,8 +59,9 @@ Design rule: controls must be **dead simple** and readable at a glance. No combo
 
 - Filled by eating **good food** at **hydration stations** (fixed positions on
   the track — like real race water stops).
-- **Spent** while sprinting. When it hits **zero**, you can't sprint → you fall
-  behind.
+- **Spent** while sprinting (drains fast — energy is a resource to ration, not a
+  button to hold the whole race). When it hits **zero**, you can't sprint → you
+  fall behind.
 - Strategy: time your sprints; don't burn all your energy early.
 
 ### 4.3 Poison bar (the "bad" resource)
@@ -71,7 +72,22 @@ Design rule: controls must be **dead simple** and readable at a glance. No combo
   mechanic.
 - Strategy: a risky shortcut lane might be faster but littered with junk food.
 
-### 4.4 Food placement (shared, static)
+### 4.4 Speed booster (🚀)
+
+- A **rocket booster** grants a **temporary speed burst** — faster than a full
+  sprint and costing **no energy** — for a couple of seconds. It's a **neutral,
+  risky** pickup: the burst is forced on you (you can't brake out of it), so it
+  can help or hurt depending on what's ahead — which is why it pays a **big point
+  bonus** for taking it on. It uses a **yellow** halo (not green/red) and is drawn
+  much larger than food so it reads as a power-up at a glance.
+- Boosters sit inside **"complicated zones"**: the 🚀 has its own clean lane with
+  junk food filling some of the others. The zone is **always dodgeable** — the
+  booster lane plus a guaranteed junk-free **escape lane** are both clear (at
+  most 2 of the 4 lanes are ever blocked). Grabbing the 🚀 is a **precise merge**;
+  coasting past it safely is always an option.
+- Strategy: a clean grab is a big speed gain; a sloppy merge clips junk instead.
+
+### 4.5 Food placement (shared, static)
 
 - Food lives at **fixed, predefined positions** along the track ("hydration
   stations" for good food, junk-food clusters for bad food).
@@ -137,7 +153,8 @@ Create match ──► Lobby fills (1..4 players join via Nostr)
 - **Daytime athletics stadium:** daylight sky, an **orange tartan track** with
   **green grass** on the sides, white lane lines, a checkered finish line.
 - **Food = icons, not just colors:** good food is **⚡** (energy, on a green
-  halo), junk is **🍔** (on a red halo) — readable at a glance, zero assets.
+  halo), junk is **🍔** (on a red halo), the speed booster is **🚀** (on a yellow
+  halo, drawn bigger) — readable at a glance, zero assets.
 - **Typography:** Nunito / Nunito Sans (same family as `bitbybit-cursats`),
   used in the React UI and inside the Phaser canvas.
 - **UI chrome:** the `Button` component and palette mirror `bitbybit-cursats`,
