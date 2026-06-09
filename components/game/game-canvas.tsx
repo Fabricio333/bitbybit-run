@@ -62,6 +62,7 @@ export function GameCanvas({
       again: tt("again"),
       goodPhrases: tt.raw("goodPhrases") as string[],
       badPhrases: tt.raw("badPhrases") as string[],
+      boostPhrases: tt.raw("boostPhrases") as string[],
       bathrooms: tt.raw("bathrooms") as string[],
       signs: tt.raw("signs") as string[],
     };

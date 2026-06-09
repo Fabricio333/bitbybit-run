@@ -157,6 +157,14 @@
       "rekteado por un snack 💀",
       "viene el max pain"
     ],
+    "boostPhrases": [
+      "¡a toda velocidad! 🚀",
+      "turbo activado ⚡",
+      "¡to the moon! 🌕",
+      "modo cohete 🚀",
+      "número que despega 📈",
+      "wagmi a fondo 🏎️"
+    ],
     "bathrooms": [
       "🚽 ¡Demasiada birra! Andá...",
       "🚽 La chatarra te ganó 💩",
@@ -204,6 +212,8 @@
     "energyText": "Agarrá comida buena para llenar tu barra de energía y gastala para acelerar. Cuanto mejor la comida, más energía y más puntos:",
     "poisonTitle": "🍔 Chatarra",
     "poisonText": "Esquivá la chatarra: llena tu barra de veneno y, si se llena, vas al baño 🚽 y arrancás de nuevo. Cuanto peor, más puntos en contra:",
+    "boostTitle": "🚀 Booster de velocidad",
+    "boostText": "Agarrá el booster 🚀 para un envión de velocidad máxima que no gasta energía. Se esconde en un carril rodeado de chatarra: metete justo para agarrarlo, o tomá el carril libre para saltearlo sin riesgo:",
     "controlsTitle": "🎮 Controles",
     "controlsLanes": "cambiar de carril",
     "controlsSprint": "acelerar (gasta energía)",

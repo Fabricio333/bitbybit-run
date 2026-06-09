@@ -17,34 +17,26 @@ Dates use `YYYY-MM-DD`.
   the host picks a runner, presses **Create race** (publishes the match and
   reveals the invite link — so a link can't be shared before the match exists),
   then **Start race** to begin with whoever's in. Joiners see "waiting for the
-  host"; **Back** leaves the match. See [MULTIPLAYER.md](MULTIPLAYER.md).
+  host"; **Back** leaves the match. A joiner whose invite link yields no
+  presence within 7s now sees a "race not found" screen with a way back to the
+  browser. See [MULTIPLAYER.md](MULTIPLAYER.md).
 
 - **MULTIPLAYER.md** — lobby flow + how to test multiplayer locally with two
   distinct Nostr identities (everything is keyed by pubkey).
 
-### Changed
-
-- **Game header retitled** "Carrera multijugador / Multiplayer race" (was
-  "Fase 1 · prototipo de un jugador").
-- **Lobby card polish:** legible lane numbers (body font, larger badge), bigger
-  cards, and long usernames now truncate with an ellipsis instead of overflowing.
-
-### Fixed
-
-- **Late joiners now see who's already in the lobby (#7).** Added a 5s presence
-  heartbeat + a debounced re-announce when a new peer appears, so the roster
-  converges even when public relays don't replay stored presence to a late
-  subscriber.
-- **No two players on the same character (#10).** The state machine enforces one
-  runner per lane — the earliest claim wins (tie-break: smaller pubkey) so every
-  client agrees; the loser's card frees up with a "pick another" notice.
-- **Dead invite links no longer hang (#3).** A joiner who receives no presence
-  within 7s sees a "race not found" screen with a way back to the browser.
-- **Hardened the race against accidental restarts (#11).** `GameCanvas` only
-  rebuilds the Phaser game when the locale/character changes — never on an
-  ordinary re-render (the live snapshot ticks ~5 Hz). The poison→bathroom reset
-  was already local-only; documented that there's no path for one player's reset
-  to affect another.
+- **🚀 Speed booster + "complicated zones" (playtest feedback).** A new third food
+  kind (`boost`, the 🚀 rocket) grants a temporary speed burst (`SPEED.boost`,
+  `BOOST.seconds`) that overrides sprint and spends **no energy**. Boosters are
+  hand-placed in `track.ts` (`BOOST_ZONES`): each sits in its own (clean) lane
+  with junk food filling some of the others — but the zone is **always
+  dodgeable**, leaving the booster lane plus a guaranteed junk-free escape lane
+  (max 2 of 4 lanes ever blocked at one distance). Grabbing the 🚀 is a precise
+  merge; skipping it safely is always possible. The 🚀 is its own neutral food
+  `kind`: the burst is forced on you (you can't brake out of it), so it can help
+  or hurt — hence a big **+50** reward and a **yellow** halo (distinct from green
+  good / purple junk). Its bubble is drawn **2× bigger** so it reads as a power-up,
+  not a snack. New `boostPhrases` (es/en), `Sound.boost()`, and a 🚀 card in **How
+  to play** (yellow chip).
 
 - **Auto-start at 4/4 + the lobby browser hides started matches.** When the grid
   fills (4/4) the host now auto-sends the start signal (the manual Start button
@@ -187,6 +179,31 @@ Dates use `YYYY-MM-DD`.
     server-only persistence/leaderboard queries in `lib/multiplayer/store.ts`.
   - Tests cover the schemas, the reducer, and two `MatchClient`s converging
     over the in-memory transport (same play state, runners and winner).
+
+### Changed
+
+- **Game header retitled** "Carrera multijugador / Multiplayer race" (was
+  "Fase 1 · prototipo de un jugador").
+- **Lobby card polish:** legible lane numbers (body font, larger badge), bigger
+  cards, and long usernames now truncate with an ellipsis instead of overflowing.
+- **Longer race & tighter stamina (playtest feedback).** Track length 7500 → 11000
+  (`track.ts`) for a less abrupt race, and energy `drainPerSecond` 0.28 → 0.42
+  (`config.ts`) so sprinting is a resource to ration rather than held constantly.
+
+### Fixed
+
+- **Late joiners now see who's already in the lobby.** Added a 5s presence
+  heartbeat + a debounced re-announce when a new peer appears, so the roster
+  converges even when public relays don't replay stored presence to a late
+  subscriber.
+- **No two players on the same character.** The state machine enforces one runner
+  per lane — the earliest claim wins (tie-break: smaller pubkey) so every client
+  agrees; the loser's card frees up with a "pick another" notice.
+- **Hardened the race against accidental restarts.** `GameCanvas` only rebuilds
+  the Phaser game when the locale/character changes — never on an ordinary
+  re-render (the live snapshot ticks ~5 Hz). The poison→bathroom reset was
+  already local-only; documented that there's no path for one player's reset to
+  affect another.
 
 ### Changed (design)
 
