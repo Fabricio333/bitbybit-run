@@ -4,7 +4,7 @@
  * poison bar (a full poison bar sends the runner to the bathroom).
  */
 
-export type FoodKind = "good" | "bad";
+export type FoodKind = "good" | "bad" | "boost";
 
 export type FoodDef = {
   id: string;
@@ -82,7 +82,19 @@ export const FOODS: Record<string, FoodDef> = {
     poison: 0.42,
     points: -16,
   },
+  // — Booster: temporary speed burst, no energy cost (see BOOST in config.ts).
+  // It's its own neutral kind: the burst is forced on you (you can't brake out of
+  // it), so it can help or hurt — hence the big point reward for taking it on. —
+  rocket: {
+    id: "rocket",
+    icon: "🚀",
+    kind: "boost",
+    energy: 0,
+    poison: 0,
+    points: 50,
+  },
 };
 
 export const GOOD_IDS = ["water", "banana", "isotonic", "gel"];
 export const BAD_IDS = ["donut", "fries", "burger", "beer"];
+export const BOOST_IDS = ["rocket"];
