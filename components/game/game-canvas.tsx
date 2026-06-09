@@ -36,6 +36,15 @@ export function GameCanvas({
   // The match is fixed for this canvas's life; read at boot, don't re-create.
   const raceNetRef = useRef(raceNet);
   raceNetRef.current = raceNet;
+  // Latest strings/character, read at boot only. Kept in refs so the
+  // game-creation effect can depend on *stable primitives* (locale + character
+  // id) instead of the `t` function and `character` object — otherwise a parent
+  // re-render (in a live match the snapshot ticks ~5 Hz) could rebuild the whole
+  // Phaser game and visibly restart the race for everyone. See docs/MULTIPLAYER.
+  const tRef = useRef(t);
+  tRef.current = t;
+  const characterRef = useRef(character);
+  characterRef.current = character;
 
   useEffect(() => {
     // Guard against React StrictMode double-invoke in dev.
@@ -45,21 +54,23 @@ export function GameCanvas({
     let game: import("phaser").Game | undefined;
     let cancelled = false;
 
+    const tt = tRef.current;
+    const ch = characterRef.current;
     const strings = {
-      go: t("go"),
-      finish: t("finish"),
-      again: t("again"),
-      goodPhrases: t.raw("goodPhrases") as string[],
-      badPhrases: t.raw("badPhrases") as string[],
-      bathrooms: t.raw("bathrooms") as string[],
-      signs: t.raw("signs") as string[],
+      go: tt("go"),
+      finish: tt("finish"),
+      again: tt("again"),
+      goodPhrases: tt.raw("goodPhrases") as string[],
+      badPhrases: tt.raw("badPhrases") as string[],
+      bathrooms: tt.raw("bathrooms") as string[],
+      signs: tt.raw("signs") as string[],
     };
 
     const sprite = {
-      sheet: character.sheet,
-      frameWidth: character.frameWidth,
-      frameHeight: character.frameHeight,
-      startLane: character.startLane,
+      sheet: ch.sheet,
+      frameWidth: ch.frameWidth,
+      frameHeight: ch.frameHeight,
+      startLane: ch.startLane,
     };
 
     (async () => {
@@ -85,8 +96,10 @@ export function GameCanvas({
       game?.destroy(true);
       startedRef.current = false;
     };
-    // Re-create the game when the locale or chosen character changes.
-  }, [locale, t, character]);
+    // Re-create the game ONLY when the locale or chosen character changes —
+    // never on an ordinary re-render. Depend on stable primitives (locale +
+    // character.id); `t` and `character` are read fresh via refs at boot.
+  }, [locale, character.id]);
 
   return <div ref={containerRef} className={styles.canvas} />;
 }

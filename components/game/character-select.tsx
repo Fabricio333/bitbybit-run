@@ -37,6 +37,8 @@ interface CharacterSelectProps {
   /** Host only — a shareable link that drops others into this match. Shown
    *  once the match is created. */
   inviteUrl?: string;
+  /** Transient banner (e.g. "that runner was already taken"). */
+  notice?: string;
 }
 
 export function CharacterSelect({
@@ -50,6 +52,7 @@ export function CharacterSelect({
   isHost = true,
   created = false,
   inviteUrl,
+  notice,
 }: CharacterSelectProps) {
   const t = useTranslations("play");
   const [hoveredId, setHoveredId] = useState<CharacterId | null>(null);
@@ -74,6 +77,12 @@ export function CharacterSelect({
           {t("lobby.players", { count: playerCount })}
         </span>
       </div>
+
+      {notice && (
+        <p className={styles.notice} role="status">
+          {notice}
+        </p>
+      )}
 
       {inviteUrl && (
         <button

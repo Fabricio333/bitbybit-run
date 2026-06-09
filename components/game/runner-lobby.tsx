@@ -90,11 +90,14 @@ function WiredLobby({
   match,
   pubkey,
 }: RunnerLobbyProps & { match: MatchContextValue; pubkey: string }) {
+  const t = useTranslations("play");
   const { announceSelf, start, isHost } = match;
   const snapshot = match.snapshot;
   // Host has pressed "Crear carrera": the match is published (others can be
   // invited) and the Start button is available.
   const [created, setCreated] = useState(false);
+  // The lane we last tried to claim — so we can tell when a conflict bumped us.
+  const [attemptedId, setAttemptedId] = useState<CharacterId | null>(null);
 
   const players = useMemo(() => snapshot?.players ?? [], [snapshot]);
 
@@ -102,6 +105,12 @@ function WiredLobby({
     () => rosterToOccupants(players, pubkey, currentUser),
     [players, pubkey, currentUser]
   );
+
+  // We claimed a lane but lost it to an earlier claimant (the reducer resolves
+  // ties deterministically) — prompt a re-pick.
+  const meSeated = Object.values(occupants).some((o) => o?.isCurrentUser);
+  const lostClaim =
+    attemptedId !== null && !meSeated && !!occupants[attemptedId];
 
   // Shareable invite for the host — same /play URL with the match + host in the
   // query, so opening it joins this match instead of hosting a new one. Only
@@ -116,6 +125,7 @@ function WiredLobby({
   const claim = useCallback(
     (id: CharacterId) => {
       const char = getCharacter(id);
+      setAttemptedId(id);
       onClaim(id);
       // Announce our seat (optimistic local upsert happens inside); a relay
       // hiccup must not block the UI.
@@ -170,6 +180,7 @@ function WiredLobby({
       isHost={isHost}
       created={created}
       inviteUrl={inviteUrl}
+      notice={lostClaim ? t("lobby.taken") : undefined}
     />
   );
 }

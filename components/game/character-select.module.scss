@@ -234,6 +234,18 @@
   color: $color-text-secondary;
 }
 
+.notice {
+  margin: 0;
+  padding: $spacing-8 $spacing-16;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $color-warning;
+  background: alpha($color-warning, 12%);
+  border: 2px solid $color-warning;
+  border-radius: $border-radius-full;
+}
+
 .invite {
   display: inline-flex;
   align-items: center;

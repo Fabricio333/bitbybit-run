@@ -56,6 +56,7 @@
       "createRace": "Crear carrera",
       "startRace": "Comenzar carrera",
       "back": "Volver",
+      "taken": "Ese corredor ya fue tomado, elegí otro",
       "waitingHost": "Esperando al anfitrión…",
       "invite": "Invitá a tus rivales",
       "copy": "Copiar link",

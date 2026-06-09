@@ -46,6 +46,12 @@ export interface MatchClientOptions {
 
 type SnapshotListener = (snapshot: MatchSnapshot) => void;
 
+/** Re-broadcast our presence this often while the lobby is open, so the match
+ *  stays fresh in the browser and late joiners reliably learn the roster. */
+const PRESENCE_HEARTBEAT_MS = 5000;
+/** Coalesce the "greet the newcomer" re-announce so a burst of joins → one. */
+const REANNOUNCE_DEBOUNCE_MS = 400;
+
 /** Runner fields the caller supplies; `pubkey` and `t` are stamped here. */
 export type RunnerInput = Omit<RunnerState, "pubkey" | "t">;
 
@@ -62,9 +68,15 @@ export class MatchClient {
   private state: MatchSnapshot;
   private sub: Subscription | null = null;
   private countdownTimer: ReturnType<typeof setTimeout> | null = null;
+  private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+  private reannounceTimer: ReturnType<typeof setTimeout> | null = null;
   private lastBroadcast = 0;
-  /** This peer's claimed seat, so we can re-announce when status changes. */
-  private lastSeat: { lane: number; name?: string } | null = null;
+  /** This peer's claimed seat (with the claim time, kept stable across
+   *  re-announces so lane-conflict tie-breaks don't drift). */
+  private lastSeat: { lane: number; name?: string; createdAt: number } | null =
+    null;
+  /** Peers we've already greeted with a re-announce (so we do it once each). */
+  private readonly seenPeers = new Set<string>();
   private readonly listeners = new Set<SnapshotListener>();
 
   constructor(opts: MatchClientOptions) {
@@ -109,8 +121,26 @@ export class MatchClient {
    * local state is updated optimistically so the UI doesn't wait for the echo.
    */
   async announceSelf(seat: { lane: number; name?: string }): Promise<void> {
-    this.lastSeat = seat;
-    const payload: MatchDiscovery = {
+    // Stamp the claim time once per claim; re-announces reuse it so the
+    // lane-conflict tie-break (earliest claim wins) stays stable.
+    this.lastSeat = { ...seat, createdAt: Date.now() };
+    // Optimistic local upsert (same path as an inbound presence).
+    const next = applyEvent(this.state, {
+      type: "discovery",
+      data: this.presencePayload(),
+    });
+    if (next !== this.state) {
+      this.state = next;
+      this.emit();
+    }
+    this.startHeartbeat();
+    await this.publishPresence();
+  }
+
+  /** This peer's current self-presence payload, from the held seat. */
+  private presencePayload(): MatchDiscovery {
+    const seat = this.lastSeat!;
+    return {
       matchId: this.matchId,
       trackId: this.trackId,
       host: this.host,
@@ -118,18 +148,48 @@ export class MatchClient {
       lane: seat.lane,
       name: seat.name,
       status: this.state.status,
-      createdAt: Date.now(),
+      createdAt: seat.createdAt,
     };
-    // Optimistic local upsert (same path as an inbound presence).
-    const next = applyEvent(this.state, { type: "discovery", data: payload });
-    if (next !== this.state) {
-      this.state = next;
-      this.emit();
-    }
+  }
+
+  /** Sign + publish the held presence (no local apply). */
+  private async publishPresence(): Promise<void> {
+    if (!this.lastSeat) return;
     const event = await this.signer.sign(
-      buildDiscoveryEvent(payload, this.state.status)
+      buildDiscoveryEvent(this.presencePayload(), this.state.status)
     );
     await this.transport.publish(event);
+  }
+
+  /** Keep our presence fresh while the lobby is open (stops once racing). */
+  private startHeartbeat(): void {
+    if (this.heartbeatTimer !== null) return;
+    this.heartbeatTimer = setInterval(() => {
+      if (this.state.status !== "waiting" || !this.lastSeat) {
+        this.stopHeartbeat();
+        return;
+      }
+      void this.publishPresence().catch(() => {});
+    }, PRESENCE_HEARTBEAT_MS);
+  }
+
+  private stopHeartbeat(): void {
+    if (this.heartbeatTimer !== null) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = null;
+    }
+  }
+
+  /** Re-announce ourselves shortly (debounced) when a newcomer appears, so they
+   *  learn our seat even if relays didn't replay our stored presence to them. */
+  private scheduleReannounce(): void {
+    if (!this.lastSeat || this.reannounceTimer !== null) return;
+    this.reannounceTimer = setTimeout(() => {
+      this.reannounceTimer = null;
+      if (this.lastSeat && this.state.status === "waiting") {
+        void this.publishPresence().catch(() => {});
+      }
+    }, REANNOUNCE_DEBOUNCE_MS);
   }
 
   /** Host-only: send the start signal with a synced `startAt`. */
@@ -193,6 +253,11 @@ export class MatchClient {
   /** Stop receiving and release timers. */
   leave(): void {
     this.clearCountdown();
+    this.stopHeartbeat();
+    if (this.reannounceTimer !== null) {
+      clearTimeout(this.reannounceTimer);
+      this.reannounceTimer = null;
+    }
     this.sub?.close();
     this.sub = null;
     this.listeners.clear();
@@ -203,6 +268,18 @@ export class MatchClient {
   private handleEvent(raw: NostrEvent): void {
     const parsed = parseEvent(raw);
     if (!parsed) return;
+
+    // A newcomer announced in our match — greet them with a re-announce so they
+    // learn our seat even if relays didn't replay our stored presence.
+    if (
+      parsed.type === "discovery" &&
+      parsed.data.matchId === this.matchId &&
+      parsed.data.pubkey !== this.signer.pubkey &&
+      !this.seenPeers.has(parsed.data.pubkey)
+    ) {
+      this.seenPeers.add(parsed.data.pubkey);
+      this.scheduleReannounce();
+    }
 
     const prevStatus = this.state.status;
     let next = applyEvent(this.state, parsed);
@@ -219,7 +296,7 @@ export class MatchClient {
       next.status !== "waiting" &&
       this.lastSeat
     ) {
-      void this.announceSelf(this.lastSeat).catch(() => {});
+      void this.publishPresence().catch(() => {});
     }
   }
 

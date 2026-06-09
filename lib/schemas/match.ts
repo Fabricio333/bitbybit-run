@@ -36,6 +36,9 @@ export const MatchPlayerSchema = z.object({
   pubkey: NostrPubkeySchema,
   lane: LaneSchema,
   name: z.string().max(80).optional(),
+  /** Local-only: when this seat was claimed (presence `createdAt`, unix ms).
+   *  Used to resolve two peers racing for the same lane deterministically. */
+  claimedAt: z.number().int().nonnegative().optional(),
 });
 export type MatchPlayer = z.infer<typeof MatchPlayerSchema>;
 
