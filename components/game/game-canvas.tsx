@@ -3,11 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { DEFAULT_CHARACTER, type Character } from "@/lib/game/characters";
-import type { RunnerAction } from "@/lib/game/player-state";
-import { ArrowIcon } from "@/components/icons/arrow-icon";
-import { BadgeIcon, BoltIcon } from "@/components/icons";
 import type { RaceNet } from "@/lib/game/race-net";
-import { LANES } from "@/lib/game/config";
 import styles from "./game-canvas.module.scss";
 
 const SWIPE_THRESHOLD = 32;
@@ -32,14 +28,11 @@ export function GameCanvas({
   character = DEFAULT_CHARACTER,
   onFinish,
   raceNet,
-  laneCount = LANES,
 }: {
   character?: Character;
   onFinish?: (result: { time: number; points: number }) => void;
   /** Multiplayer port (from the lobby). Absent → the canvas is single-player. */
   raceNet?: RaceNet;
-  /** Demo/local keeps fork 3 lanes; multiplayer can opt into 4 seats. */
-  laneCount?: number;
 }) {
   const t = useTranslations("game");
   const tControls = useTranslations("play.controls");
@@ -53,6 +46,15 @@ export function GameCanvas({
   // The match is fixed for this canvas's life; read at boot, don't re-create.
   const raceNetRef = useRef(raceNet);
   raceNetRef.current = raceNet;
+  // Latest strings/character, read at boot only. Kept in refs so the
+  // game-creation effect can depend on *stable primitives* (locale + character
+  // id) instead of the `t` function and `character` object — otherwise a parent
+  // re-render (in a live match the snapshot ticks ~5 Hz) could rebuild the whole
+  // Phaser game and visibly restart the race for everyone. See docs/MULTIPLAYER.
+  const tRef = useRef(t);
+  tRef.current = t;
+  const characterRef = useRef(character);
+  characterRef.current = character;
 
   useEffect(() => {
     // Guard against React StrictMode double-invoke in dev.
@@ -62,21 +64,24 @@ export function GameCanvas({
     let game: import("phaser").Game | undefined;
     let cancelled = false;
 
+    const tt = tRef.current;
+    const ch = characterRef.current;
     const strings = {
-      go: t("go"),
-      finish: t("finish"),
-      again: t("again"),
-      goodPhrases: t.raw("goodPhrases") as string[],
-      badPhrases: t.raw("badPhrases") as string[],
-      bathrooms: t.raw("bathrooms") as string[],
-      signs: t.raw("signs") as string[],
+      go: tt("go"),
+      finish: tt("finish"),
+      again: tt("again"),
+      goodPhrases: tt.raw("goodPhrases") as string[],
+      badPhrases: tt.raw("badPhrases") as string[],
+      boostPhrases: tt.raw("boostPhrases") as string[],
+      bathrooms: tt.raw("bathrooms") as string[],
+      signs: tt.raw("signs") as string[],
     };
 
     const sprite = {
-      sheet: character.sheet,
-      frameWidth: character.frameWidth,
-      frameHeight: character.frameHeight,
-      startLane: character.startLane,
+      sheet: ch.sheet,
+      frameWidth: ch.frameWidth,
+      frameHeight: ch.frameHeight,
+      startLane: ch.startLane,
     };
 
     (async () => {
@@ -92,8 +97,7 @@ export function GameCanvas({
           strings,
           sprite,
           (result) => onFinishRef.current?.(result),
-          raceNetRef.current,
-          laneCount
+          raceNetRef.current
         )
       );
     })();
@@ -103,8 +107,10 @@ export function GameCanvas({
       game?.destroy(true);
       startedRef.current = false;
     };
-    // Re-create the game when the locale or chosen character changes.
-  }, [locale, t, character, laneCount]);
+    // Re-create the game ONLY when the locale or chosen character changes —
+    // never on an ordinary re-render. Depend on stable primitives (locale +
+    // character.id); `t` and `character` are read fresh via refs at boot.
+  }, [locale, character.id]);
 
   return (
     <div

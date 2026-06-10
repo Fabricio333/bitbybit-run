@@ -12,7 +12,7 @@
  */
 import { z } from "zod";
 import { NostrPubkeySchema } from "./primitives";
-import { MULTIPLAYER_LANES } from "@/lib/game/config";
+import { LANES } from "@/lib/game/config";
 
 /** A runner's coarse state, mirrored from `RaceScene` (lib/game). */
 export const RunnerStatusSchema = z.enum(["running", "bathroom", "finished"]);
@@ -21,12 +21,12 @@ export type RunnerStatus = z.infer<typeof RunnerStatusSchema>;
 /** 0..1 normalized value (progress, energy, poison). */
 const UnitSchema = z.number().min(0).max(1);
 
-/** Lane index on the shared track — `0..MULTIPLAYER_LANES-1`. */
+/** Lane index on the shared track — `0..LANES-1`. */
 const LaneSchema = z
   .number()
   .int()
   .min(0)
-  .max(MULTIPLAYER_LANES - 1);
+  .max(LANES - 1);
 
 /** Free-form ids kept short so payloads stay tiny on the wire. */
 const ShortIdSchema = z.string().min(1).max(64);
@@ -36,6 +36,9 @@ export const MatchPlayerSchema = z.object({
   pubkey: NostrPubkeySchema,
   lane: LaneSchema,
   name: z.string().max(80).optional(),
+  /** Local-only: when this seat was claimed (presence `createdAt`, unix ms).
+   *  Used to resolve two peers racing for the same lane deterministically. */
+  claimedAt: z.number().int().nonnegative().optional(),
 });
 export type MatchPlayer = z.infer<typeof MatchPlayerSchema>;
 
@@ -121,6 +124,6 @@ export const PersistMatchSchema = z.object({
   trackId: ShortIdSchema,
   host: NostrPubkeySchema,
   startedAt: z.number().int().nonnegative().nullable().optional(),
-  standings: z.array(FinalStandingSchema).min(1).max(MULTIPLAYER_LANES),
+  standings: z.array(FinalStandingSchema).min(1).max(LANES),
 });
 export type PersistMatchInput = z.infer<typeof PersistMatchSchema>;

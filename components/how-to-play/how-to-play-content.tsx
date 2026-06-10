@@ -4,8 +4,7 @@ import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button/button";
 import { ArrowIcon } from "@/components/icons/arrow-icon";
-import { BadgeIcon, BoltIcon } from "@/components/icons";
-import { FOODS, GOOD_IDS, BAD_IDS } from "@/lib/game/foods";
+import { FOODS, GOOD_IDS, BAD_IDS, BOOST_IDS } from "@/lib/game/foods";
 import styles from "./how-to-play-content.module.scss";
 
 function Key({
@@ -24,18 +23,28 @@ function Key({
   );
 }
 
-function FoodChips({ ids, kind }: { ids: string[]; kind: "good" | "bad" }) {
+function FoodChips({
+  ids,
+  kind,
+}: {
+  ids: string[];
+  kind: "good" | "bad" | "boost";
+}) {
+  const valueClass =
+    kind === "good"
+      ? styles.chipGood
+      : kind === "boost"
+        ? styles.chipBoost
+        : styles.chipBad;
   return (
     <ul className={styles.chips}>
       {ids.map((id) => {
         const f = FOODS[id];
-        const label = kind === "good" ? `+${f.points}` : `${f.points}`;
+        const label = f.points >= 0 ? `+${f.points}` : `${f.points}`;
         return (
           <li key={id} className={styles.chip}>
             <span className={styles.chipIcon}>{f.icon}</span>
-            <span className={kind === "good" ? styles.chipGood : styles.chipBad}>
-              {label}
-            </span>
+            <span className={valueClass}>{label}</span>
           </li>
         );
       })}
@@ -154,16 +163,22 @@ export function HowToPlayContent() {
         </motion.article>
 
         <motion.article className={styles.card} {...card(3)}>
+          <h2 className={styles.cardTitle}>{t("boostTitle")}</h2>
+          <p className={styles.cardText}>{t("boostText")}</p>
+          <FoodChips ids={BOOST_IDS} kind="boost" />
+        </motion.article>
+
+        <motion.article className={styles.card} {...card(4)}>
           <h2 className={styles.cardTitle}>{t("controlsTitle")}</h2>
           <Controls />
         </motion.article>
 
-        <motion.article className={styles.card} {...card(4)}>
+        <motion.article className={styles.card} {...card(5)}>
           <h2 className={styles.cardTitle}>{t("zapTitle")}</h2>
           <p className={styles.cardText}>{t("zapText")}</p>
         </motion.article>
 
-        <motion.article className={styles.card} {...card(5)}>
+        <motion.article className={styles.card} {...card(6)}>
           <h2 className={styles.cardTitle}>{t("rankingTitle")}</h2>
           <p className={styles.cardText}>{t("rankingText")}</p>
         </motion.article>

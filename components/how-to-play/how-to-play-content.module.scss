@@ -98,6 +98,12 @@
   font-weight: $font-weight-bold;
 }
 
+// Booster: yellow — neutral/risky reward, distinct from good (green) and bad (red).
+.chipBoost {
+  color: $color-warning;
+  font-weight: $font-weight-bold;
+}
+
 // Controls list with arrow-key icons.
 .controls {
   display: flex;

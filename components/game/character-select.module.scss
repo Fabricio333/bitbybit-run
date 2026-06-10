@@ -32,61 +32,19 @@
   gap: $spacing-8;
 }
 
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-8;
+}
+
 .heading {
   margin: 0;
   font-family: $font-family-display;
   font-size: $font-size-xl;
   font-weight: $font-weight-extrabold;
   color: $color-text-primary;
-}
-
-.settingsButton {
-  border: 2px solid alpha($arcade-edge, 55%);
-  border-radius: 999px;
-  background: alpha($color-surface, 76%);
-  color: $color-text-primary;
-  cursor: pointer;
-  font-family: $font-family-display;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-bold;
-  padding: $spacing-8 $spacing-16;
-}
-
-.settingsPanel {
-  display: flex;
-  width: min(100%, 720px);
-  align-items: center;
-  justify-content: space-between;
-  gap: $spacing-16;
-  padding: $spacing-12 $spacing-16;
-  border: 2px solid alpha($arcade-edge, 35%);
-  border-radius: $border-radius-lg;
-  background: alpha($color-surface, 82%);
-
-  @include mobile {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-}
-
-.settingsTitle,
-.settingsHint {
-  margin: 0;
-}
-
-.settingsTitle {
-  color: $color-text-primary;
-  font-family: $font-family-display;
-  font-weight: $font-weight-bold;
-}
-
-.settingsHint {
-  color: $color-text-secondary;
-  font-size: $font-size-sm;
-}
-
-.settingsToggle {
-  flex: 0 0 auto;
 }
 
 .counter {
@@ -119,7 +77,7 @@
   flex-direction: column;
   align-items: center;
   gap: $spacing-8;
-  width: 150px;
+  width: 170px;
   padding: $spacing-16 $spacing-12 $spacing-12;
   background: $color-surface;
   // The lane accent shows as a top stripe; per-card color comes from --lane-color.
@@ -140,7 +98,7 @@
   }
 
   @include mobile {
-    width: 120px;
+    width: 140px;
   }
 }
 
@@ -172,7 +130,8 @@
   }
 }
 
-// Lane number, top-left, tinted with the lane accent.
+// Lane number, top-left, tinted with the lane accent. Uses the body font (not
+// the pixel display font) so the single digit stays legible at this size.
 .laneBadge {
   position: absolute;
   top: $spacing-8;
@@ -180,30 +139,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  font-family: $font-family-display;
-  font-size: $font-size-xs;
+  width: 28px;
+  height: 28px;
+  font-family: $font-family-base;
+  font-size: $font-size-md;
   font-weight: $font-weight-extrabold;
+  line-height: 1;
   color: $static-white;
   background: var(--lane-color, #{$color-primary});
-  border-radius: $border-radius-full;
-}
-
-// "Ready" check, top-right.
-.readyTick {
-  position: absolute;
-  top: $spacing-8;
-  right: $spacing-8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-bold;
-  color: $static-white;
-  background: $color-success;
   border-radius: $border-radius-full;
 }
 
@@ -220,6 +163,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   min-height: 44px;
 }
 
@@ -249,6 +193,7 @@
   align-items: center;
   gap: $spacing-8;
   max-width: 100%;
+  min-width: 0;
   animation: name-pop 0.32s cubic-bezier(0.22, 1.2, 0.36, 1) both;
 }
 
@@ -274,6 +219,7 @@
 }
 
 .playerName {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -307,6 +253,18 @@
   margin: 0;
   font-size: $font-size-sm;
   color: $color-text-secondary;
+}
+
+.notice {
+  margin: 0;
+  padding: $spacing-8 $spacing-16;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $color-warning;
+  background: alpha($color-warning, 12%);
+  border: 2px solid $color-warning;
+  border-radius: $border-radius-full;
 }
 
 .invite {

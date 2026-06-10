@@ -7,7 +7,7 @@
  */
 
 import { LANES } from "./config";
-import { GOOD_IDS, BAD_IDS } from "./foods";
+import { GOOD_IDS, BAD_IDS, BOOST_IDS } from "./foods";
 
 export type FoodItem = {
   id: string;
@@ -35,10 +35,10 @@ export type Track = {
   length: number; // distance to the finish line, in track-units
   goodFood: FoodItem[]; // hydration stations -> energy
   junkFood: FoodItem[]; // obstacles -> poison
-  powerUps: PowerUpItem[]; // collectible power-up charges
+  boosters: FoodItem[]; // 🚀 speed bursts, tucked inside junk-food gauntlets
 };
 
-const LENGTH = 7500;
+const LENGTH = 11000;
 
 /** Deterministically lay out food along the track (no randomness). */
 function buildFood(
@@ -60,21 +60,57 @@ function buildFood(
   return items;
 }
 
-/** Deterministically place occasional power-ups between food clusters. */
-function buildPowerUps(): PowerUpItem[] {
-  const items: PowerUpItem[] = [];
-  let i = 0;
-  for (let at = 520; at < LENGTH - 180; at += 680) {
-    items.push({
-      id: `power-${i}`,
-      lane: (1 + i * 2) % LANES,
-      at,
-      type: "shield",
+/**
+ * Hand-placed "complicated zones": a 🚀 booster sitting in one lane, with junk
+ * food filling some of the other lanes at the same distance. The zone is always
+ * dodgeable — there's the booster's own (clean) lane to grab the burst, plus a
+ * guaranteed junk-free escape lane to coast through if you'd rather skip it. The
+ * junk in between makes reaching the 🚀 a precise merge — risk/reward, not a wall.
+ */
+const BOOST_ZONES: { at: number; lane: number }[] = [
+  { at: 3000, lane: 0 },
+  { at: 6500, lane: 3 },
+  { at: 9500, lane: 1 },
+];
+
+function buildBoostZones(): { boosters: FoodItem[]; gauntletJunk: FoodItem[] } {
+  const boosters: FoodItem[] = [];
+  const gauntletJunk: FoodItem[] = [];
+  BOOST_ZONES.forEach((zone, z) => {
+    boosters.push({
+      id: `boost-${z}`,
+      lane: zone.lane,
+      at: zone.at,
+      type: BOOST_IDS[z % BOOST_IDS.length],
     });
-    i++;
-  }
-  return items;
+    // The lane farthest from the booster is left as a guaranteed junk-free
+    // escape, so the zone can ALWAYS be passed cleanly (two safe lanes: the 🚀
+    // lane and the escape lane). Every remaining lane gets junk.
+    let escape = 0;
+    let best = -1;
+    for (let lane = 0; lane < LANES; lane++) {
+      const d = Math.abs(lane - zone.lane);
+      if (d > best) {
+        best = d;
+        escape = lane;
+      }
+    }
+    let g = 0;
+    for (let lane = 0; lane < LANES; lane++) {
+      if (lane === zone.lane || lane === escape) continue;
+      gauntletJunk.push({
+        id: `gauntlet-${z}-${g}`,
+        lane,
+        at: zone.at,
+        type: BAD_IDS[g % BAD_IDS.length],
+      });
+      g++;
+    }
+  });
+  return { boosters, gauntletJunk };
 }
+
+const { boosters: BOOSTERS, gauntletJunk: GAUNTLET_JUNK } = buildBoostZones();
 
 export const TRACK: Track = {
   id: "classic-v1",
@@ -82,8 +118,8 @@ export const TRACK: Track = {
   length: LENGTH,
   // Foods placed a bit closer together so energy is easier to sustain.
   goodFood: buildFood("good", 140, 150, 2, GOOD_IDS),
-  junkFood: buildFood("junk", 230, 210, 5, BAD_IDS),
-  powerUps: buildPowerUps(),
+  junkFood: [...buildFood("junk", 230, 210, 5, BAD_IDS), ...GAUNTLET_JUNK],
+  boosters: BOOSTERS,
 };
 
 /** Crowd signs lining the track, alternating sides. `text` cycles through the

@@ -5,7 +5,7 @@
  * `lib/schemas/match.ts`. The snapshot is what the UI (lobby, minimap,
  * results) renders and what the state machine returns.
  */
-import { MULTIPLAYER_LANES } from "@/lib/game/config";
+import { LANES } from "@/lib/game/config";
 import type {
   MatchFinish,
   MatchPlayer,
@@ -15,8 +15,8 @@ import type {
 
 export type { MatchFinish, MatchPlayer, RunnerState, RunnerStatus };
 
-/** One runner per lane → the multiplayer lane count is the player cap. */
-export const MAX_PLAYERS = MULTIPLAYER_LANES;
+/** One runner per lane → the lane count is the player cap. */
+export const MAX_PLAYERS = LANES;
 
 /**
  * Lifecycle of a match from a client's point of view:

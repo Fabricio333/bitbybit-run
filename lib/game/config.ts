@@ -3,8 +3,7 @@
  * Keep all "feel" numbers here so they're easy to balance.
  */
 
-export const LANES = 3;
-export const MULTIPLAYER_LANES = 4;
+export const LANES = 4;
 
 /**
  * Fixed per-lane width in logical px — the original 8-lane feel. The track is
@@ -41,14 +40,23 @@ export const SPEED = {
   duck: 130, // while crouching
   brake: 120, // legacy alias for old balancing references
   exhausted: 150, // cap when energy is empty (slower than base, but not crawling)
+  boost: 480, // temporary burst from a 🚀 booster (no energy cost)
 };
 
 /** Energy bar: spent to sprint, refilled by good food. Range 0..1. */
 export const ENERGY = {
   start: 0.5,
   max: 1,
-  drainPerSecond: 0.28, // while sprinting (lower = energy lasts longer)
+  drainPerSecond: 0.42, // while sprinting (lower = energy lasts longer)
   gainPerFood: 0.34, // fallback; per-food amounts live in foods.ts
+};
+
+/**
+ * Speed booster (🚀): a temporary burst placed in tricky zones. While active
+ * the runner moves at `SPEED.boost` and spends NO energy — pure risk/reward.
+ */
+export const BOOST = {
+  seconds: 2.5, // how long the burst lasts after pickup
 };
 
 /** Poison bar: filled by junk food. When full -> bathroom break. Range 0..1. */
@@ -105,6 +113,8 @@ export const GAME_COLORS = {
   poison: 0xc084fc,
   goodFood: 0x37c871,
   junkFood: 0xb44ce0,
+  boostFood: 0xffd23f, // yellow halo — the 🚀 booster is neutral/risky (it forces
+  // speed without asking, so it can help or hurt), distinct from green/purple food
   toast: 0xfff3d6,
   hudPanel: 0x0b1020,
 };
