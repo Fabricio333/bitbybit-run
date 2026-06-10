@@ -15,7 +15,7 @@ import type {
 
 export type { MatchFinish, MatchPlayer, RunnerState, RunnerStatus };
 
-/** One runner per lane → the multiplayer lane count is the player cap. */
+/** One runner per lane → the lane count is the player cap. */
 export const MAX_PLAYERS = MULTIPLAYER_LANES;
 
 /**

@@ -34,7 +34,7 @@
     "empty": "No races yet — be the first to top the board."
   },
   "play": {
-    "phase": "Phase 1 · single-player prototype",
+    "phase": "Multiplayer race",
     "choose": "Choose your runner",
     "start": "Start",
     "change": "Change runner",
@@ -53,13 +53,18 @@
       "you": "You",
       "waiting": "Open lane",
       "claimHint": "Pick a runner to take a lane",
-      "ready": "I'm ready",
-      "cancelReady": "Not ready",
+      "createRace": "Create race",
       "startRace": "Start race",
-      "waitingHost": "Waiting for the host to start…",
+      "back": "Back",
+      "taken": "That runner was already taken — pick another",
+      "waitingHost": "Waiting for the host…",
       "invite": "Invite your rivals",
       "copy": "Copy link",
       "copied": "Copied!"
+    },
+    "notFound": {
+      "title": "This race doesn't exist or already ended",
+      "cta": "Browse open races"
     },
     "results": {
       "title": "Results",
@@ -93,13 +98,11 @@
     },
     "controls": {
       "changeLane": "change lane",
-      "jump": "jump",
-      "duck": "duck",
-      "boost": "boost",
-      "power": "power",
+      "sprint": "sprint",
+      "brake": "brake",
       "restart": "restart",
       "touchLanes": "tap the sides to change lane",
-      "touchJumpDuck": "swipe up/down to jump or duck",
+      "touchSprint": "hold the centre to sprint",
       "touchRestart": "tap to restart"
     }
   },
@@ -159,6 +162,14 @@
       "rekt by a snack 💀",
       "max pain incoming"
     ],
+    "boostPhrases": [
+      "full speed! 🚀",
+      "turbo on ⚡",
+      "to the moon! 🌕",
+      "rocket mode 🚀",
+      "number takes off 📈",
+      "wagmi at full throttle 🏎️"
+    ],
     "bathrooms": [
       "🚽 Too much beer! Off you go...",
       "🚽 The junk got you 💩",
@@ -206,6 +217,8 @@
     "energyText": "Grab good food to fill your energy bar, then spend it on boosts. The better the food, the more energy and points:",
     "poisonTitle": "🍔 Junk food",
     "poisonText": "Dodge junk food: it fills your poison bar and, if it fills up, you run to the bathroom 🚽 and start over. The worse it is, the more it costs you:",
+    "boostTitle": "🚀 Speed booster",
+    "boostText": "Grab the 🚀 booster for a burst of top speed that costs no energy. It hides in a lane fenced by junk food — weave in to grab it, or take the open lane to skip it safely:",
     "controlsTitle": "🎮 Controls",
     "controlsLanes": "move between lanes",
     "controlsSprint": "jump",

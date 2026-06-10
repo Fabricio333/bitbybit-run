@@ -96,6 +96,48 @@ describe("match-state discovery (self-presence aggregation)", () => {
   });
 });
 
+/** A presence event with an explicit claim time, for lane-conflict tests. */
+function claim(pubkey: string, lane: number, createdAt: number): ParsedEvent {
+  return {
+    type: "discovery",
+    data: {
+      matchId: "m1",
+      host: A,
+      trackId: "classic-v1",
+      pubkey,
+      lane,
+      status: "waiting",
+      createdAt,
+    },
+  };
+}
+
+describe("match-state lane conflict (one runner per lane)", () => {
+  it("keeps the earlier claim when two peers grab the same lane", () => {
+    let s = createMatchState({ matchId: "m1", trackId: "classic-v1" });
+    s = applyEvent(s, claim(A, 2, 100)); // A claims lane 2 first
+    s = applyEvent(s, claim(B, 2, 200)); // B claims lane 2 later → loses
+    expect(s.players).toHaveLength(1);
+    expect(s.players[0]).toMatchObject({ pubkey: A, lane: 2 });
+  });
+
+  it("evicts the later claimant even if it arrives first", () => {
+    let s = createMatchState({ matchId: "m1", trackId: "classic-v1" });
+    s = applyEvent(s, claim(B, 2, 200)); // B (later claim) seen first
+    s = applyEvent(s, claim(A, 2, 100)); // A claimed earlier → wins the lane
+    expect(s.players).toHaveLength(1);
+    expect(s.players[0]).toMatchObject({ pubkey: A, lane: 2 });
+  });
+
+  it("breaks an exact tie by lexicographic pubkey, deterministically", () => {
+    let s = createMatchState({ matchId: "m1", trackId: "classic-v1" });
+    s = applyEvent(s, claim(B, 2, 100));
+    s = applyEvent(s, claim(A, 2, 100)); // same time → smaller pubkey (A) wins
+    expect(s.players).toHaveLength(1);
+    expect(s.players[0].pubkey).toBe(A);
+  });
+});
+
 describe("match-state control + countdown", () => {
   it("moves waiting → countdown and records startAt", () => {
     const event: ParsedEvent = {

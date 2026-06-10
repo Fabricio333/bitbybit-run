@@ -1,0 +1,20 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.notFound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-24;
+  padding: $spacing-48 $spacing-24;
+  text-align: center;
+}
+
+.notFoundTitle {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-secondary;
+}

@@ -135,6 +135,24 @@ export const Sound = {
   eatJunk() {
     blip(200, { type: "sawtooth", dur: 0.18, gain: 0.12, slideTo: 110 });
   },
+  boost() {
+    // Fast ascending whoosh — a 🚀 lift-off.
+    blip(523, { type: "square", dur: 0.1, gain: 0.12, slideTo: 784 });
+    blip(784, {
+      type: "square",
+      dur: 0.1,
+      gain: 0.12,
+      slideTo: 1047,
+      delay: 0.08,
+    });
+    blip(1047, {
+      type: "triangle",
+      dur: 0.14,
+      gain: 0.12,
+      slideTo: 1568,
+      delay: 0.16,
+    });
+  },
   bathroom() {
     // Long & deliberately annoying: a dissonant alarm with a pulsing tremolo
     // (LFO on the gain), a wet noise "splat", then a deflating pitch droop.

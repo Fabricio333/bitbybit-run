@@ -7,6 +7,7 @@ import {
   SPEED,
   ENERGY,
   POISON,
+  BOOST,
   POINTS,
   LANE_TWEEN_SPEED,
   GAME_COLORS,
@@ -71,6 +72,7 @@ export type GameStrings = {
   again: string;
   goodPhrases: string[];
   badPhrases: string[];
+  boostPhrases: string[];
   bathrooms: string[];
   signs: string[];
 };
@@ -81,6 +83,7 @@ const DEFAULT_STRINGS: GameStrings = {
   again: "tap to race again",
   goodPhrases: ["yum! 😋", "pure energy ⚡"],
   badPhrases: ["ugh, bad idea 🤢"],
+  boostPhrases: ["full speed! 🚀", "turbo on ⚡"],
   bathrooms: ["🚽 Bathroom break!"],
   signs: ["PROOF OF RUN"],
 };
@@ -128,6 +131,8 @@ export class RaceScene extends Phaser.Scene {
   private finished = false;
   private startHold = START_HOLD; // "on your marks" pause before the runner moves
   private drunkTimer = 0; // >0 while wobbling after a beer
+  private boostTimer = 0; // >0 while a 🚀 speed burst is active
+  private touchSprint = false; // held while a finger is on the centre (sprint) zone
   private currentSpeed = SPEED.base; // last frame's forward speed (broadcast in MP)
 
   // Multiplayer (absent in single-player). When a RaceNet is in the registry
@@ -168,17 +173,15 @@ export class RaceScene extends Phaser.Scene {
   }
 
   create() {
-    const configuredLaneCount = this.registry.get("laneCount") as number | undefined;
-    this.laneCount = configuredLaneCount ?? LANES;
-    this.playerLane = (this.laneCount - 1) / 2;
-    this.targetLane = Math.round((this.laneCount - 1) / 2);
-    this.startLane = Math.round((this.laneCount - 1) / 2);
-
     this.layout();
 
     this.readFonts();
     const s = this.registry.get("strings") as GameStrings | undefined;
     if (s) this.strings = s;
+
+    this.laneCount = this.registry.get("laneCount") ?? LANES;
+
+    this.laneCount = this.registry.get("laneCount") ?? LANES;
 
     // Each character owns a starting lane (Sprinter 1 … Bitcoin 4).
     const ch = this.registry.get("character") as SpriteChoice | undefined;
@@ -299,7 +302,45 @@ export class RaceScene extends Phaser.Scene {
       this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);
     });
 
+    // Touch input (mobile has no keys): tap the left/right third to change lane,
+    // hold the centre to sprint, tap anywhere to restart once finished.
+    this.input.on("pointerdown", this.onPointerDown, this);
+    this.input.on("pointerup", this.onPointerUp, this);
+    this.input.on("pointerupoutside", this.onPointerUp, this);
+
+    // Responsive: the canvas follows its parent (Scale.RESIZE), so recompute the
+    // layout and redraw the static backdrop whenever the viewport changes.
+    this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize, this);
+      this.input.off("pointerdown", this.onPointerDown, this);
+      this.input.off("pointerup", this.onPointerUp, this);
+      this.input.off("pointerupoutside", this.onPointerUp, this);
+    });
+
     this.resetRace();
+  }
+
+  private onPointerDown(pointer: Phaser.Input.Pointer) {
+    if (this.finished) {
+      // In a match the race is over once you finish — no solo restart.
+      if (!this.net) this.resetRace();
+      return;
+    }
+    const w = this.scale.width;
+    if (pointer.x < w * 0.33) {
+      this.targetLane = Math.max(0, this.targetLane - 1);
+      Sound.lane();
+    } else if (pointer.x > w * 0.67) {
+      this.targetLane = Math.min(this.laneCount - 1, this.targetLane + 1);
+      Sound.lane();
+    } else {
+      this.touchSprint = true; // centre zone → sprint while held
+    }
+  }
+
+  private onPointerUp() {
+    this.touchSprint = false;
   }
 
   /** (Re)compute viewport-dependent layout. Lane width is fixed (LANE_WIDTH),
@@ -336,7 +377,7 @@ export class RaceScene extends Phaser.Scene {
     if (display) this.fontDisplay = `${display}, "Nunito", sans-serif`;
   }
 
-  /** Lane-number labels (1..this.laneCount), positioned every frame by updateStartArea. */
+  /** Lane-number labels (1..LANES), positioned every frame by updateStartArea. */
   private createStartMarkers() {
     for (let i = 0; i < this.laneCount; i++) {
       const txt = this.add
@@ -379,10 +420,6 @@ export class RaceScene extends Phaser.Scene {
   private resetRace() {
     this.playerDistance = 0;
     this.playerLane = this.startLane;
-    this.runnerState = createRunnerState({
-      targetLane: this.startLane,
-      energy: ENERGY.start,
-    });
     this.targetLane = this.startLane;
     this.energy = ENERGY.start;
     this.poison = 0;
@@ -391,6 +428,8 @@ export class RaceScene extends Phaser.Scene {
     this.finished = false;
     this.startHold = START_HOLD;
     this.drunkTimer = 0;
+    this.boostTimer = 0;
+    this.touchSprint = false;
     this.currentSpeed = SPEED.base;
     this.status = "running";
     this.finishReported = false;
@@ -421,7 +460,10 @@ export class RaceScene extends Phaser.Scene {
     this.now = time;
 
     if (this.finished) {
-      this.handleRestartInput();
+      // R restarts a solo race; in a match the result stands.
+      if (!this.net && Phaser.Input.Keyboard.JustDown(this.keys.R)) {
+        this.resetRace();
+      }
     } else if (this.startHold > 0) {
       // "On your marks" — hold at the start so the start line + lane numbers
       // are visible before the runner takes off.
@@ -437,6 +479,7 @@ export class RaceScene extends Phaser.Scene {
       this.resolvePowerUps();
       this.updatePoison(dt);
       if (this.drunkTimer > 0) this.drunkTimer -= dt;
+      if (this.boostTimer > 0) this.boostTimer -= dt;
       this.checkFinish();
       this.elapsed += dt;
     }
@@ -554,11 +597,18 @@ export class RaceScene extends Phaser.Scene {
     this.playerLane +=
       (this.targetLane - this.playerLane) * Math.min(1, dt * LANE_TWEEN_SPEED);
 
+    const accelerating =
+      this.cursors.up.isDown || this.keys.W.isDown || this.touchSprint;
+    const braking = this.cursors.down.isDown || this.keys.S.isDown;
+
     let speed = SPEED.base;
-    if (this.runnerState.duckTimer > 0) {
-      speed = SPEED.duck;
-    } else if (this.runnerState.boostTimer > 0 && this.energy > 0) {
+    if (this.boostTimer > 0) {
+      // 🚀 burst overrides everything and spends no energy.
       speed = SPEED.boost;
+    } else if (braking) {
+      speed = SPEED.brake;
+    } else if (accelerating && this.energy > 0) {
+      speed = SPEED.sprint;
       this.energy = Math.max(0, this.energy - ENERGY.drainPerSecond * dt);
       this.runnerState = { ...this.runnerState, energy: this.energy };
     } else if (this.energy <= 0) {
@@ -576,7 +626,7 @@ export class RaceScene extends Phaser.Scene {
       Math.abs(f.lane - this.playerLane) <= HIT_LANE_TOLERANCE ||
       f.lane === lane;
 
-    for (const f of [...TRACK.goodFood, ...TRACK.junkFood]) {
+    for (const f of [...TRACK.goodFood, ...TRACK.junkFood, ...TRACK.boosters]) {
       if (this.resolved.has(f.id)) continue;
       if (f.at > this.playerDistance) continue; // not reached yet
       this.resolved.add(f.id);
@@ -584,7 +634,14 @@ export class RaceScene extends Phaser.Scene {
       const def = FOODS[f.type];
       if (!def) continue;
       this.points += def.points;
-      if (def.kind === "good") {
+      if (def.kind === "boost") {
+        this.boostTimer = BOOST.seconds;
+        this.showToast(
+          `${def.icon} ${this.pick(this.strings.boostPhrases)}`,
+          2.5
+        );
+        Sound.boost();
+      } else if (def.kind === "good") {
         this.energy = Math.min(ENERGY.max, this.energy + def.energy);
         this.runnerState = { ...this.runnerState, energy: this.energy };
         this.showToast(
@@ -636,6 +693,7 @@ export class RaceScene extends Phaser.Scene {
       // start line and lane numbers show again before the runner takes off.
       this.poison = 0;
       this.drunkTimer = 0;
+      this.boostTimer = 0;
       this.playerDistance = 0;
       this.energy = ENERGY.start;
       this.runnerState = createRunnerState({
@@ -892,7 +950,7 @@ export class RaceScene extends Phaser.Scene {
     }
 
     // Food: a bubble with the food's emoji inside. Far-to-near.
-    const visible = [...TRACK.goodFood, ...TRACK.junkFood]
+    const visible = [...TRACK.goodFood, ...TRACK.junkFood, ...TRACK.boosters]
       .map((f) => ({ f, def: FOODS[f.type] }))
       .filter(({ f, def }) => {
         if (!def) return false;
@@ -907,11 +965,18 @@ export class RaceScene extends Phaser.Scene {
 
     let slot = 0;
     for (const { def, p } of visible) {
-      const r = Math.max(5, 22 * p.s);
+      // The 🚀 booster is drawn much bigger than the food bubbles so it clearly
+      // reads as a power-up, not just another snack.
+      const boost = def.kind === "boost";
+      const sizeMul = boost ? 2 : 1;
+      const r = Math.max(5, 22 * p.s) * sizeMul;
       const cx = p.x;
       const cy = p.y - r;
-      const color =
-        def.kind === "good" ? GAME_COLORS.goodFood : GAME_COLORS.junkFood;
+      const color = boost
+        ? GAME_COLORS.boostFood
+        : def.kind === "good"
+          ? GAME_COLORS.goodFood
+          : GAME_COLORS.junkFood;
       this.drawBubble(g, cx, cy, r, color);
 
       if (slot < this.foodPool.length) {
@@ -919,7 +984,7 @@ export class RaceScene extends Phaser.Scene {
         txt
           .setText(def.icon)
           .setPosition(cx, cy)
-          .setScale(Math.max(0.3, p.s))
+          .setScale(Math.max(0.3, p.s) * sizeMul)
           .setVisible(true);
       }
     }

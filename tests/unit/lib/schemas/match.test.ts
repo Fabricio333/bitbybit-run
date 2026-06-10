@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
-import { MULTIPLAYER_LANES } from "@/lib/game/config";
+import { LANES } from "@/lib/game/config";
 import {
   MatchControlSchema,
   MatchDiscoverySchema,
@@ -49,7 +49,7 @@ describe("schemas/match RunnerStateSchema", () => {
 
   it("rejects a lane outside the track", () => {
     expect(
-      RunnerStateSchema.safeParse({ ...validRunner, lane: MULTIPLAYER_LANES }).success
+      RunnerStateSchema.safeParse({ ...validRunner, lane: LANES }).success
     ).toBe(false);
   });
 
@@ -91,7 +91,7 @@ describe("schemas/match MatchDiscoverySchema (self-presence)", () => {
 
   it("rejects a lane outside the track", () => {
     expect(
-      MatchDiscoverySchema.safeParse({ ...base, lane: MULTIPLAYER_LANES }).success
+      MatchDiscoverySchema.safeParse({ ...base, lane: LANES }).success
     ).toBe(false);
   });
 });
@@ -142,7 +142,7 @@ describe("schemas/match PersistMatchSchema", () => {
   });
 
   it("rejects more standings than lanes", () => {
-    const standings = Array.from({ length: MULTIPLAYER_LANES + 1 }, (_, i) => ({
+    const standings = Array.from({ length: LANES + 1 }, (_, i) => ({
       pubkey: PK,
       position: i + 1,
       points: 0,

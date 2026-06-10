@@ -43,7 +43,7 @@ export function GameControls() {
             <span className={styles.or}>/</span>
             <Cap>W</Cap>
           </span>
-          <span className={styles.label}>{t("jump")}</span>
+          <span className={styles.label}>{t("sprint")}</span>
         </div>
 
         <div className={styles.item}>
@@ -54,29 +54,27 @@ export function GameControls() {
             <span className={styles.or}>/</span>
             <Cap>S</Cap>
           </span>
-          <span className={styles.label}>{t("duck")}</span>
+          <span className={styles.label}>{t("brake")}</span>
         </div>
 
         <div className={styles.item}>
           <span className={styles.keys}>
-            <Cap>
-              <BoltIcon size={16} />
-            </Cap>
-            <span className={styles.or}>/</span>
             <Cap>Space</Cap>
             <span className={styles.or}>/</span>
             <Cap>B</Cap>
+            <Cap>
+              <BoltIcon size={18} />
+            </Cap>
           </span>
           <span className={styles.label}>{t("boost")}</span>
         </div>
 
         <div className={styles.item}>
           <span className={styles.keys}>
-            <Cap>
-              <BadgeIcon size={16} />
-            </Cap>
-            <span className={styles.or}>/</span>
             <Cap>E</Cap>
+            <Cap>
+              <BadgeIcon size={18} />
+            </Cap>
           </span>
           <span className={styles.label}>{t("power")}</span>
         </div>
@@ -101,9 +99,8 @@ export function GameControls() {
         <span className={styles.touchHint}>
           <span className={styles.touchGlyph}>
             <ArrowIcon dir="up" size={18} />
-            <ArrowIcon dir="down" size={18} />
           </span>
-          {t("touchJumpDuck")}
+          {t("touchSprint")}
         </span>
       </div>
     </div>
