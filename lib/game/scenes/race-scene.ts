@@ -18,6 +18,14 @@ import {
 import { TRACK, SIGNS, type FoodItem, type PowerUpItem } from "../track";
 import { FOODS } from "../foods";
 import { Sound } from "../sound";
+import {
+  applyRunnerAction,
+  collectPowerUp,
+  createRunnerState,
+  updateRunnerState,
+  type RunnerAction,
+  type RunnerState,
+} from "../player-state";
 import { laneColor, type RemoteRunnerView } from "../remote-runners";
 import type { RaceNet } from "../race-net";
 import type { RunnerStatus } from "@/lib/multiplayer/types";
@@ -111,9 +119,11 @@ export class RaceScene extends Phaser.Scene {
   // Player state.
   private now = 0; // last frame timestamp (ms)
   private playerDistance = 0; // 0..TRACK.length
-  private playerLane = (LANES - 1) / 2; // fractional, tweened
-  private targetLane = Math.round((LANES - 1) / 2);
-  private startLane = Math.round((LANES - 1) / 2); // set from the chosen character
+  private laneCount = LANES;
+  private playerLane = (this.laneCount - 1) / 2; // fractional, tweened
+  private targetLane = Math.round((this.laneCount - 1) / 2);
+  private startLane = Math.round((this.laneCount - 1) / 2); // set from the chosen character
+  private runnerState: RunnerState = createRunnerState();
   private energy = ENERGY.start;
   private poison = 0;
   private points = 0;
@@ -169,10 +179,14 @@ export class RaceScene extends Phaser.Scene {
     const s = this.registry.get("strings") as GameStrings | undefined;
     if (s) this.strings = s;
 
+    this.laneCount = this.registry.get("laneCount") ?? LANES;
+
+    this.laneCount = this.registry.get("laneCount") ?? LANES;
+
     // Each character owns a starting lane (Sprinter 1 … Bitcoin 4).
     const ch = this.registry.get("character") as SpriteChoice | undefined;
     if (ch?.startLane != null) {
-      this.startLane = Phaser.Math.Clamp(ch.startLane, 0, LANES - 1);
+      this.startLane = Phaser.Math.Clamp(ch.startLane, 0, this.laneCount - 1);
     }
 
     // Static backdrop (sky, grass, crowd, orange track, lane lines).
@@ -318,7 +332,7 @@ export class RaceScene extends Phaser.Scene {
       this.targetLane = Math.max(0, this.targetLane - 1);
       Sound.lane();
     } else if (pointer.x > w * 0.67) {
-      this.targetLane = Math.min(LANES - 1, this.targetLane + 1);
+      this.targetLane = Math.min(this.laneCount - 1, this.targetLane + 1);
       Sound.lane();
     } else {
       this.touchSprint = true; // centre zone → sprint while held
@@ -336,9 +350,15 @@ export class RaceScene extends Phaser.Scene {
    *  only the static backdrop needs an explicit redraw (see onResize). */
   private layout() {
     const { width, height } = this.scale;
-    this.horizonY = height * 0.32;
-    this.bottomY = height; // track starts at the very bottom edge
-    this.laneSpacing = Math.min(LANE_WIDTH, (width * MAX_TRACK_FRAC) / LANES);
+    const isMobileGameViewport = window.matchMedia("(max-width: 760px)").matches;
+    this.near = isMobileGameViewport ? MOBILE_NEAR : DESKTOP_NEAR;
+    this.horizonY = isMobileGameViewport ? height * 0.12 : height * 0.32;
+    this.bottomY = isMobileGameViewport
+      ? height * 1.08
+      : height;
+    this.laneSpacing = isMobileGameViewport
+      ? Math.min(width * 0.24, (width * MAX_TRACK_FRAC) / this.laneCount)
+      : Math.min(width * 0.118, LANE_WIDTH, (width * MAX_TRACK_FRAC) / this.laneCount);
   }
 
   private onResize() {
@@ -489,7 +509,7 @@ export class RaceScene extends Phaser.Scene {
   private publishSelf() {
     this.net?.publishSelf({
       progress: Math.min(1, this.playerDistance / TRACK.length),
-      lane: Phaser.Math.Clamp(Math.round(this.playerLane), 0, LANES - 1),
+      lane: Phaser.Math.Clamp(Math.round(this.playerLane), 0, this.laneCount - 1),
       speed: this.currentSpeed,
       energy: this.energy,
       poison: this.poison,
@@ -717,7 +737,7 @@ export class RaceScene extends Phaser.Scene {
         this.finishReported = true;
         this.net.publishSelf({
           progress: 1,
-          lane: Phaser.Math.Clamp(Math.round(this.playerLane), 0, LANES - 1),
+          lane: Phaser.Math.Clamp(Math.round(this.playerLane), 0, this.laneCount - 1),
           speed: 0,
           energy: this.energy,
           poison: this.poison,
@@ -823,7 +843,7 @@ export class RaceScene extends Phaser.Scene {
     const g = this.world;
     // The side margin between the track edge and the screen edge is the signs'
     // home. The track keeps its width; the margin (and the signs in it) flex.
-    const fullMarginLanes = this.scale.width / 2 / this.laneSpacing - LANES / 2;
+    const fullMarginLanes = this.scale.width / 2 / this.laneSpacing - this.laneCount / 2;
     const marginPx = fullMarginLanes * this.laneSpacing; // one side, in px
 
     // Narrow portrait (mobile): no room for a readable billboard beside the
@@ -844,7 +864,7 @@ export class RaceScene extends Phaser.Scene {
     for (const { sg, d } of visible) {
       if (slot >= this.signPool.length) break;
       const lane =
-        sg.side === -1 ? -0.5 - signOffset : LANES - 0.5 + signOffset;
+        sg.side === -1 ? -0.5 - signOffset : this.laneCount - 0.5 + signOffset;
       const p = this.project(d, lane);
       // Skip far signs: projected near the horizon they'd shrink onto the
       // vanishing point, crowding the path and the centered food toast. Fade
@@ -1179,78 +1199,6 @@ export class RaceScene extends Phaser.Scene {
     );
   }
 
-  /** Other players' runners as translucent colored ghosts on the track. Only
-   *  those ahead of us and within view are drawable; the rest live on the
-   *  minimap. Far-to-near so nearer ghosts paint on top. */
-  private drawRemotes() {
-    const g = this.remoteG;
-    if (!g) return;
-    g.clear();
-
-    const visible = this.remotes
-      .map((r) => ({ r, d: r.progress * TRACK.length - this.playerDistance }))
-      .filter(({ d }) => d >= 0 && d <= VIEW_DISTANCE)
-      .sort((a, b) => b.d - a.d);
-
-    for (const { r, d } of visible) {
-      const p = this.project(d, r.lane);
-      const alpha = r.status === "finished" ? 0.35 : 0.62;
-      const h = Math.max(10, 46 * p.s);
-      const w = Math.max(5, 16 * p.s);
-
-      // Shadow.
-      g.fillStyle(0x000000, 0.18);
-      g.fillEllipse(p.x, p.y - 2, w * 2, 8 * p.s);
-      // Body + head.
-      g.fillStyle(r.color, alpha);
-      g.fillRoundedRect(p.x - w / 2, p.y - h, w, h * 0.72, Math.max(2, 6 * p.s));
-      g.fillCircle(p.x, p.y - h, w * 0.5);
-      g.lineStyle(Math.max(1, 1.5 * p.s), 0xffffff, alpha * 0.7);
-      g.strokeCircle(p.x, p.y - h, w * 0.5);
-    }
-  }
-
-  /** A compact vertical track showing every runner's progress (self + remotes)
-   *  regardless of who's on screen — your at-a-glance race position. */
-  private drawMinimap() {
-    const g = this.minimapG;
-    if (!g) return;
-    g.clear();
-
-    const { width } = this.scale;
-    const h = Math.min(180, this.scale.height * 0.4);
-    const x = width - 34; // track centerline
-    const top = 30;
-    const bottom = top + h;
-
-    // Panel + track line (start at the bottom, finish at the top).
-    g.fillStyle(GAME_COLORS.hudPanel, 0.4);
-    g.fillRoundedRect(x - 22, top - 14, 44, h + 28, 8);
-    g.lineStyle(3, 0xffffff, 0.45);
-    g.lineBetween(x, top, x, bottom);
-    g.fillStyle(0xffffff, 0.9);
-    g.fillCircle(x, top, 3); // finish marker
-
-    const plot = (progress: number, lane: number, color: number, self: boolean) => {
-      const py = bottom - Phaser.Math.Clamp(progress, 0, 1) * h;
-      const px = x + (lane - (LANES - 1) / 2) * 7;
-      g.fillStyle(color, 1);
-      g.fillCircle(px, py, self ? 5 : 4);
-      if (self) {
-        g.lineStyle(2, 0xffffff, 1);
-        g.strokeCircle(px, py, 6);
-      }
-    };
-
-    for (const r of this.remotes) plot(r.progress, r.lane, r.color, false);
-    plot(
-      Math.min(1, this.playerDistance / TRACK.length),
-      this.playerLane,
-      laneColor(this.startLane),
-      true
-    );
-  }
-
   private drawHud() {
     const g = this.hud;
     g.clear();
@@ -1302,7 +1250,8 @@ export const createGameConfig = (
   strings?: GameStrings,
   character?: SpriteChoice,
   onFinish?: (result: { time: number; points: number }) => void,
-  raceNet?: RaceNet
+  raceNet?: RaceNet,
+  laneCount = LANES
 ): Phaser.Types.Core.GameConfig => ({
   type: Phaser.AUTO,
   parent,
@@ -1322,6 +1271,7 @@ export const createGameConfig = (
       if (character) game.registry.set("character", character);
       if (onFinish) game.registry.set("onFinish", onFinish);
       if (raceNet) game.registry.set("raceNet", raceNet);
+      game.registry.set("laneCount", laneCount);
     },
   },
   scene: [RaceScene],

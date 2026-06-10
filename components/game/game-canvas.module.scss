@@ -11,21 +11,120 @@
 
 .canvas {
   width: 100%;
-  max-width: 960px;
-  // Landscape/desktop: the familiar 16:9 box. The Phaser canvas (Scale.RESIZE)
-  // fills this element, so the box shape decides the play area's aspect.
-  aspect-ratio: 16 / 9;
-  max-height: 80svh;
-  margin: 0 auto;
+  aspect-ratio: 9 / 16;
+  height: min(100dvh, 960px);
+  max-height: 960px;
   border-radius: $border-radius-md;
   overflow: hidden;
 }
 
-// Portrait/mobile: give the track real vertical room (a taller box) instead of
-// a thin 16:9 strip. The track keeps its width and stays fully visible; the
-// roadside signs are what get squeezed.
-@media (orientation: portrait) {
+.touchButton {
+  position: absolute;
+  z-index: 4;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: clamp(68px, 17vw, 92px);
+  height: clamp(68px, 17vw, 92px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  background: rgba(11, 16, 32, 0.35);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  color: white;
+  font: inherit;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  font-weight: 900;
+  line-height: 1;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  &:active {
+    transform: scale(0.92);
+    background: rgba(255, 255, 255, 0.28);
+  }
+}
+
+.laneButtonLeft {
+  left: clamp(10px, 3vw, 20px);
+  bottom: clamp(92px, 18vw, 138px);
+}
+
+.laneButtonRight {
+  right: clamp(10px, 3vw, 20px);
+  bottom: clamp(92px, 18vw, 138px);
+}
+
+.jumpButton {
+  right: clamp(12px, 4vw, 26px);
+  bottom: clamp(176px, 34vw, 248px);
+}
+
+.duckButton {
+  left: clamp(12px, 4vw, 26px);
+  bottom: clamp(176px, 34vw, 248px);
+}
+
+.powerButton,
+.boostButton {
+  bottom: clamp(14px, 4vw, 28px);
+
+  svg {
+    width: 62%;
+    height: 62%;
+  }
+}
+
+.powerButton {
+  left: clamp(14px, 4vw, 28px);
+}
+
+.boostButton {
+  right: clamp(12px, 4vw, 28px);
+  background: rgba(74, 222, 128, 0.3);
+}
+
+@media (max-width: 760px) {
+  .shell {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
   .canvas {
-    aspect-ratio: 3 / 4;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .laneButtonLeft,
+  .laneButtonRight,
+  .jumpButton,
+  .duckButton {
+    display: none;
+  }
+
+  .powerButton,
+  .boostButton {
+    display: inline-flex;
+    bottom: max(76px, calc(env(safe-area-inset-bottom) + 52px));
+  }
+
+  .powerButton {
+    left: max(14px, env(safe-area-inset-left));
+  }
+
+  .boostButton {
+    right: max(14px, env(safe-area-inset-right));
   }
 }

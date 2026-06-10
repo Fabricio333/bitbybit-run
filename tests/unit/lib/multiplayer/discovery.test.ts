@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
-import { LANES } from "@/lib/game/config";
+import { MULTIPLAYER_LANES } from "@/lib/game/config";
 import type { MatchDiscovery } from "@/lib/schemas/match";
 import {
   addPresence,
@@ -63,7 +63,7 @@ describe("discovery selectOpenMatches", () => {
   });
 
   it("hides full matches", () => {
-    const seats = Array.from({ length: LANES }, (_, i) =>
+    const seats = Array.from({ length: MULTIPLAYER_LANES }, (_, i) =>
       presence({ pubkey: String(i).repeat(64), host: A, lane: i })
     );
     expect(selectOpenMatches(build(...seats), NOW)).toHaveLength(0);

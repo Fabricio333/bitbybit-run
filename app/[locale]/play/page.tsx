@@ -32,10 +32,9 @@ export default async function PlayPage({ params }: Props) {
   };
 
   return (
-    <div className={styles.page}>
-      <GameHeader phase={t("phase")} />
-      <div className={styles.stage}>
-        <PlayStage currentUser={currentUser} />
+    <GameRouteShell>
+      <div className={styles.mobileHidden}>
+        <GameHeader phase={t("phase")} />
       </div>
       <PlayStage currentUser={currentUser} />
     </GameRouteShell>

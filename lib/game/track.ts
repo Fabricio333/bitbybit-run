@@ -36,6 +36,7 @@ export type Track = {
   goodFood: FoodItem[]; // hydration stations -> energy
   junkFood: FoodItem[]; // obstacles -> poison
   boosters: FoodItem[]; // 🚀 speed bursts, tucked inside junk-food gauntlets
+  powerUps: PowerUpItem[]; // collectable held powers
 };
 
 const LENGTH = 11000;
@@ -120,6 +121,7 @@ export const TRACK: Track = {
   goodFood: buildFood("good", 140, 150, 2, GOOD_IDS),
   junkFood: [...buildFood("junk", 230, 210, 5, BAD_IDS), ...GAUNTLET_JUNK],
   boosters: BOOSTERS,
+  powerUps: [],
 };
 
 /** Crowd signs lining the track, alternating sides. `text` cycles through the

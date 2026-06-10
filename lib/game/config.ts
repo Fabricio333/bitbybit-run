@@ -3,7 +3,8 @@
  * Keep all "feel" numbers here so they're easy to balance.
  */
 
-export const LANES = 4;
+export const LANES = 3;
+export const MULTIPLAYER_LANES = 4;
 
 /**
  * Fixed per-lane width in logical px — the original 8-lane feel. The track is
@@ -35,12 +36,11 @@ export const TRACK_DRAW_DISTANCE = 4500;
 /** Forward movement speeds, in track-units per second. */
 export const SPEED = {
   base: 180, // automatic cruising speed
-  boost: 410, // short burst triggered by touch/keyboard boost
+  boost: 480, // temporary burst from a 🚀 booster (no energy cost)
   sprint: 370, // legacy alias for old balancing references
   duck: 130, // while crouching
   brake: 120, // legacy alias for old balancing references
   exhausted: 150, // cap when energy is empty (slower than base, but not crawling)
-  boost: 480, // temporary burst from a 🚀 booster (no energy cost)
 };
 
 /** Energy bar: spent to sprint, refilled by good food. Range 0..1. */

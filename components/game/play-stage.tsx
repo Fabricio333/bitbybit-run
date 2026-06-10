@@ -148,6 +148,7 @@ function LobbyAndRace({
         key={selectedId}
         character={getCharacter(selectedId)}
         raceNet={multiplayer ? (match.raceNet ?? undefined) : undefined}
+        laneCount={multiplayer ? MULTIPLAYER_LANES : LANES}
       />
       <GameControls />
     </div>
@@ -201,8 +202,7 @@ function LocalStage({ currentUser }: { currentUser: CurrentUser }) {
       <GameCanvas
         key={selectedId}
         character={getCharacter(selectedId)}
-        raceNet={multiplayer ? (match.raceNet ?? undefined) : undefined}
-        laneCount={multiplayer ? MULTIPLAYER_LANES : LANES}
+        laneCount={LANES}
       />
       <GameControls />
     </div>
@@ -223,6 +223,7 @@ function DemoStage() {
         key={runId}
         character={getCharacter("default")}
         onFinish={setFinish}
+        laneCount={LANES}
       />
       <GameControls />
 

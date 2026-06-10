@@ -59,6 +59,28 @@ export function GameControls() {
 
         <div className={styles.item}>
           <span className={styles.keys}>
+            <Cap>Space</Cap>
+            <span className={styles.or}>/</span>
+            <Cap>B</Cap>
+            <Cap>
+              <BoltIcon size={18} />
+            </Cap>
+          </span>
+          <span className={styles.label}>{t("boost")}</span>
+        </div>
+
+        <div className={styles.item}>
+          <span className={styles.keys}>
+            <Cap>E</Cap>
+            <Cap>
+              <BadgeIcon size={18} />
+            </Cap>
+          </span>
+          <span className={styles.label}>{t("power")}</span>
+        </div>
+
+        <div className={styles.item}>
+          <span className={styles.keys}>
             <Cap>R</Cap>
           </span>
           <span className={styles.label}>{t("restart")}</span>

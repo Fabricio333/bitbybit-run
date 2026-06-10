@@ -56,6 +56,8 @@ export function CharacterSelect({
   notice,
 }: CharacterSelectProps) {
   const t = useTranslations("play");
+  const tSettings = useTranslations("play.settings");
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [hoveredId, setHoveredId] = useState<CharacterId | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -72,12 +74,32 @@ export function CharacterSelect({
 
   return (
     <div className={styles.select}>
-      <div className={styles.header}>
-        <h2 className={styles.heading}>{t("choose")}</h2>
-        <span className={styles.counter}>
-          {t("lobby.players", { count: playerCount })}
-        </span>
+      <div className={styles.topBar}>
+        <div className={styles.header}>
+          <h2 className={styles.heading}>{t("choose")}</h2>
+          <span className={styles.counter}>
+            {t("lobby.players", { count: playerCount })}
+          </span>
+        </div>
+        <button
+          type="button"
+          className={styles.settingsButton}
+          aria-expanded={settingsOpen}
+          onClick={() => setSettingsOpen((open) => !open)}
+        >
+          {tSettings("button")}
+        </button>
       </div>
+
+      {settingsOpen && (
+        <div className={styles.settingsPanel} aria-label={tSettings("title")}>
+          <div>
+            <p className={styles.settingsTitle}>{tSettings("title")}</p>
+            <p className={styles.settingsHint}>{tSettings("language")}</p>
+          </div>
+          <LocaleThemeToggle className={styles.settingsToggle} />
+        </div>
+      )}
 
       {notice && (
         <p className={styles.notice} role="status">

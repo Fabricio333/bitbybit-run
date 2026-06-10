@@ -3,7 +3,11 @@
 import { useEffect, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { DEFAULT_CHARACTER, type Character } from "@/lib/game/characters";
+import type { RunnerAction } from "@/lib/game/player-state";
+import { ArrowIcon } from "@/components/icons/arrow-icon";
+import { BadgeIcon, BoltIcon } from "@/components/icons";
 import type { RaceNet } from "@/lib/game/race-net";
+import { LANES } from "@/lib/game/config";
 import styles from "./game-canvas.module.scss";
 
 const SWIPE_THRESHOLD = 32;
@@ -28,11 +32,14 @@ export function GameCanvas({
   character = DEFAULT_CHARACTER,
   onFinish,
   raceNet,
+  laneCount = LANES,
 }: {
   character?: Character;
   onFinish?: (result: { time: number; points: number }) => void;
   /** Multiplayer port (from the lobby). Absent → the canvas is single-player. */
   raceNet?: RaceNet;
+  /** Demo/local keeps fork 3 lanes; multiplayer can opt into 4 seats. */
+  laneCount?: number;
 }) {
   const t = useTranslations("game");
   const tControls = useTranslations("play.controls");
@@ -97,7 +104,8 @@ export function GameCanvas({
           strings,
           sprite,
           (result) => onFinishRef.current?.(result),
-          raceNetRef.current
+          raceNetRef.current,
+          laneCount
         )
       );
     })();
@@ -110,7 +118,7 @@ export function GameCanvas({
     // Re-create the game ONLY when the locale or chosen character changes —
     // never on an ordinary re-render. Depend on stable primitives (locale +
     // character.id); `t` and `character` are read fresh via refs at boot.
-  }, [locale, character.id]);
+  }, [locale, character.id, laneCount]);
 
   return (
     <div

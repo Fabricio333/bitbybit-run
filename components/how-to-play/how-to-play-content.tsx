@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button/button";
 import { ArrowIcon } from "@/components/icons/arrow-icon";
+import { BadgeIcon, BoltIcon } from "@/components/icons";
 import { FOODS, GOOD_IDS, BAD_IDS, BOOST_IDS } from "@/lib/game/foods";
 import styles from "./how-to-play-content.module.scss";
 
